@@ -1,6 +1,7 @@
 package test;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -19,7 +20,7 @@ public class TestDriver
 
   private final LinkedList<String> _queryTerms = new LinkedList<>();
 
-  private final LinkedList<Future<Result>> _results = new LinkedList<>();
+  private final LinkedList<Future<Result>> _futureResults = new LinkedList<>();
 
   private final float _searchSubmitRatio;
 
@@ -43,7 +44,7 @@ public class TestDriver
     _provider = provider;
     _searchEngineDriver = driver;
 
-    _executors = Executors.newFixedThreadPool(n);
+    _executors = Executors.newFixedThreadPool(n + 1);
   }
 
   public void run()
@@ -52,9 +53,13 @@ public class TestDriver
     long submitCounter = 0;
     float ratio = 1;
 
-    while (!_executors.isShutdown() && _limit-- > 0) {
-      if (_results.size() == _clients)
+    _executors.submit(() -> testResults());
+
+    while (!_executors.isShutdown()) {
+      if (_futureResults.size() == _clients) {
         Thread.yield();
+        continue;
+      }
 
       if (ratio < _searchSubmitRatio) {
         submitSearch();
@@ -67,6 +72,8 @@ public class TestDriver
 
       ratio = (float) searchCounter / submitCounter;
 
+      if (_limit-- == 0)
+        break;
     }
 
     _executors.shutdown();
@@ -81,13 +88,20 @@ public class TestDriver
 
   public void testResults()
   {
-    synchronized (_results) {
-      for (int i = _results.size() - 1; i >= 0; i--) {
-        Future<Result> future = _results.get(i);
-
-        if (future.isDone()) {
-          _results.remove(i);
+    while (!_executors.isShutdown()) {
+      synchronized (_futureResults) {
+        for (Iterator<Future<Result>> it = _futureResults.iterator();
+             it.hasNext(); ) {
+          Future<Result> future = it.next();
+          if (future.isDone()) {
+            it.remove();
+          }
         }
+      }
+
+      try {
+        Thread.sleep(0);
+      } catch (InterruptedException e) {
       }
     }
   }
@@ -103,9 +117,7 @@ public class TestDriver
       }
     };
 
-    Future<Result> result = _executors.submit(callable);
-
-    _results.add(result);
+    submit(callable);
   }
 
   public void submitUpdate()
@@ -119,9 +131,21 @@ public class TestDriver
       }
     };
 
-    Future<Result> result = _executors.submit(callable);
+    submit(callable);
+  }
 
-    _results.add(result);
+  private void submit(Callable<Result> callable)
+  {
+    Future<Result> future = _executors.submit(callable);
+
+    addFutureResult(future);
+  }
+
+  private void addFutureResult(Future<Result> result)
+  {
+    synchronized (_futureResults) {
+      _futureResults.add(result);
+    }
   }
 
   public void preload(int n) throws IOException
