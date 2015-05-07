@@ -1,0 +1,21 @@
+POST /s/pod HTTP/1.1
+Content-Type: x-application/jamp
+User-Agent: Java/1.8.0_45
+Host: localhost:8086
+Accept: text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2
+Connection: keep-alive
+Content-Length: 46
+
+[["query",{},"/from",1,"/my-service","test"]]
+
+
+
+POST /s/pod HTTP/1.1
+Content-Length: 45
+Content-Type: x-application/jamp-poll; charset=UTF-8
+Host: localhost:8086
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.4.1 (Java/1.8.0_45)
+Accept-Encoding: gzip,deflate
+
+[["query",{},"/from",1,"/my-service","test"]]
