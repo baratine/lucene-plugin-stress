@@ -7,14 +7,15 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-public class BaratineHandler implements SearchEngineHandler
+public class BaratineDriver implements SearchEngineDriver
 {
 
-  public void submit() throws IOException
+  public void submit(File file) throws IOException
   {
     String url = "http://localhost:8085/s/lucene";
     //String url = "http://localhost:8085/s/lucene/lucene/fo?m=indexText&p0=f&p1=foo&p2=foo";
@@ -65,7 +66,7 @@ public class BaratineHandler implements SearchEngineHandler
   }
 
   @Override
-  public void search() throws IOException
+  public void search(String query) throws IOException
   {
 
   }
@@ -73,6 +74,6 @@ public class BaratineHandler implements SearchEngineHandler
   public static void main(String[] args) throws IOException
   {
 
-    new BaratineHandler().submit();
+    new BaratineDriver().submit(null);
   }
 }

@@ -8,12 +8,13 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class SolrHandler implements SearchEngineHandler
+public class SolrDriver implements SearchEngineDriver
 {
-  @Override public void submit() throws IOException
+  @Override public void submit(File file) throws IOException
   {
 
     //http://localhost:8984/solr/foo/update/json/docs";
@@ -36,7 +37,7 @@ public class SolrHandler implements SearchEngineHandler
     }
   }
 
-  @Override public void search() throws IOException
+  @Override public void search(String query) throws IOException
   {
     String url
       = "http://localhost:8984/solr/foo/select?q=*%3A*&wt=json&indent=true";
@@ -56,7 +57,7 @@ public class SolrHandler implements SearchEngineHandler
 
   public static void main(String[] args) throws IOException
   {
-    new SolrHandler().submit();
+    new SolrDriver().submit(null);
     //new SolrHandler().search();
   }
 }

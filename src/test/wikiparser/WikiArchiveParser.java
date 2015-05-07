@@ -70,7 +70,7 @@ public class WikiArchiveParser
     SAXParserFactory factory = SAXParserFactory.newInstance();
     SAXParser parser = factory.newSAXParser();
 
-    parser.parse(in, new ArticleHandler(targetDir, 20));
+    parser.parse(in, new ArticleHandler(targetDir, -20));
   }
 }
 
@@ -151,7 +151,7 @@ class ArticleHandler extends DefaultHandler
   {
     String cleanText = clean();
 
-    if (cleanText.length() < 100)
+    if (cleanText.length() < 256)
       return;
 
     int id = Integer.parseInt(_id.toString());
