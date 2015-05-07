@@ -149,6 +149,11 @@ class ArticleHandler extends DefaultHandler
 
   private void writeFiles() throws SAXException
   {
+    String cleanText = clean();
+
+    if (cleanText.length() < 100)
+      return;
+
     int id = Integer.parseInt(_id.toString());
 
     int bucket = id / 100;
@@ -162,8 +167,6 @@ class ArticleHandler extends DefaultHandler
          OutputStreamWriter writer
            = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
 
-      writer.write(_text.toString());
-      writer.write("\n\n----------------------\n\n");
       writer.write(clean());
 
       writer.flush();
@@ -210,8 +213,9 @@ class ArticleHandler extends DefaultHandler
 
         break;
       }
-      case '*': {
-        if (chars[i - 1] == '\n') {
+      case '*':
+      case '#': {
+        if (i > 1 && chars[i - 1] == '\n') {
           for (; i < chars.length && chars[i] != '\n'; i++) ;
         }
 
