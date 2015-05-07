@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 public class BaratineDriver implements SearchEngineDriver
 {
 
-  public void submit(File file) throws IOException
+  public void update(File file) throws IOException
   {
     String url = "http://localhost:8085/s/lucene";
     //String url = "http://localhost:8085/s/lucene/lucene/fo?m=indexText&p0=f&p1=foo&p2=foo";
@@ -74,6 +74,6 @@ public class BaratineDriver implements SearchEngineDriver
   public static void main(String[] args) throws IOException
   {
 
-    new BaratineDriver().submit(null);
+    new BaratineDriver().update(null);
   }
 }

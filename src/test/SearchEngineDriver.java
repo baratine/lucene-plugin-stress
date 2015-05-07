@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public interface SearchEngineDriver
 {
-  void submit(File file) throws IOException;
+  void update(File file) throws IOException;
 
   void search(String query) throws IOException;
 }

@@ -1,5 +1,6 @@
 package test;
 
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -7,14 +8,19 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 public class SolrDriver implements SearchEngineDriver
 {
-  @Override public void submit(File file) throws IOException
+  @Override
+  public void update(File file) throws IOException
   {
 
     //http://localhost:8984/solr/foo/update/json/docs";
@@ -22,6 +28,16 @@ public class SolrDriver implements SearchEngineDriver
 
     CloseableHttpClient client = HttpClients.createDefault();
     HttpPost post = new HttpPost(url);
+
+    RequestConfig config
+      = RequestConfig.copy(RequestConfig.DEFAULT)
+                     .setConnectTimeout(100)
+                     .setSocketTimeout(1000)
+                     .setConnectionRequestTimeout(1000)
+                     .build();
+
+    post.setConfig(config);
+
     StringEntity e
       = new StringEntity("{id:'id', data_t:'mary had a little lamb'}",
                          ContentType.APPLICATION_JSON);
@@ -37,28 +53,45 @@ public class SolrDriver implements SearchEngineDriver
     }
   }
 
-  @Override public void search(String query) throws IOException
+  @Override
+  public void search(String query) throws IOException
   {
     String url
-      = "http://localhost:8984/solr/foo/select?q=*%3A*&wt=json&indent=true";
+      = "http://localhost:8983/solr/foo/select?q=*%3A*&wt=json&indent=true";
 
     CloseableHttpClient client = HttpClients.createDefault();
     HttpGet get = new HttpGet(url);
 
+    RequestConfig config
+      = RequestConfig.copy(RequestConfig.DEFAULT)
+                     .setConnectTimeout(100)
+                     .setSocketTimeout(1000)
+                     .setConnectionRequestTimeout(1000)
+                     .build();
+
+    get.setConfig(config);
+
     CloseableHttpResponse response = client.execute(get);
+    byte[] buffer = new byte[0xFFFF];
+    int l;
 
     try (InputStream in = response.getEntity().getContent()) {
-      byte[] buffer = new byte[0xFFFF];
-      int l = in.read(buffer);
-
-      System.out.println(new String(buffer, 0, l));
+      l = in.read(buffer);
     }
+
+    JsonFactory jsonFactory = new JsonFactory();
+
+    ObjectMapper mapper = new ObjectMapper();
+
+    JsonParser parser = jsonFactory.createJsonParser(buffer, 0, l);
+
+    Map map = mapper.readValue(parser, Map.class);
   }
 
   public static void main(String[] args) throws IOException
   {
-    new SolrDriver().submit(null);
-    //new SolrHandler().search();
+    //new SolrDriver().update(null);
+    new SolrDriver().search(null);
   }
 }
 /*

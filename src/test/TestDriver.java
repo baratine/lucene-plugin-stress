@@ -1,8 +1,9 @@
 package test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -18,9 +19,12 @@ public class TestDriver
 
   private final SearchEngineDriver _searchEngineDriver;
 
-  private final LinkedList<String> _queryTerms = new LinkedList<>();
+  private final List<String> _queryTerms = new ArrayList<>();
 
-  private final LinkedList<Future<Result>> _futureResults = new LinkedList<>();
+  private final List<Future<RequestResult>> _futureResults
+    = new ArrayList<>();
+
+  private final List<RequestResult> _results = new ArrayList<>();
 
   private final float _searchSubmitRatio;
 
@@ -90,11 +94,19 @@ public class TestDriver
   {
     while (!_executors.isShutdown()) {
       synchronized (_futureResults) {
-        for (Iterator<Future<Result>> it = _futureResults.iterator();
+        for (Iterator<Future<RequestResult>> it = _futureResults.iterator();
              it.hasNext(); ) {
-          Future<Result> future = it.next();
+          Future<RequestResult> future = it.next();
           if (future.isDone()) {
             it.remove();
+            try {
+              _results.add(future.get());
+            } catch (Throwable t) {
+              _results.add(RequestResult.createErrorResult(t));
+            }
+          }
+          else if (future.isCancelled()) {
+            throw new IllegalStateException();
           }
         }
       }
@@ -108,40 +120,57 @@ public class TestDriver
 
   public void submitSearch()
   {
-    Callable<Result> callable = new Callable<Result>()
-    {
-      @Override
-      public Result call() throws Exception
-      {
-        return new Result();
-      }
-    };
+    Callable<RequestResult> callable = () -> search();
 
     submit(callable);
+  }
+
+  private RequestResult search()
+  {
+    RequestResult result;
+
+    try {
+      _searchEngineDriver.search(null);
+
+      result = RequestResult.createSearchResult();
+    } catch (IOException e) {
+      result = RequestResult.createErrorResult(e);
+    }
+
+    return result;
   }
 
   public void submitUpdate()
   {
-    Callable<Result> callable = new Callable<Result>()
-    {
-      @Override
-      public Result call() throws Exception
-      {
-        return new Result();
-      }
-    };
+    Callable<RequestResult> callable = () -> update();
 
     submit(callable);
   }
 
-  private void submit(Callable<Result> callable)
+  private RequestResult update()
   {
-    Future<Result> future = _executors.submit(callable);
+    RequestResult result;
+
+    try {
+      _searchEngineDriver.update(null);
+
+      result = RequestResult.createUpdateResult();
+    } catch (IOException e) {
+      result = RequestResult.createErrorResult(e);
+    }
+
+    return result;
+  }
+
+  private void submit(Callable<RequestResult> callable)
+  {
+    Future<RequestResult> future
+      = _executors.submit(new TimedCallable(callable));
 
     addFutureResult(future);
   }
 
-  private void addFutureResult(Future<Result> result)
+  private void addFutureResult(Future<RequestResult> result)
   {
     synchronized (_futureResults) {
       _futureResults.add(result);
@@ -153,8 +182,8 @@ public class TestDriver
     DataProvider.Data[] data = _provider.getData(n);
 
     for (DataProvider.Data d : data) {
-      _searchEngineDriver.submit(d.getFile());
-      _queryTerms.addLast(d.getQuery());
+      _searchEngineDriver.update(d.getFile());
+      _queryTerms.add(d.getQuery());
     }
   }
 
@@ -172,6 +201,28 @@ public class TestDriver
   }
 }
 
+class TimedCallable implements Callable<RequestResult>
+{
+
+  private Callable<RequestResult> _delegate;
+
+  public TimedCallable(Callable<RequestResult> delegate)
+  {
+    _delegate = delegate;
+  }
+
+  @Override
+  public RequestResult call() throws Exception
+  {
+    final long start = System.currentTimeMillis();
+
+    RequestResult result = _delegate.call();
+    result.setStartTime(start);
+    result.setFinishTime(System.currentTimeMillis());
+
+    return result;
+  }
+}
 /**
  * 5 clients
  * - 1 update
