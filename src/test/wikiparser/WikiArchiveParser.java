@@ -82,7 +82,7 @@ public class WikiArchiveParser
     }
 
     try (FileOutputStream out
-           = new FileOutputStream(new File(targetDir, "query.txt"));
+           = new FileOutputStream(new File(targetDir, "query.properties"));
          PrintWriter writer
            = new PrintWriter(
            new OutputStreamWriter(out, StandardCharsets.UTF_8), true)) {
@@ -186,20 +186,16 @@ class ArticleHandler extends DefaultHandler
     File dir = new File(_targetDir, Integer.toString(bucket));
     dir.mkdirs();
 
-    File file = new File(dir, _id.toString() + ".json");
+    File file = new File(dir, _id.toString() + ".txt");
 
     try (FileOutputStream out = new FileOutputStream(file);
          OutputStreamWriter writer
            = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
 
-      writer.write("{\"id\":\"");
-      writer.write(sid);
-      writer.write("\", \"data_t\":\"");
       writer.write(clean());
       writer.write(' ');
       writer.write(uuid);
       writer.write(" .");
-      writer.write("\"}");
 
       writer.flush();
       writer.close();

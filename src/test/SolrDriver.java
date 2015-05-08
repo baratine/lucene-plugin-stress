@@ -19,7 +19,7 @@ import java.util.Map;
 public class SolrDriver implements SearchEngineDriver
 {
   @Override
-  public void update(InputStream in) throws IOException
+  public void update(InputStream in, String id) throws IOException
   {
     //http://localhost:8984/solr/foo/update/json/docs";
     String url = "http://localhost:8983/solr/foo/update/json/docs?commit=true";
@@ -88,8 +88,10 @@ public class SolrDriver implements SearchEngineDriver
 
   public static void main(String[] args) throws IOException
   {
-    new SolrDriver().update(null);
+/*
+    new SolrDriver().update(null, null);
     new SolrDriver().search(null);
+*/
   }
 }
 /*

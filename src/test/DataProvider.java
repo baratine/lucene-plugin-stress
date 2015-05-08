@@ -26,7 +26,7 @@ public class DataProvider implements Iterator<DataProvider.Data>
 
     try (Reader in = new InputStreamReader(
       new FileInputStream(
-        new File(file, "query.txt")), StandardCharsets.UTF_8)) {
+        new File(file, "query.properties")), StandardCharsets.UTF_8)) {
       _queries.load(in);
     }
   }
@@ -37,7 +37,7 @@ public class DataProvider implements Iterator<DataProvider.Data>
       File[] files = file.listFiles(pathname -> {
         if (pathname.isDirectory())
           return true;
-        else if (pathname.getName().endsWith(".json"))
+        else if (pathname.getName().endsWith(".txt"))
           return true;
         else
           return false;
@@ -79,19 +79,24 @@ public class DataProvider implements Iterator<DataProvider.Data>
       _file = file;
     }
 
-    public String getQuery()
+    public String getId()
     {
-      String name = _file.getName();
-      name = name.replace("\\", "/");
+      String id = _file.getName();
+      id = id.replace("\\", "/");
 
-      int start = name.lastIndexOf('/');
+      int start = id.lastIndexOf('/');
 
       if (start == -1)
         start = 0;
 
-      name = name.substring(start, name.lastIndexOf('.'));
+      id = id.substring(start, id.lastIndexOf('.'));
 
-      return _queries.getProperty(name);
+      return id;
+    }
+
+    public String getQuery()
+    {
+      return _queries.getProperty(getId());
     }
 
     public InputStream getInputStream() throws FileNotFoundException

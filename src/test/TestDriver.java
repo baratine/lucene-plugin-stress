@@ -171,7 +171,7 @@ public class TestDriver
     RequestResult result;
 
     try (InputStream in = data.getInputStream()) {
-      _searchEngineDriver.update(in);
+      _searchEngineDriver.update(in, data.getId());
       _queryTerms.add(data.getQuery());
 
       result = RequestResult.createUpdateResult();
@@ -202,7 +202,7 @@ public class TestDriver
   {
     for (int i = 0; i < n && _provider.hasNext(); i++) {
       DataProvider.Data d = _provider.next();
-      _searchEngineDriver.update(d.getInputStream());
+      _searchEngineDriver.update(d.getInputStream(), d.getId());
       _queryTerms.add(d.getQuery());
     }
   }
@@ -274,23 +274,24 @@ public class TestDriver
   {
     File file = new File(args[0]);
 
-    TestDriver driver = new TestDriver(4,
+    SearchEngineDriver driver = new SolrDriver();
+    driver = new BaratineDriver();
+    TestDriver testDriver = new TestDriver(4,
                                        5f,
                                        4000,
                                        new DataProvider(file),
-                                       new SolrDriver());
+                                       driver);
 
-    driver.preload(100);
+    testDriver.preload(100);
 
-    driver.run();
+    testDriver.run();
 
-    driver.printStats();
+    testDriver.printStats();
   }
 }
 
 class TimedCallable implements Callable<RequestResult>
 {
-
   private Callable<RequestResult> _delegate;
 
   public TimedCallable(Callable<RequestResult> delegate)
