@@ -7,5 +7,5 @@ public interface SearchEngineDriver
 {
   void update(InputStream file, String id) throws IOException;
 
-  void search(String query) throws IOException;
+  void search(String query, String expectedId) throws IOException;
 }

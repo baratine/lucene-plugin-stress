@@ -82,6 +82,11 @@ public class RequestResult
     return new RequestResult(RequestType.ERROR, t);
   }
 
+  public void printStackTrace()
+  {
+    _throwable.printStackTrace();
+  }
+
   enum RequestType
   {
     SEARCH,

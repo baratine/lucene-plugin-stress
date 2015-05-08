@@ -64,6 +64,11 @@ public class DataProvider implements Iterator<DataProvider.Data>
     return _data.get(_current++);
   }
 
+  public String getQuery(String key)
+  {
+    return _queries.getProperty(key);
+  }
+
   public void reset()
   {
     _current = 0;
@@ -72,14 +77,13 @@ public class DataProvider implements Iterator<DataProvider.Data>
   class Data
   {
     private File _file;
-    private String _query;
 
     public Data(File file)
     {
       _file = file;
     }
 
-    public String getId()
+    public String getKey()
     {
       String id = _file.getName();
       id = id.replace("\\", "/");
@@ -92,11 +96,6 @@ public class DataProvider implements Iterator<DataProvider.Data>
       id = id.substring(start, id.lastIndexOf('.'));
 
       return id;
-    }
-
-    public String getQuery()
-    {
-      return _queries.getProperty(getId());
     }
 
     public InputStream getInputStream() throws FileNotFoundException

@@ -55,7 +55,7 @@ public class SolrDriver implements SearchEngineDriver
   }
 
   @Override
-  public void search(String query) throws IOException
+  public void search(String query, String expectedId) throws IOException
   {
     String url
       = "http://localhost:8983/solr/foo/select?q=%1$s&wt=json&indent=true";

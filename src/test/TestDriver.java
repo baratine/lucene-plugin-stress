@@ -23,7 +23,7 @@ public class TestDriver
 
   private final SearchEngineDriver _searchEngineDriver;
 
-  private final List<String> _queryTerms = new ArrayList<>();
+  private final List<String> _queryKeys = new ArrayList<>();
 
   private final List<Future<RequestResult>> _futureResults
     = new ArrayList<>();
@@ -137,19 +137,22 @@ public class TestDriver
     RequestResult result;
 
     try {
-      _searchEngineDriver.search(getSearchTerm());
+      String key = getSearchKey();
+      String query = _provider.getQuery(key);
+
+      _searchEngineDriver.search(query, key);
 
       result = RequestResult.createSearchResult();
-    } catch (IOException e) {
-      result = RequestResult.createErrorResult(e);
+    } catch (Throwable t) {
+      result = RequestResult.createErrorResult(t);
     }
 
     return result;
   }
 
-  private String getSearchTerm()
+  private String getSearchKey()
   {
-    return _queryTerms.get(_queryTerms.size() - 1);
+    return _queryKeys.get(_queryKeys.size() - 1);
   }
 
   public boolean submitUpdate()
@@ -171,13 +174,12 @@ public class TestDriver
     RequestResult result;
 
     try (InputStream in = data.getInputStream()) {
-      _searchEngineDriver.update(in, data.getId());
-      _queryTerms.add(data.getQuery());
+      _searchEngineDriver.update(in, data.getKey());
+      _queryKeys.add(data.getKey());
 
       result = RequestResult.createUpdateResult();
-    } catch (IOException e) {
-      System.exit(2);
-      result = RequestResult.createErrorResult(e);
+    } catch (Throwable t) {
+      result = RequestResult.createErrorResult(t);
     }
 
     return result;
@@ -202,8 +204,8 @@ public class TestDriver
   {
     for (int i = 0; i < n && _provider.hasNext(); i++) {
       DataProvider.Data d = _provider.next();
-      _searchEngineDriver.update(d.getInputStream(), d.getId());
-      _queryTerms.add(d.getQuery());
+      _searchEngineDriver.update(d.getInputStream(), d.getKey());
+      _queryKeys.add(d.getKey());
     }
   }
 
@@ -260,6 +262,8 @@ public class TestDriver
       }
       default: {
         System.out.println(result);
+
+        result.printStackTrace();
         break;
       }
       }
@@ -277,10 +281,10 @@ public class TestDriver
     SearchEngineDriver driver = new SolrDriver();
     driver = new BaratineDriver();
     TestDriver testDriver = new TestDriver(4,
-                                       5f,
-                                       4000,
-                                       new DataProvider(file),
-                                       driver);
+                                           5f,
+                                           4000,
+                                           new DataProvider(file),
+                                           driver);
 
     testDriver.preload(100);
 

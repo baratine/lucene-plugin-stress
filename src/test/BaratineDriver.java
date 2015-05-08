@@ -1,5 +1,6 @@
 package test;
 
+import com.sun.nio.sctp.IllegalReceiveException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -22,6 +23,8 @@ import java.nio.charset.StandardCharsets;
 public class BaratineDriver implements SearchEngineDriver
 {
   CloseableHttpClient _client = HttpClients.createDefault();
+  JsonFactory _jsonFactory = new JsonFactory();
+  private int _counter = 0;
 
   public void update(InputStream in, String id) throws IOException
   {
@@ -29,11 +32,11 @@ public class BaratineDriver implements SearchEngineDriver
 
     HttpPost post = new HttpPost(url);
 
-    ContentType ct = ContentType.create("x-application/jamp-poll",
+    ContentType ct = ContentType.create("x-application/jamp-rpc",
                                         StandardCharsets.UTF_8);
 
     String template
-      = "[[\"query\",{},\"/from\",1,\"/lucene\",\"indexText\", \"%1$s\", \"%2$s\", \"%3$s\"]]";
+      = "[[\"query\",{},\"/update\",%1$d,\"/lucene\",\"indexText\", \"%2$s\", \"%3$s\", \"%4$s\"]]";
 
     StringWriter writer = new StringWriter();
 
@@ -51,7 +54,7 @@ public class BaratineDriver implements SearchEngineDriver
 
     String data = writer.getBuffer().toString();
 
-    data = String.format(template, "foo", id, data);
+    data = String.format(template, _counter++, "foo", id, data);
 
     StringEntity e = new StringEntity(data, ct);
 
@@ -60,32 +63,37 @@ public class BaratineDriver implements SearchEngineDriver
     CloseableHttpResponse response = _client.execute(post);
 
     try (InputStream respIn = response.getEntity().getContent()) {
-      JsonFactory jsonFactory = new JsonFactory();
-
       ObjectMapper mapper = new ObjectMapper();
 
-      JsonParser parser = jsonFactory.createJsonParser(respIn);
+      JsonParser parser = _jsonFactory.createJsonParser(respIn);
 
       JsonNode tree = mapper.readTree(parser);
 
-      //System.out.println("BaratineDriver.update " + tree);
+      try {
+        if (!tree.get(0).get(4).getBooleanValue()) {
+          throw new IllegalReceiveException(tree.toString());
+        }
+      } catch (NullPointerException npe) {
+        System.out.println("BaratineDriver.update " + tree);
+        throw npe;
+      }
     }
   }
 
   @Override
-  public void search(String query) throws IOException
+  public void search(String query, String expectedId) throws IOException
   {
     String url = "http://localhost:8085/s/lucene";
 
     HttpPost post = new HttpPost(url);
 
-    ContentType ct = ContentType.create("x-application/jamp-poll",
+    ContentType ct = ContentType.create("x-application/jamp-rpc",
                                         StandardCharsets.UTF_8);
 
     String template
-      = "[[\"query\",{},\"/from\",1,\"/lucene\",\"search\", \"%1$s\", \"%2$s\", \"%3$d\"]]";
+      = "[[\"query\",{},\"/search\",%1$d,\"/lucene\",\"search\", \"%2$s\", \"%3$s\", \"%4$d\"]]";
 
-    String data = String.format(template, "foo", query, 255);
+    String data = String.format(template, _counter++, "foo", query, 255);
 
     StringEntity e = new StringEntity(data, ct);
 
@@ -94,25 +102,37 @@ public class BaratineDriver implements SearchEngineDriver
     CloseableHttpResponse response = _client.execute(post);
 
     try (InputStream respIn = response.getEntity().getContent()) {
-      JsonFactory jsonFactory = new JsonFactory();
 
-      ObjectMapper mapper = new ObjectMapper();
+      JsonNode tree = parse(respIn);
 
-      JsonParser parser = jsonFactory.createJsonParser(respIn);
-
-      JsonNode tree = mapper.readTree(parser);
-
-      //System.out.println("BaratineDriver.search" + tree);
+      if (!expectedId.equals(tree.get(0)
+                                 .get(4)
+                                 .get(0)
+                                 .get("_externalId")
+                                 .asText())) {
+        throw new IllegalReceiveException(expectedId + " : " + tree.toString());
+      }
     }
+  }
+
+  JsonNode parse(InputStream in) throws IOException
+  {
+    ObjectMapper mapper = new ObjectMapper();
+
+    JsonParser parser = _jsonFactory.createJsonParser(in);
+
+    JsonNode tree = mapper.readTree(parser);
+
+    return tree;
   }
 
   public static void main(String[] args) throws IOException
   {
-
     new BaratineDriver().update(new FileInputStream(
       "/Users/alex/data/wiki/40002/4000225.txt"), "4000225");
 
-    new BaratineDriver().search("2e6ddb8e-d235-4286-94d0-fc8029f0114a");
+    new BaratineDriver().search("2e6ddb8e-d235-4286-94d0-fc8029f0114a",
+                                "4000225");
 
   }
 }
