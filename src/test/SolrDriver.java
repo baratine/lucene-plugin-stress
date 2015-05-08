@@ -1,20 +1,17 @@
 package test;
 
-import com.oracle.javafx.jmx.json.JSONFactory;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -29,7 +26,6 @@ public class SolrDriver implements SearchEngineDriver
 
     JsonFactory jsonFactory = new JsonFactory();
 
-
     CloseableHttpClient client = HttpClients.createDefault();
     HttpPost post = new HttpPost(url);
 
@@ -42,35 +38,28 @@ public class SolrDriver implements SearchEngineDriver
 
     post.setConfig(config);
 
+    InputStreamEntity e = new InputStreamEntity(in,
+                                                ContentType.APPLICATION_JSON);
 
-    StringEntity e
-      = new StringEntity("{id:'id', data_t:'mary had a little lamb'}",
-                         ContentType.APPLICATION_JSON);
     post.setEntity(e);
 
     CloseableHttpResponse response = client.execute(post);
-    byte[] buffer = new byte[0xFFFF];
-    int l;
 
     try (InputStream respIn = response.getEntity().getContent()) {
-      l = respIn.read(buffer);
+      ObjectMapper mapper = new ObjectMapper();
+
+      JsonParser parser = jsonFactory.createJsonParser(respIn);
+
+      Map map = mapper.readValue(parser, Map.class);
     }
-
-
-
-
-    ObjectMapper mapper = new ObjectMapper();
-
-    JsonParser parser = jsonFactory.createJsonParser(buffer, 0, l);
-
-    Map map = mapper.readValue(parser, Map.class);
   }
 
   @Override
   public void search(String query) throws IOException
   {
     String url
-      = "http://localhost:8983/solr/foo/select?q=*%3A*&wt=json&indent=true";
+      = "http://localhost:8983/solr/foo/select?q=%1$s&wt=json&indent=true";
+    url = String.format(url, query);
 
     CloseableHttpClient client = HttpClients.createDefault();
     HttpGet get = new HttpGet(url);
@@ -85,20 +74,16 @@ public class SolrDriver implements SearchEngineDriver
     get.setConfig(config);
 
     CloseableHttpResponse response = client.execute(get);
-    byte[] buffer = new byte[0xFFFF];
-    int l;
 
     try (InputStream in = response.getEntity().getContent()) {
-      l = in.read(buffer);
+      JsonFactory jsonFactory = new JsonFactory();
+
+      ObjectMapper mapper = new ObjectMapper();
+
+      JsonParser parser = jsonFactory.createJsonParser(in);
+
+      Map map = mapper.readValue(parser, Map.class);
     }
-
-    JsonFactory jsonFactory = new JsonFactory();
-
-    ObjectMapper mapper = new ObjectMapper();
-
-    JsonParser parser = jsonFactory.createJsonParser(buffer, 0, l);
-
-    Map map = mapper.readValue(parser, Map.class);
   }
 
   public static void main(String[] args) throws IOException

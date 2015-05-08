@@ -19,3 +19,27 @@ User-Agent: Apache-HttpClient/4.4.1 (Java/1.8.0_45)
 Accept-Encoding: gzip,deflate
 
 [["query",{},"/from",1,"/my-service","test"]]
+
+solar
+
+500
+submitted 84 searched 417 search-update-ratio 4.964286 search-update-ratio-target 5.000000
+search
+  avg: 7.658654	min: 4.000000	 max: 38.000000	 n: 416
+update
+  avg: 21.024096	min: 13.000000	 max: 44.000000	 n: 83
+
+1000
+submitted 167 searched 834 search-update-ratio 4.994012 search-update-ratio-target 5.000000
+search
+  avg: 8.159664	min: 4.000000	 max: 231.000000	 n: 833
+update
+  avg: 21.048193	min: 13.000000	 max: 92.000000	 n: 166
+
+4000
+submitted 667 searched 3334 search-update-ratio 4.998501 search-update-ratio-target 5.000000
+search
+  avg: 6.719688	min: 3.000000	 max: 58.000000	 n: 3332
+update
+  avg: 21.198198	min: 13.000000	 max: 75.000000	 n: 666
+

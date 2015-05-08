@@ -11,8 +11,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 import java.util.Stack;
+import java.util.UUID;
 
 /**
  * /mediawiki
@@ -70,13 +73,31 @@ public class WikiArchiveParser
     SAXParserFactory factory = SAXParserFactory.newInstance();
     SAXParser parser = factory.newSAXParser();
 
-    parser.parse(in, new ArticleHandler(targetDir, -20));
+    Properties properties = new Properties();
+
+    try {
+      parser.parse(in, new ArticleHandler(targetDir, properties, -1000));
+    } catch (ParseLimitReachedSignal e) {
+      System.out.println(e.getMessage());
+    }
+
+    try (FileOutputStream out
+           = new FileOutputStream(new File(targetDir, "query.txt"));
+         PrintWriter writer
+           = new PrintWriter(
+           new OutputStreamWriter(out, StandardCharsets.UTF_8), true)) {
+
+      properties.list(writer);
+
+      writer.flush();
+    }
   }
 }
 
 class ArticleHandler extends DefaultHandler
 {
-  Stack<String> _stack = new Stack<>();
+  private final Properties _properties;
+  private final Stack<String> _stack = new Stack<>();
 
   StringBuilder _id;
   StringBuilder _title;
@@ -85,10 +106,10 @@ class ArticleHandler extends DefaultHandler
   File _targetDir;
   long _limit;
 
-  public ArticleHandler(File targetDir, long limit)
+  public ArticleHandler(File targetDir, Properties properties, long limit)
   {
     _targetDir = targetDir;
-
+    _properties = properties;
     _limit = limit;
   }
 
@@ -154,20 +175,31 @@ class ArticleHandler extends DefaultHandler
     if (cleanText.length() < 256)
       return;
 
-    int id = Integer.parseInt(_id.toString());
+    String sid = _id.toString();
+    int id = Integer.parseInt(sid);
+
+    String uuid = UUID.randomUUID().toString();
+    _properties.setProperty(sid, uuid);
 
     int bucket = id / 100;
 
     File dir = new File(_targetDir, Integer.toString(bucket));
     dir.mkdirs();
 
-    File file = new File(dir, _id.toString() + ".txt");
+    File file = new File(dir, _id.toString() + ".json");
 
     try (FileOutputStream out = new FileOutputStream(file);
          OutputStreamWriter writer
            = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
 
+      writer.write("{\"id\":\"");
+      writer.write(sid);
+      writer.write("\", \"data_t\":\"");
       writer.write(clean());
+      writer.write(' ');
+      writer.write(uuid);
+      writer.write(" .");
+      writer.write("\"}");
 
       writer.flush();
       writer.close();
@@ -176,7 +208,7 @@ class ArticleHandler extends DefaultHandler
       e.fillInStackTrace();
     } finally {
       if (--_limit == 0) {
-        throw new SAXException("parse limit is reached");
+        throw new ParseLimitReachedSignal("parse limit is reached");
       }
     }
   }
@@ -221,7 +253,15 @@ class ArticleHandler extends DefaultHandler
 
         break;
       }
-      case '\'': {
+      case '\n': {
+        temp.append('\\').append('n');
+        break;
+      }
+      case '\'':
+      case '\r':
+      case '=':
+      case ':':
+      case '"': {
         break;
       }
       default: {
@@ -237,5 +277,13 @@ class ArticleHandler extends DefaultHandler
   public void endDocument() throws SAXException
   {
 
+  }
+}
+
+class ParseLimitReachedSignal extends SAXException
+{
+  public ParseLimitReachedSignal(String message)
+  {
+    super(message);
   }
 }

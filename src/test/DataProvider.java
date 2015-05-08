@@ -3,26 +3,45 @@ package test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 public class DataProvider implements Iterator<DataProvider.Data>
 {
   List<Data> _data = new ArrayList<>();
+  Properties _queries = new Properties();
 
   private int _current = 0;
 
-  public DataProvider(File file)
+  public DataProvider(File file) throws IOException
   {
     add(file);
+
+    try (Reader in = new InputStreamReader(
+      new FileInputStream(
+        new File(file, "query.txt")), StandardCharsets.UTF_8)) {
+      _queries.load(in);
+    }
   }
 
   public void add(File file)
   {
     if (file.isDirectory()) {
-      File[] files = file.listFiles();
+      File[] files = file.listFiles(pathname -> {
+        if (pathname.isDirectory())
+          return true;
+        else if (pathname.getName().endsWith(".json"))
+          return true;
+        else
+          return false;
+      });
 
       for (File f : files) {
         add(f);
@@ -50,7 +69,7 @@ public class DataProvider implements Iterator<DataProvider.Data>
     _current = 0;
   }
 
-  static class Data
+  class Data
   {
     private File _file;
     private String _query;
@@ -62,12 +81,27 @@ public class DataProvider implements Iterator<DataProvider.Data>
 
     public String getQuery()
     {
-      return "test";
+      String name = _file.getName();
+      name = name.replace("\\", "/");
+
+      int start = name.lastIndexOf('/');
+
+      if (start == -1)
+        start = 0;
+
+      name = name.substring(start, name.lastIndexOf('.'));
+
+      return _queries.getProperty(name);
     }
 
     public InputStream getInputStream() throws FileNotFoundException
     {
       return new FileInputStream(_file);
+    }
+
+    public File getFile()
+    {
+      return _file;
     }
   }
 }

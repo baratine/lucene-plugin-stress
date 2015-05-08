@@ -2,6 +2,7 @@ package test;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,6 +12,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class TestDriver
 {
@@ -41,7 +43,7 @@ public class TestDriver
     Objects.requireNonNull(provider);
     Objects.requireNonNull(driver);
 
-    if (!(0f < searchSubmitRatio && searchSubmitRatio < 1f))
+    if (0f > searchSubmitRatio)
       throw new IllegalArgumentException();
 
     _searchSubmitRatio = searchSubmitRatio;
@@ -61,25 +63,26 @@ public class TestDriver
 
     _executors.submit(() -> testResults());
 
-    while (!_executors.isShutdown()) {
+    while (true) {
       if (_futureResults.size() == _clients) {
         Thread.yield();
         continue;
       }
 
       if (ratio < _searchSubmitRatio) {
-        submitSearch();
-        searchCounter++;
+        if (submitSearch())
+          searchCounter++;
       }
       else {
-        submitUpdate();
-        submitCounter++;
+        if (submitUpdate())
+          submitCounter++;
       }
 
       ratio = (float) searchCounter / submitCounter;
 
-      if (_limit-- == 0)
+      if (_limit-- == 0) {
         break;
+      }
     }
 
     _executors.shutdown();
@@ -102,7 +105,7 @@ public class TestDriver
           if (future.isDone()) {
             it.remove();
             try {
-              _results.add(future.get());
+              _results.add(future.get(2000, TimeUnit.MILLISECONDS));
             } catch (Throwable t) {
               _results.add(RequestResult.createErrorResult(t));
             }
@@ -120,11 +123,13 @@ public class TestDriver
     }
   }
 
-  public void submitSearch()
+  public boolean submitSearch()
   {
     Callable<RequestResult> callable = () -> search();
 
     submit(callable);
+
+    return true;
   }
 
   private RequestResult search()
@@ -132,7 +137,7 @@ public class TestDriver
     RequestResult result;
 
     try {
-      _searchEngineDriver.search(null);
+      _searchEngineDriver.search(getSearchTerm());
 
       result = RequestResult.createSearchResult();
     } catch (IOException e) {
@@ -142,22 +147,36 @@ public class TestDriver
     return result;
   }
 
-  public void submitUpdate()
+  private String getSearchTerm()
   {
-    Callable<RequestResult> callable = () -> update();
-
-    submit(callable);
+    return _queryTerms.get(_queryTerms.size() - 1);
   }
 
-  private RequestResult update()
+  public boolean submitUpdate()
+  {
+    if (!_provider.hasNext())
+      return false;
+
+    DataProvider.Data data = _provider.next();
+
+    Callable<RequestResult> callable = () -> update(data);
+
+    submit(callable);
+
+    return true;
+  }
+
+  private RequestResult update(DataProvider.Data data)
   {
     RequestResult result;
 
-    try {
-      _searchEngineDriver.update(null);
+    try (InputStream in = data.getInputStream()) {
+      _searchEngineDriver.update(in);
+      _queryTerms.add(data.getQuery());
 
       result = RequestResult.createUpdateResult();
     } catch (IOException e) {
+      System.exit(2);
       result = RequestResult.createErrorResult(e);
     }
 
@@ -186,7 +205,6 @@ public class TestDriver
       _searchEngineDriver.update(d.getInputStream());
       _queryTerms.add(d.getQuery());
     }
-
   }
 
   public void printStats()
@@ -256,9 +274,9 @@ public class TestDriver
   {
     File file = new File(args[0]);
 
-    TestDriver driver = new TestDriver(10,
-                                       .59999999f,
-                                       10000,
+    TestDriver driver = new TestDriver(4,
+                                       5f,
+                                       4000,
                                        new DataProvider(file),
                                        new SolrDriver());
 
