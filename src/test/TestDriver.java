@@ -1,6 +1,7 @@
 package test;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -187,6 +188,69 @@ public class TestDriver
     }
   }
 
+  public void printStats()
+  {
+    class Stat
+    {
+      String _name;
+      double _sum = 0d;
+      int _n = 0;
+      float _max = 0f;
+      float _min = Float.MAX_VALUE;
+
+      public Stat(String name)
+      {
+        _name = name;
+      }
+
+      void add(RequestResult result)
+      {
+        float time = result.getFinishTime() - result.getStartTime();
+
+        _sum += time;
+        _n++;
+        if (time > _max)
+          _max = time;
+        if (time < _min)
+          _min = time;
+      }
+
+      void print(PrintStream out)
+      {
+        out.print(_name);
+        double avg = _sum / _n;
+        out.print(String.format("\n  avg: %1$f\tmin: %2$f\t max: %3$f\t n: %4$d",
+                                avg,
+                                _min,
+                                _max,
+                                _n));
+      }
+    }
+    Stat search = new Stat("search");
+    Stat update = new Stat("update");
+
+    for (RequestResult result : _results) {
+      switch (result.getType()) {
+      case SEARCH: {
+        search.add(result);
+        break;
+      }
+      case UPDATE: {
+        update.add(result);
+        break;
+      }
+      default: {
+        System.out.println(result);
+        break;
+      }
+      }
+    }
+
+    search.print(System.out);
+    System.out.println();
+    update.print(System.out);
+  }
+
   public static void main(String[] args) throws IOException
   {
     TestDriver driver = new TestDriver(10,
@@ -198,6 +262,8 @@ public class TestDriver
     driver.preload(100);
 
     driver.run();
+
+    driver.printStats();
   }
 }
 

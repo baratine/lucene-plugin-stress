@@ -24,7 +24,7 @@ public class SolrDriver implements SearchEngineDriver
   {
 
     //http://localhost:8984/solr/foo/update/json/docs";
-    String url = "http://localhost:8984/solr/foo/update/json/docs?commit=true";
+    String url = "http://localhost:8983/solr/foo/update/json/docs?commit=true";
 
     CloseableHttpClient client = HttpClients.createDefault();
     HttpPost post = new HttpPost(url);
@@ -44,13 +44,20 @@ public class SolrDriver implements SearchEngineDriver
     post.setEntity(e);
 
     CloseableHttpResponse response = client.execute(post);
+    byte[] buffer = new byte[0xFFFF];
+    int l;
 
     try (InputStream in = response.getEntity().getContent()) {
-      byte[] buffer = new byte[0xFFFF];
-      int l = in.read(buffer);
-
-      System.out.println(new String(buffer, 0, l));
+      l = in.read(buffer);
     }
+
+    JsonFactory jsonFactory = new JsonFactory();
+
+    ObjectMapper mapper = new ObjectMapper();
+
+    JsonParser parser = jsonFactory.createJsonParser(buffer, 0, l);
+
+    Map map = mapper.readValue(parser, Map.class);
   }
 
   @Override
@@ -90,7 +97,7 @@ public class SolrDriver implements SearchEngineDriver
 
   public static void main(String[] args) throws IOException
   {
-    //new SolrDriver().update(null);
+    new SolrDriver().update(null);
     new SolrDriver().search(null);
   }
 }

@@ -39,9 +39,31 @@ public class RequestResult
     return _finishTime;
   }
 
-  @Override public String toString()
+  public RequestType getType()
   {
-    return "RequestResult[" + _type + " , " + (_finishTime - _startTime) + "]";
+    return _type;
+  }
+
+  @Override
+  public String toString()
+  {
+    switch (_type) {
+    case ERROR: {
+      return "RequestResult["
+             + _type
+             + " , "
+             + _throwable
+             + "]";
+
+    }
+    default: {
+      return "RequestResult["
+             + _type
+             + " , "
+             + (_finishTime - _startTime)
+             + "]";
+    }
+    }
   }
 
   public static RequestResult createSearchResult()
