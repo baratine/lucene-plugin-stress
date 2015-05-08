@@ -7,7 +7,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -15,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 public class BaratineDriver implements SearchEngineDriver
 {
 
-  public void update(File file) throws IOException
+  public void update(InputStream in) throws IOException
   {
     String url = "http://localhost:8085/s/lucene";
     //String url = "http://localhost:8085/s/lucene/lucene/fo?m=indexText&p0=f&p1=foo&p2=foo";
@@ -33,9 +32,9 @@ public class BaratineDriver implements SearchEngineDriver
 
     CloseableHttpResponse response = client.execute(post);
 
-    try (InputStream in = response.getEntity().getContent()) {
+    try (InputStream respIn = response.getEntity().getContent()) {
       byte[] buffer = new byte[0xFFFF];
-      int l = in.read(buffer);
+      int l = respIn.read(buffer);
 
       System.out.println(new String(buffer, 0, l));
     }

@@ -1,11 +1,11 @@
 package test;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public interface SearchEngineDriver
 {
-  void update(File file) throws IOException;
+  void update(InputStream file) throws IOException;
 
   void search(String query) throws IOException;
 }

@@ -1,10 +1,12 @@
 package test;
 
+import com.oracle.javafx.jmx.json.JSONFactory;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -12,7 +14,7 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -20,11 +22,13 @@ import java.util.Map;
 public class SolrDriver implements SearchEngineDriver
 {
   @Override
-  public void update(File file) throws IOException
+  public void update(InputStream in) throws IOException
   {
-
     //http://localhost:8984/solr/foo/update/json/docs";
     String url = "http://localhost:8983/solr/foo/update/json/docs?commit=true";
+
+    JsonFactory jsonFactory = new JsonFactory();
+
 
     CloseableHttpClient client = HttpClients.createDefault();
     HttpPost post = new HttpPost(url);
@@ -38,6 +42,7 @@ public class SolrDriver implements SearchEngineDriver
 
     post.setConfig(config);
 
+
     StringEntity e
       = new StringEntity("{id:'id', data_t:'mary had a little lamb'}",
                          ContentType.APPLICATION_JSON);
@@ -47,11 +52,12 @@ public class SolrDriver implements SearchEngineDriver
     byte[] buffer = new byte[0xFFFF];
     int l;
 
-    try (InputStream in = response.getEntity().getContent()) {
-      l = in.read(buffer);
+    try (InputStream respIn = response.getEntity().getContent()) {
+      l = respIn.read(buffer);
     }
 
-    JsonFactory jsonFactory = new JsonFactory();
+
+
 
     ObjectMapper mapper = new ObjectMapper();
 

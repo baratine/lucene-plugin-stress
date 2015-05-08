@@ -1,5 +1,6 @@
 package test;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -180,12 +181,12 @@ public class TestDriver
 
   public void preload(int n) throws IOException
   {
-    DataProvider.Data[] data = _provider.getData(n);
-
-    for (DataProvider.Data d : data) {
-      _searchEngineDriver.update(d.getFile());
+    for (int i = 0; i < n && _provider.hasNext(); i++) {
+      DataProvider.Data d = _provider.next();
+      _searchEngineDriver.update(d.getInputStream());
       _queryTerms.add(d.getQuery());
     }
+
   }
 
   public void printStats()
@@ -253,10 +254,12 @@ public class TestDriver
 
   public static void main(String[] args) throws IOException
   {
+    File file = new File(args[0]);
+
     TestDriver driver = new TestDriver(10,
                                        .59999999f,
                                        10000,
-                                       new DataProvider(),
+                                       new DataProvider(file),
                                        new SolrDriver());
 
     driver.preload(100);
