@@ -86,6 +86,12 @@ public class SolrDriver implements SearchEngineDriver
     }
   }
 
+  @Override
+  public void poll() throws IOException
+  {
+    Thread.yield();
+  }
+
   public static void main(String[] args) throws IOException
   {
 /*

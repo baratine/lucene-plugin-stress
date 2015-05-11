@@ -1,6 +1,7 @@
 package test;
 
-import com.sun.nio.sctp.IllegalReceiveException;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -19,12 +20,33 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BaratineDriver implements SearchEngineDriver
 {
+  //[["reply",{},"/update",3085,true]]
+  //[["reply",{},"/search",3023,[{"_searchResult":"3926930","_id":766,"_score":1.9077651500701904}]]]
+
+  Map<String,BaratineQuery> _queries
+    = Collections.synchronizedMap(new HashMap<>());
+
+  ContentType _defaultContentType
+    = ContentType.create("x-application/jamp-poll",
+                         StandardCharsets.UTF_8);
+
+  ContentType _pollContentType
+    = ContentType.create("x-application/jamp-poll",
+                         StandardCharsets.UTF_8);
+
   CloseableHttpClient _client = HttpClients.createDefault();
   JsonFactory _jsonFactory = new JsonFactory();
   private int _counter = 0;
+
+  String _jampChannel;
 
   public void update(InputStream in, String id) throws IOException
   {
@@ -32,11 +54,8 @@ public class BaratineDriver implements SearchEngineDriver
 
     HttpPost post = new HttpPost(url);
 
-    ContentType ct = ContentType.create("x-application/jamp-rpc",
-                                        StandardCharsets.UTF_8);
-
     String template
-      = "[[\"query\",{},\"/update\",%1$d,\"/lucene\",\"indexText\", \"%2$s\", \"%3$s\", \"%4$s\"]]";
+      = "[[\"query\",{},\"/update\",%1$s,\"/lucene\",\"indexText\", \"%2$s\", \"%3$s\", \"%4$s\"]]";
 
     StringWriter writer = new StringWriter();
 
@@ -52,32 +71,50 @@ public class BaratineDriver implements SearchEngineDriver
       writer.close();
     }
 
+    if (_jampChannel != null)
+      post.setHeader("Cookie", _jampChannel);
+
     String data = writer.getBuffer().toString();
 
-    data = String.format(template, _counter++, "foo", id, data);
+    String messageId = Integer.toString(_counter++);
 
-    StringEntity e = new StringEntity(data, ct);
+    _queries.put(messageId, new BaratineQuery(messageId));
+
+    data = String.format(template, messageId, "foo", id, data);
+
+    StringEntity e = new StringEntity(data, _defaultContentType);
 
     post.setEntity(e);
 
     CloseableHttpResponse response = _client.execute(post);
 
-    try (InputStream respIn = response.getEntity().getContent()) {
-      ObjectMapper mapper = new ObjectMapper();
+    if (_jampChannel == null)
+      _jampChannel = getCookie(response);
 
-      JsonParser parser = _jsonFactory.createJsonParser(respIn);
+    BaratineQuery baratineQuery = parseResponse(response);
 
-      JsonNode tree = mapper.readTree(parser);
+/*
+    System.out.println("BaratineDriver.update["
+                       + messageId
+                       + "]: "
+                       + baratineQuery);
+*/
 
-      try {
-        if (!tree.get(0).get(4).getBooleanValue()) {
-          throw new IllegalReceiveException(tree.toString());
-        }
-      } catch (NullPointerException npe) {
-        System.out.println("BaratineDriver.update " + tree);
-        throw npe;
-      }
-    }
+    processQuery(baratineQuery);
+  }
+
+  private String getCookie(HttpResponse response)
+  {
+    Header header = response.getFirstHeader("Set-Cookie");
+    if (header == null)
+      return null;
+
+    String cookie = header.getValue();
+
+    if (cookie.startsWith("Jamp_Channel="))
+      return cookie;
+
+    return null;
   }
 
   @Override
@@ -87,52 +124,227 @@ public class BaratineDriver implements SearchEngineDriver
 
     HttpPost post = new HttpPost(url);
 
-    ContentType ct = ContentType.create("x-application/jamp-rpc",
-                                        StandardCharsets.UTF_8);
+    if (_jampChannel != null)
+      post.setHeader("Cookie", _jampChannel);
+
+    String messageId = Integer.toString(_counter++);
+
+    _queries.put(messageId, new BaratineQuery(messageId));
 
     String template
-      = "[[\"query\",{},\"/search\",%1$d,\"/lucene\",\"search\", \"%2$s\", \"%3$s\", \"%4$d\"]]";
+      = "[[\"query\",{},\"/search\",%1$s,\"/lucene\",\"search\", \"%2$s\", \"%3$s\", \"%4$d\"]]";
 
-    String data = String.format(template, _counter++, "foo", query, 255);
+    String data = String.format(template, messageId, "foo", query, 1);
 
-    StringEntity e = new StringEntity(data, ct);
+    StringEntity e = new StringEntity(data, _defaultContentType);
 
     post.setEntity(e);
 
     CloseableHttpResponse response = _client.execute(post);
 
-    try (InputStream respIn = response.getEntity().getContent()) {
+    if (_jampChannel == null)
+      _jampChannel = getCookie(response);
 
-      JsonNode tree = parse(respIn);
+    BaratineQuery baratineQuery = parseResponse(response);
 
-      if (!expectedId.equals(tree.get(0)
-                                 .get(4)
-                                 .get(0)
-                                 .get("_externalId")
-                                 .asText())) {
-        throw new IllegalReceiveException(expectedId + " : " + tree.toString());
+/*
+    System.out.println("BaratineDriver.search["
+                       + messageId
+                       + ", " + Thread.currentThread() + " ]: "
+                       + baratineQuery);
+*/
+
+    processQuery(baratineQuery);
+  }
+
+  @Override
+  public void poll() throws IOException
+  {
+    String url = "http://localhost:8085/s/lucene/lucene";
+
+    HttpPost post = new HttpPost(url);
+
+    if (_jampChannel != null)
+      post.setHeader("Cookie", _jampChannel);
+
+    StringEntity e = new StringEntity("[]", _pollContentType);
+
+    post.setEntity(e);
+
+    CloseableHttpResponse response = _client.execute(post);
+
+    BaratineQuery baratineQuery = parseResponse(response);
+
+//    System.out.println("BaratineDriver.poll:  " + baratineQuery);
+
+    processQuery(baratineQuery);
+  }
+
+  private BaratineQuery parseResponse(CloseableHttpResponse response)
+    throws IOException
+  {
+    try (InputStream in = response.getEntity().getContent()) {
+      ObjectMapper mapper = new ObjectMapper();
+
+      JsonParser parser = _jsonFactory.createJsonParser(in);
+
+      JsonNode tree = mapper.readTree(parser);
+
+      if (tree == null || tree.size() == 0) {
+        return null;
+      }
+
+      if (!"reply".equals(tree.get(0).get(0).asText())) {
+        System.out.println(" error: " + tree);
+      }
+
+      String messageId = tree.get(0).get(3).asText();
+
+      String type = tree.get(0).get(2).asText();
+
+      BaratineQuery query = _queries.get(messageId);
+
+      if (query == null)
+        return null;
+
+      synchronized (query) {
+        if ("/update".equals(type)) {
+          query.setUpdateResult(tree.get(0).get(4).asBoolean());
+        }
+        else if ("/search".equals(type)) {
+          String extId = tree.get(0).get(4).get(0).get("_externalId").asText();
+
+          query.setSearchResult(extId);
+        }
+        else {
+          throw new IllegalStateException(tree.toString());
+        }
+      }
+
+      return query;
+    }
+  }
+
+  private void processQuery(BaratineQuery query)
+  {
+    if (query == null)
+      return;
+
+    synchronized (query) {
+      if (query.getUpdateResult() == null && query.getSearchResult() == null) {
+        try {
+          query.wait();
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+      else {
+        query.notify();
+
+        _queries.remove(query.getMessageId());
       }
     }
   }
 
-  JsonNode parse(InputStream in) throws IOException
+  class BaratineQuery
   {
-    ObjectMapper mapper = new ObjectMapper();
+    final private String _messageId;
+    private Boolean _updateResult;
+    private String _searchResult;
 
-    JsonParser parser = _jsonFactory.createJsonParser(in);
+    public BaratineQuery(String messageId)
+    {
+      _messageId = messageId;
+    }
 
-    JsonNode tree = mapper.readTree(parser);
+    public String getMessageId()
+    {
+      return _messageId;
+    }
 
-    return tree;
+    public Boolean getUpdateResult()
+    {
+      return _updateResult;
+    }
+
+    public void setUpdateResult(Boolean result)
+    {
+      _updateResult = result;
+    }
+
+    public String getSearchResult()
+    {
+      return _searchResult;
+    }
+
+    public void setSearchResult(String externalId)
+    {
+      _searchResult = externalId;
+    }
+
+    @Override public String toString()
+    {
+      return "BaratineQuery["
+             + _messageId
+             + ", "
+             + _updateResult
+             + ", "
+             + _searchResult
+             + ']';
+    }
   }
 
-  public static void main(String[] args) throws IOException
+  enum TokenType
   {
-    new BaratineDriver().update(new FileInputStream(
-      "/Users/alex/data/wiki/40002/4000225.txt"), "4000225");
+    SEARCH,
+    UPDATE
+  }
 
-    new BaratineDriver().search("2e6ddb8e-d235-4286-94d0-fc8029f0114a",
-                                "4000225");
+  private static void update(BaratineDriver driver)
+  {
+    try {
+      driver.update(new FileInputStream(
+        "/Users/alex/data/wiki/40002/4000225.txt"), "4000225");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
+  private static void search(BaratineDriver driver)
+  {
+    try {
+      driver.search("2e6ddb8e-d235-4286-94d0-fc8029f0114a", "4000225");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private static void poll(BaratineDriver driver)
+  {
+    try {
+      driver.poll();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void main(String[] args)
+    throws IOException, InterruptedException
+  {
+    ExecutorService executorService = Executors.newFixedThreadPool(4);
+
+    BaratineDriver driver = new BaratineDriver();
+
+    executorService.submit(() -> update(driver));
+    Thread.sleep(100);
+    executorService.submit(() -> poll(driver));
+    Thread.sleep(100);
+
+    executorService.submit(() -> search(driver));
+    Thread.sleep(100);
+    executorService.submit(() -> poll(driver));
+    Thread.sleep(100);
+
+    executorService.shutdown();
   }
 }

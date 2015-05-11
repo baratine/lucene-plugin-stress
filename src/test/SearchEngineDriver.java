@@ -8,4 +8,6 @@ public interface SearchEngineDriver
   void update(InputStream file, String id) throws IOException;
 
   void search(String query, String expectedId) throws IOException;
+
+  void poll() throws IOException;
 }

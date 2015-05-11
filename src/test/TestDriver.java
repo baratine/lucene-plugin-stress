@@ -63,9 +63,15 @@ public class TestDriver
 
     _executors.submit(() -> testResults());
 
+    System.out.println("TestDriver.run");
+
     while (true) {
+      if (_limit % 10 == 0)
+        System.out.println("limit " + _limit);
+
       if (_futureResults.size() == _clients) {
-        Thread.yield();
+        submitPoll();
+
         continue;
       }
 
@@ -121,6 +127,17 @@ public class TestDriver
       } catch (InterruptedException e) {
       }
     }
+  }
+
+  public boolean submitPoll()
+  {
+    try {
+      _searchEngineDriver.poll();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return true;
   }
 
   public boolean submitSearch()
