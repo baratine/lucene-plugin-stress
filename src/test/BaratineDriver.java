@@ -20,9 +20,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -32,8 +31,7 @@ public class BaratineDriver implements SearchEngineDriver
   //[["reply",{},"/update",3085,true]]
   //[["reply",{},"/search",3023,[{"_searchResult":"3926930","_id":766,"_score":1.9077651500701904}]]]
 
-  Map<String,BaratineQuery> _queries
-    = Collections.synchronizedMap(new HashMap<>());
+  Map<String,BaratineQuery> _queries = new ConcurrentHashMap<>();
 
   ContentType _defaultContentType
     = ContentType.create("x-application/jamp-poll",
@@ -79,7 +77,10 @@ public class BaratineDriver implements SearchEngineDriver
 
     String messageId = Long.toString(_counter.getAndIncrement());
 
-    _queries.put(messageId, new BaratineQuery(messageId));
+    BaratineQuery updateQuery
+      = new BaratineQuery(messageId, QueryType.UPDATE);
+
+    _queries.put(messageId, updateQuery);
 
     data = String.format(template, messageId, "foo", id, data);
 
@@ -92,20 +93,18 @@ public class BaratineDriver implements SearchEngineDriver
     if (_jampChannel == null)
       _jampChannel = getCookie(response);
 
-    BaratineQuery baratineQuery = parseResponse(response);
+    BaratineQuery queryResponse = parseResponse(response);
 
-/*
-    System.out.println("BaratineDriver.update["
-                       + messageId
-                       + "]: "
-                       + baratineQuery);
-*/
+    if (queryResponse == updateQuery) {
+      _queries.remove(messageId);
+    }
+    else {
+      processQuery(queryResponse);
 
-    processQuery(baratineQuery);
+      processQuery(updateQuery);
+    }
 
-    if (!baratineQuery.getUpdateResult())
-      throw new IllegalStateException("expected true received "
-                                      + baratineQuery);
+    updateQuery.validate();
   }
 
   private String getCookie(HttpResponse response)
@@ -134,7 +133,12 @@ public class BaratineDriver implements SearchEngineDriver
 
     String messageId = Long.toString(_counter.getAndIncrement());
 
-    _queries.put(messageId, new BaratineQuery(messageId));
+    final BaratineQuery searchQuery
+      = new BaratineQuery(messageId, QueryType.SEARCH);
+
+    searchQuery.setExcpectedSearchResult(expectedId);
+
+    _queries.put(messageId, searchQuery);
 
     String template
       = "[[\"query\",{},\"/search\",%1$s,\"/lucene\",\"search\", \"%2$s\", \"%3$s\", \"%4$d\"]]";
@@ -150,22 +154,17 @@ public class BaratineDriver implements SearchEngineDriver
     if (_jampChannel == null)
       _jampChannel = getCookie(response);
 
-    BaratineQuery baratineQuery = parseResponse(response);
+    BaratineQuery queryResponse = parseResponse(response);
 
-/*
-    System.out.println("BaratineDriver.search["
-                       + messageId
-                       + ", " + Thread.currentThread() + " ]: "
-                       + baratineQuery);
-*/
+    if (queryResponse == searchQuery) {
+      _queries.remove(messageId);
+    }
+    else {
+      processQuery(queryResponse);
+      processQuery(searchQuery);
+    }
 
-    processQuery(baratineQuery);
-
-    if (!expectedId.equals(baratineQuery.getSearchResult()))
-      throw new IllegalStateException(String.format(
-        "expected %1$s recieved %2$s",
-        expectedId,
-        baratineQuery.toString()));
+    searchQuery.validate();
   }
 
   @Override
@@ -260,9 +259,14 @@ public class BaratineDriver implements SearchEngineDriver
     private Boolean _updateResult;
     private String _searchResult;
 
-    public BaratineQuery(String messageId)
+    private QueryType _type;
+
+    private String _expectedSearchResult;
+
+    public BaratineQuery(String messageId, QueryType type)
     {
       _messageId = messageId;
+      _type = type;
     }
 
     public String getMessageId()
@@ -280,6 +284,11 @@ public class BaratineDriver implements SearchEngineDriver
       _updateResult = result;
     }
 
+    public void setExcpectedSearchResult(String expected)
+    {
+      _expectedSearchResult = expected;
+    }
+
     public String getSearchResult()
     {
       return _searchResult;
@@ -290,19 +299,47 @@ public class BaratineDriver implements SearchEngineDriver
       _searchResult = externalId;
     }
 
-    @Override public String toString()
+    public void validate()
+    {
+      try {
+        switch (_type) {
+        case SEARCH: {
+          if (!_expectedSearchResult.equals(_searchResult))
+            throw new IllegalStateException(String.format(
+              "unexpected search result %1$s",
+              this.toString()));
+          break;
+        }
+        case UPDATE: {
+          if (!Boolean.TRUE.equals(_updateResult))
+            throw new IllegalStateException(String.format(
+              "unexpected udpate result %1$s",
+              this.toString()));
+          break;
+        }
+        default: {
+          throw new IllegalStateException();
+        }
+        }
+      } catch (NullPointerException npe) {
+
+        System.out.println("BaratineQuery.validate: NPE " + this);
+      }
+    }
+
+    @Override
+    public String toString()
     {
       return "BaratineQuery["
-             + _messageId
-             + ", "
-             + _updateResult
-             + ", "
-             + _searchResult
-             + ']';
+             + _messageId + ", "
+             + _type + ", "
+             + _expectedSearchResult + ", "
+             + _updateResult + ", "
+             + _searchResult + ']';
     }
   }
 
-  enum TokenType
+  enum QueryType
   {
     SEARCH,
     UPDATE
