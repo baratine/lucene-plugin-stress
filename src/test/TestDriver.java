@@ -64,10 +64,7 @@ public class TestDriver
     _executors.submit(() -> testResults());
 
     while (true) {
-      if (_limit % 100 == 0)
-        System.out.println("limit " + _limit);
-
-      if (_futureResults.size() == _clients) {
+      if (_futureResults.size() == _clients || _limit <= 0) {
         submitPoll();
 
         continue;
@@ -84,8 +81,12 @@ public class TestDriver
 
       ratio = (float) searchCounter / submitCounter;
 
-      if (_limit-- == 0) {
+      if (_limit-- == 0 && _futureResults.size() == 0) {
         break;
+      }
+
+      if (_limit % 100 == 0) {
+        System.out.println("limit:  " + _limit);
       }
     }
 
@@ -189,7 +190,7 @@ public class TestDriver
     RequestResult result;
 
     try (InputStream in = data.getInputStream()) {
-      _searchEngineDriver.update(in, data.getKey());
+      _searchEngineDriver.update(in, data.getKey(), false);
       _queryKeys.add(data.getKey());
 
       result = RequestResult.createUpdateResult();
@@ -221,7 +222,7 @@ public class TestDriver
       DataProvider.Data d = _provider.next();
 
       try {
-        _searchEngineDriver.update(d.getInputStream(), d.getKey());
+        _searchEngineDriver.update(d.getInputStream(), d.getKey(), true);
       } catch (Exception e) {
         System.out.println("TestDriver.preload " + e);
       }

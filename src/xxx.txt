@@ -51,11 +51,8 @@ update
   avg: 27.843844	min: 13.000000	 max: 278.000000	 n: 666
 
 Baratine
-4000
 submitted 667 searched 3334 search-update-ratio 4.998501 search-update-ratio-target 5.000000
 search
-  avg: 11.981982	min: 1.000000	 max: 580.000000	 n: 3330
+  avg: 6.140240	min: 0.000000	 max: 327.000000	 n: 3330
 update
-  avg: 10.967016	min: 4.000000	 max: 369.000000	 n: 667
-
-
+  avg: 5.805097	min: 3.000000	 max: 322.000000	 n: 667

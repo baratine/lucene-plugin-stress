@@ -19,7 +19,7 @@ import java.util.Map;
 public class SolrDriver implements SearchEngineDriver
 {
   @Override
-  public void update(InputStream in, String id) throws IOException
+  public void update(InputStream in, String id, boolean isPreload) throws IOException
   {
     //http://localhost:8984/solr/foo/update/json/docs";
     String url = "http://localhost:8983/solr/foo/update/json/docs?commit=true";

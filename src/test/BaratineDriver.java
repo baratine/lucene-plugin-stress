@@ -47,7 +47,8 @@ public class BaratineDriver implements SearchEngineDriver
 
   String _jampChannel;
 
-  public void update(InputStream in, String id) throws IOException
+  public void update(InputStream in, String id, boolean isPreload)
+    throws IOException
   {
     String url = "http://localhost:8085/s/lucene";
 
@@ -89,6 +90,12 @@ public class BaratineDriver implements SearchEngineDriver
     post.setEntity(e);
 
     CloseableHttpResponse response = _client.execute(post);
+
+    if (isPreload) {
+      response.close();
+
+      return;
+    }
 
     if (_jampChannel == null)
       _jampChannel = getCookie(response);
@@ -349,7 +356,7 @@ public class BaratineDriver implements SearchEngineDriver
   {
     try {
       driver.update(new FileInputStream(
-        "/Users/alex/data/wiki/40002/4000225.txt"), "4000225");
+        "/Users/alex/data/wiki/40002/4000225.txt"), "4000225", false);
     } catch (IOException e) {
       e.printStackTrace();
     }
