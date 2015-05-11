@@ -63,10 +63,8 @@ public class TestDriver
 
     _executors.submit(() -> testResults());
 
-    System.out.println("TestDriver.run");
-
     while (true) {
-      if (_limit % 10 == 0)
+      if (_limit % 100 == 0)
         System.out.println("limit " + _limit);
 
       if (_futureResults.size() == _clients) {
@@ -221,7 +219,12 @@ public class TestDriver
   {
     for (int i = 0; i < n && _provider.hasNext(); i++) {
       DataProvider.Data d = _provider.next();
-      _searchEngineDriver.update(d.getInputStream(), d.getKey());
+
+      try {
+        _searchEngineDriver.update(d.getInputStream(), d.getKey());
+      } catch (Exception e) {
+        System.out.println("TestDriver.preload " + e);
+      }
       _queryKeys.add(d.getKey());
     }
   }

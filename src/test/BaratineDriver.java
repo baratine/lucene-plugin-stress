@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class BaratineDriver implements SearchEngineDriver
 {
@@ -44,7 +45,7 @@ public class BaratineDriver implements SearchEngineDriver
 
   CloseableHttpClient _client = HttpClients.createDefault();
   JsonFactory _jsonFactory = new JsonFactory();
-  private int _counter = 0;
+  private AtomicLong _counter = new AtomicLong(0);
 
   String _jampChannel;
 
@@ -76,7 +77,7 @@ public class BaratineDriver implements SearchEngineDriver
 
     String data = writer.getBuffer().toString();
 
-    String messageId = Integer.toString(_counter++);
+    String messageId = Long.toString(_counter.getAndIncrement());
 
     _queries.put(messageId, new BaratineQuery(messageId));
 
@@ -101,6 +102,10 @@ public class BaratineDriver implements SearchEngineDriver
 */
 
     processQuery(baratineQuery);
+
+    if (!baratineQuery.getUpdateResult())
+      throw new IllegalStateException("expected true received "
+                                      + baratineQuery);
   }
 
   private String getCookie(HttpResponse response)
@@ -127,7 +132,7 @@ public class BaratineDriver implements SearchEngineDriver
     if (_jampChannel != null)
       post.setHeader("Cookie", _jampChannel);
 
-    String messageId = Integer.toString(_counter++);
+    String messageId = Long.toString(_counter.getAndIncrement());
 
     _queries.put(messageId, new BaratineQuery(messageId));
 
@@ -155,6 +160,12 @@ public class BaratineDriver implements SearchEngineDriver
 */
 
     processQuery(baratineQuery);
+
+    if (!expectedId.equals(baratineQuery.getSearchResult()))
+      throw new IllegalStateException(String.format(
+        "expected %1$s recieved %2$s",
+        expectedId,
+        baratineQuery.toString()));
   }
 
   @Override
@@ -203,9 +214,6 @@ public class BaratineDriver implements SearchEngineDriver
       String type = tree.get(0).get(2).asText();
 
       BaratineQuery query = _queries.get(messageId);
-
-      if (query == null)
-        return null;
 
       synchronized (query) {
         if ("/update".equals(type)) {
