@@ -1,64 +1,40 @@
-POST /s/pod HTTP/1.1
-Content-Type: x-application/jamp
-User-Agent: Java/1.8.0_45
-Host: localhost:8086
-Accept: text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2
-Connection: keep-alive
-Content-Length: 46
+solr-4000
 
-[["query",{},"/from",1,"/my-service","test"]]
-
-
-
-POST /s/pod HTTP/1.1
-Content-Length: 45
-Content-Type: x-application/jamp-poll; charset=UTF-8
-Host: localhost:8086
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.4.1 (Java/1.8.0_45)
-Accept-Encoding: gzip,deflate
-
-[["query",{},"/from",1,"/my-service","test"]]
-
-solar
-
-500
-submitted 84 searched 417 search-update-ratio 4.964286 search-update-ratio-target 5.000000
+clients 12, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
 search
-  avg: 7.658654	min: 4.000000	 max: 38.000000	 n: 416
+  avg: 19.477205	min: 3.000000	 max: 275.000000	 n: 3334
 update
-  avg: 21.024096	min: 13.000000	 max: 44.000000	 n: 83
+  avg: 50.886057	min: 14.000000	 max: 240.000000	 n: 667
 
-1000
-submitted 167 searched 834 search-update-ratio 4.994012 search-update-ratio-target 5.000000
+clients 8, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
 search
-  avg: 8.159664	min: 4.000000	 max: 231.000000	 n: 833
+  avg: 15.848230	min: 4.000000	 max: 164.000000	 n: 3334
 update
-  avg: 21.048193	min: 13.000000	 max: 92.000000	 n: 166
+  avg: 44.860570	min: 14.000000	 max: 246.000000	 n: 667
 
-4000
-submitted 667 searched 3334 search-update-ratio 4.998501 search-update-ratio-target 5.000000
+clients 4, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
 search
-  avg: 6.719688	min: 3.000000	 max: 58.000000	 n: 3332
+  avg: 9.117876	min: 3.000000	 max: 133.000000	 n: 3334
 update
-  avg: 21.198198	min: 13.000000	 max: 75.000000	 n: 666
-
-4000 (2)
-submitted 667 searched 3334 search-update-ratio 4.998501 search-update-ratio-target 5.000000
-search
-  avg: 8.839388	min: 3.000000	 max: 298.000000	 n: 3331
-update
-  avg: 27.843844	min: 13.000000	 max: 278.000000	 n: 666
+  avg: 26.538231	min: 13.000000	 max: 104.000000	 n: 667
 
 Baratine
-submitted 667 searched 3334 search-update-ratio 4.998501 search-update-ratio-target 5.000000
+------------------------------------------------------------------------------------------------
+clients 12, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
 search
-  avg: 6.140240	min: 0.000000	 max: 327.000000	 n: 3330
+  avg: 24.867726	min: 1.000000	 max: 305.000000	 n: 3334
 update
-  avg: 5.805097	min: 3.000000	 max: 322.000000	 n: 667
+  avg: 35.079460	min: 3.000000	 max: 261.000000	 n: 667
 
-submitted 167, searched 834, search-update-ratio 4.994012, search-update-ratio-target 5.000000
+clients 8, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
 search
-  avg: 12.183894	min: 1.000000	 max: 696.000000	 n: 832
+  avg: 16.687163	min: 0.000000	 max: 277.000000	 n: 3334
 update
-  avg: 11.837349	min: 4.000000	 max: 385.000000	 n: 166
+  avg: 24.020990	min: 3.000000	 max: 248.000000	 n: 667
+
+clients 4, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
+search
+  avg: 8.610378	min: 0.000000	 max: 232.000000	 n: 3334
+update
+  avg: 13.205397	min: 3.000000	 max: 231.000000	 n: 667
+

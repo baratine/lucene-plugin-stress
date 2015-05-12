@@ -59,13 +59,15 @@ public class TestDriver
   {
     long searchCounter = 0;
     long submitCounter = 0;
+    long pollCounter = 0;
     float ratio = 1;
 
     _executors.submit(() -> testResults());
 
     while (true) {
-      if (_futureResults.size() == _clients) {
+      if (_futureResults.size() > _clients) {
         submitPoll();
+        pollCounter++;
 
         continue;
       }
@@ -82,7 +84,11 @@ public class TestDriver
       ratio = (float) searchCounter / submitCounter;
 
       if (_limit % 100 == 0) {
-        System.out.println("limit:  " + _limit);
+        System.out.println("limit:  "
+                           + _limit
+                           + ", polls: " + pollCounter
+                           +", futureResults.size: "
+                           + _futureResults.size());
       }
 
       if (_limit-- <= 0) {
@@ -111,7 +117,8 @@ public class TestDriver
     _executors.shutdown();
 
     System.out.println(String.format(
-      "submitted %1$d, searched %2$d, search-update-ratio %3$f, search-update-ratio-target %4$f",
+      "clients %1$d, submitted %2$d, searched %3$d, search-update-ratio %4$f, search-update-ratio-target %5$f",
+      _clients,
       submitCounter,
       searchCounter,
       ((float) searchCounter / submitCounter),
@@ -127,24 +134,22 @@ public class TestDriver
         for (Iterator<Future<RequestResult>> it = _futureResults.iterator();
              it.hasNext(); ) {
           Future<RequestResult> future = it.next();
-          if (future.isDone()) {
+
+          if (future.isCancelled()) {
+            throw new IllegalStateException();
+          }
+          else if (future.isDone()) {
             it.remove();
             try {
-              _results.add(future.get(2000, TimeUnit.MILLISECONDS));
+              _results.add(future.get(1, TimeUnit.MILLISECONDS));
             } catch (Throwable t) {
               _results.add(RequestResult.createErrorResult(t));
             }
           }
-          else if (future.isCancelled()) {
-            throw new IllegalStateException();
-          }
         }
       }
 
-      try {
-        Thread.sleep(0);
-      } catch (InterruptedException e) {
-      }
+      Thread.yield();
     }
   }
 
@@ -210,7 +215,7 @@ public class TestDriver
     RequestResult result;
 
     try (InputStream in = data.getInputStream()) {
-      _searchEngineDriver.update(in, data.getKey(), false);
+      _searchEngineDriver.update(in, data.getKey());
       _queryKeys.add(data.getKey());
 
       result = RequestResult.createUpdateResult();
@@ -238,11 +243,12 @@ public class TestDriver
 
   public void preload(int n) throws IOException
   {
+    _searchEngineDriver.setPreload(true);
     for (int i = 0; i < n && _provider.hasNext(); i++) {
       DataProvider.Data d = _provider.next();
 
       try {
-        _searchEngineDriver.update(d.getInputStream(), d.getKey(), true);
+        _searchEngineDriver.update(d.getInputStream(), d.getKey());
       } catch (Exception e) {
         System.out.println("TestDriver.preload " + e);
       }
@@ -251,6 +257,8 @@ public class TestDriver
 
     for (int i = 0; i < n && _provider.hasNext(); i++)
       _searchEngineDriver.poll();
+
+    _searchEngineDriver.setPreload(false);
   }
 
   public void printStats()
@@ -326,15 +334,19 @@ public class TestDriver
     driver = new BaratineDriver();
     TestDriver testDriver = new TestDriver(4,
                                            5f,
-                                           100,
+                                           4000,
                                            new DataProvider(file),
                                            driver);
 
-    testDriver.preload(10);
+    long start = System.currentTimeMillis();
+    testDriver.preload(100);
 
     testDriver.run();
 
     testDriver.printStats();
+
+    System.out.println("\ntest run time: " + (System.currentTimeMillis()
+                                              - start));
   }
 }
 

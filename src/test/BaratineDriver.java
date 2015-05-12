@@ -46,8 +46,9 @@ public class BaratineDriver implements SearchEngineDriver
   private AtomicLong _counter = new AtomicLong(0);
 
   String _jampChannel;
+  boolean _isPreload;
 
-  public void update(InputStream in, String id, boolean isPreload)
+  public void update(InputStream in, String id)
     throws IOException
   {
     String url = "http://localhost:8085/s/lucene";
@@ -94,18 +95,25 @@ public class BaratineDriver implements SearchEngineDriver
     if (_jampChannel == null)
       _jampChannel = getCookie(response);
 
-    BaratineQuery queryResponse = parseResponse(response);
+    BaratineQuery[] queries = parseResponse(response);
 
-    if (queryResponse == updateQuery) {
-      _queries.remove(messageId);
+    boolean isMatch = false;
+
+    for (BaratineQuery query : queries) {
+      if (query == updateQuery) {
+        isMatch = true;
+        _queries.remove(messageId);
+      }
+      else {
+        processQuery(query);
+      }
     }
-    else {
-      processQuery(queryResponse);
 
+    if (!isMatch)
       processQuery(updateQuery);
-    }
 
-    updateQuery.validate();
+    if (!_isPreload)
+      updateQuery.validate();
   }
 
   private String getCookie(HttpResponse response)
@@ -123,7 +131,7 @@ public class BaratineDriver implements SearchEngineDriver
   }
 
   @Override
-  public void search(String query, String expectedId) throws IOException
+  public void search(String luceneQuery, String expectedId) throws IOException
   {
     String url = "http://localhost:8085/s/lucene";
 
@@ -144,7 +152,7 @@ public class BaratineDriver implements SearchEngineDriver
     String template
       = "[[\"query\",{},\"/search\",%1$s,\"/lucene\",\"search\", \"%2$s\", \"%3$s\", \"%4$d\"]]";
 
-    String data = String.format(template, messageId, "foo", query, 1);
+    String data = String.format(template, messageId, "foo", luceneQuery, 1);
 
     StringEntity e = new StringEntity(data, _defaultContentType);
 
@@ -155,17 +163,25 @@ public class BaratineDriver implements SearchEngineDriver
     if (_jampChannel == null)
       _jampChannel = getCookie(response);
 
-    BaratineQuery queryResponse = parseResponse(response);
+    BaratineQuery[] queries = parseResponse(response);
 
-    if (queryResponse == searchQuery) {
-      _queries.remove(messageId);
+    boolean isMatch = false;
+
+    for (BaratineQuery query : queries) {
+      if (query == searchQuery) {
+        isMatch = true;
+        _queries.remove(messageId);
+      }
+      else {
+        processQuery(query);
+      }
     }
-    else {
-      processQuery(queryResponse);
+
+    if (!isMatch)
       processQuery(searchQuery);
-    }
 
-    searchQuery.validate();
+    if (!_isPreload)
+      searchQuery.validate();
   }
 
   @Override
@@ -184,14 +200,14 @@ public class BaratineDriver implements SearchEngineDriver
 
     CloseableHttpResponse response = _client.execute(post);
 
-    BaratineQuery baratineQuery = parseResponse(response);
+    BaratineQuery[] queries = parseResponse(response);
 
-//    System.out.println("BaratineDriver.poll:  " + baratineQuery);
-
-    processQuery(baratineQuery);
+    for (BaratineQuery query : queries) {
+      processQuery(query);
+    }
   }
 
-  private BaratineQuery parseResponse(CloseableHttpResponse response)
+  private BaratineQuery[] parseResponse(CloseableHttpResponse response)
     throws IOException
   {
     try (InputStream in = response.getEntity().getContent()) {
@@ -202,36 +218,42 @@ public class BaratineDriver implements SearchEngineDriver
       JsonNode tree = mapper.readTree(parser);
 
       if (tree == null || tree.size() == 0) {
-        return null;
+        return new BaratineQuery[0];
+      }
+//BaratineDriver.parseResponse: [["reply",{},"/search",193,[{"_externalId":"3925383","_id":116,"_score":0.44276124238967896}]],["reply",{},"/search",192,[{"_externalId":"3925383","_id":116,"_score":0.44276124238967896}]]]
+
+      BaratineQuery[] queries = new BaratineQuery[tree.size()];
+      for (int i = 0; i < tree.size(); i++) {
+        JsonNode node = tree.get(i);
+
+        if (!"reply".equals(node.get(0).asText())) {
+          System.out.println(" error: " + tree);
+        }
+
+        String messageId = node.get(3).asText();
+
+        String type = node.get(2).asText();
+
+        BaratineQuery query = _queries.get(messageId);
+
+        synchronized (query) {
+          if ("/update".equals(type)) {
+            query.setUpdateResult(node.get(4).asBoolean());
+          }
+          else if ("/search".equals(type)) {
+            String extId = node.get(4).get(0).get("_externalId").asText();
+
+            query.setSearchResult(extId);
+          }
+          else {
+            throw new IllegalStateException(tree.toString());
+          }
+        }
+
+        queries[i] = query;
       }
 
-      System.out.println("BaratineDriver.parseResponse " + tree);
-
-      if (!"reply".equals(tree.get(0).get(0).asText())) {
-        System.out.println(" error: " + tree);
-      }
-
-      String messageId = tree.get(0).get(3).asText();
-
-      String type = tree.get(0).get(2).asText();
-
-      BaratineQuery query = _queries.get(messageId);
-
-      synchronized (query) {
-        if ("/update".equals(type)) {
-          query.setUpdateResult(tree.get(0).get(4).asBoolean());
-        }
-        else if ("/search".equals(type)) {
-          String extId = tree.get(0).get(4).get(0).get("_externalId").asText();
-
-          query.setSearchResult(extId);
-        }
-        else {
-          throw new IllegalStateException(tree.toString());
-        }
-      }
-
-      return query;
+      return queries;
     }
   }
 
@@ -243,7 +265,8 @@ public class BaratineDriver implements SearchEngineDriver
     synchronized (query) {
       if (query.getUpdateResult() == null && query.getSearchResult() == null) {
         try {
-          query.wait();
+          if (!_isPreload)
+            query.wait();
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
@@ -266,6 +289,12 @@ public class BaratineDriver implements SearchEngineDriver
         System.out.println("  " + query);
       }
     }
+  }
+
+  @Override
+  public void setPreload(boolean preload)
+  {
+    _isPreload = preload;
   }
 
   class BaratineQuery
@@ -327,7 +356,7 @@ public class BaratineDriver implements SearchEngineDriver
       case UPDATE: {
         if (!Boolean.TRUE.equals(_updateResult))
           throw new IllegalStateException(String.format(
-            "unexpected udpate result %1$s",
+            "unexpected update result %1$s",
             this.toString()));
         break;
       }
@@ -359,7 +388,7 @@ public class BaratineDriver implements SearchEngineDriver
   {
     try {
       driver.update(new FileInputStream(
-        "/Users/alex/data/wiki/40002/4000225.txt"), "4000225", false);
+        "/Users/alex/data/wiki/40002/4000225.txt"), "4000225");
     } catch (IOException e) {
       e.printStackTrace();
     }

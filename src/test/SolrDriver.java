@@ -5,7 +5,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.codehaus.jackson.JsonFactory;
@@ -15,18 +15,22 @@ import org.codehaus.jackson.map.ObjectMapper;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.util.List;
 import java.util.Map;
 
 public class SolrDriver implements SearchEngineDriver
 {
+  JsonFactory _jsonFactory = new JsonFactory();
+
   @Override
-  public void update(InputStream in, String id, boolean isPreload)
+  public void update(InputStream in, String id)
     throws IOException
   {
     //http://localhost:8984/solr/foo/update/json/docs";
     String url = "http://localhost:8983/solr/foo/update/json/docs?commit=true";
-
-    JsonFactory jsonFactory = new JsonFactory();
 
     CloseableHttpClient client = HttpClients.createDefault();
     HttpPost post = new HttpPost(url);
@@ -40,8 +44,25 @@ public class SolrDriver implements SearchEngineDriver
 
     post.setConfig(config);
 
-    InputStreamEntity e = new InputStreamEntity(in,
-                                                ContentType.APPLICATION_JSON);
+    StringWriter writer = new StringWriter();
+
+    try (Reader reader = new InputStreamReader(in, "UTF-8")) {
+      char[] buffer = new char[0x1024];
+      int l;
+
+      while ((l = reader.read(buffer)) > 0) {
+        writer.write(buffer, 0, l);
+      }
+
+      writer.flush();
+      writer.close();
+    }
+
+    String template = "{\"id\": \"%1$s\", \"data_t\":\"%2$s\"}";
+
+    String data = String.format(template, id, writer.getBuffer().toString());
+
+    StringEntity e = new StringEntity(data, ContentType.APPLICATION_JSON);
 
     post.setEntity(e);
 
@@ -50,9 +71,13 @@ public class SolrDriver implements SearchEngineDriver
     try (InputStream respIn = response.getEntity().getContent()) {
       ObjectMapper mapper = new ObjectMapper();
 
-      JsonParser parser = jsonFactory.createJsonParser(respIn);
+      JsonParser parser = _jsonFactory.createJsonParser(respIn);
 
       Map map = mapper.readValue(parser, Map.class);
+
+      if (!"0".equals(
+        ((Map) map.get("responseHeader")).get("status").toString()))
+        throw new AssertionError("expected 0 but received " + map);
     }
   }
 
@@ -78,13 +103,15 @@ public class SolrDriver implements SearchEngineDriver
     CloseableHttpResponse response = client.execute(get);
 
     try (InputStream in = response.getEntity().getContent()) {
-      JsonFactory jsonFactory = new JsonFactory();
-
       ObjectMapper mapper = new ObjectMapper();
 
-      JsonParser parser = jsonFactory.createJsonParser(in);
+      JsonParser parser = _jsonFactory.createJsonParser(in);
 
       Map map = mapper.readValue(parser, Map.class);
+
+      if (!expectedId.equals(((Map) ((List) ((Map) map.get("response")).get(
+        "docs")).get(0)).get("id")))
+        throw new AssertionError("expected " + expectedId + " received " + map);
     }
   }
 
@@ -100,11 +127,17 @@ public class SolrDriver implements SearchEngineDriver
 
   }
 
+  @Override
+  public void setPreload(boolean preload)
+  {
+
+  }
+
   private static void update(SolrDriver driver)
   {
     try {
       driver.update(new FileInputStream(
-        "/Users/alex/data/wiki/40002/4000225.txt"), "4000225", false);
+        "/Users/alex/data/wiki/40002/4000225.txt"), "4000225");
     } catch (IOException e) {
       e.printStackTrace();
     }
