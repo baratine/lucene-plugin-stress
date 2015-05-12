@@ -260,6 +260,18 @@ public class BaratineDriver implements SearchEngineDriver
     }
   }
 
+  @Override
+  public void printState()
+  {
+    if (_queries.size() > 0) {
+
+      System.out.println("unfinished queries:");
+      for (BaratineQuery query : _queries.values()) {
+        System.out.println("  " + query);
+      }
+    }
+  }
+
   class BaratineQuery
   {
     final private String _messageId;

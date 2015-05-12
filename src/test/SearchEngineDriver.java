@@ -10,4 +10,6 @@ public interface SearchEngineDriver
   void search(String query, String expectedId) throws IOException;
 
   void poll() throws IOException;
+
+  void printState();
 }

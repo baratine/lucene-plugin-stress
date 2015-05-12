@@ -90,8 +90,22 @@ public class TestDriver
       }
     }
 
-    for (int i = 0; i < _futureResults.size(); i++) {
-      submitPoll();
+    if (_futureResults.size() > 0) {
+      for (int i = 0; i < 3; i++) {
+
+        for (int j = 0; j < _futureResults.size(); j++) {
+          submitPoll();
+          try {
+            Thread.sleep(100 * i);
+          } catch (InterruptedException e) {
+          }
+        }
+
+        try {
+          Thread.sleep(1000 * i);
+        } catch (InterruptedException e) {
+        }
+      }
     }
 
     _executors.shutdown();

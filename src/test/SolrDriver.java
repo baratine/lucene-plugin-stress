@@ -12,6 +12,7 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -19,7 +20,8 @@ import java.util.Map;
 public class SolrDriver implements SearchEngineDriver
 {
   @Override
-  public void update(InputStream in, String id, boolean isPreload) throws IOException
+  public void update(InputStream in, String id, boolean isPreload)
+    throws IOException
   {
     //http://localhost:8984/solr/foo/update/json/docs";
     String url = "http://localhost:8983/solr/foo/update/json/docs?commit=true";
@@ -92,12 +94,36 @@ public class SolrDriver implements SearchEngineDriver
     Thread.yield();
   }
 
+  @Override
+  public void printState()
+  {
+
+  }
+
+  private static void update(SolrDriver driver)
+  {
+    try {
+      driver.update(new FileInputStream(
+        "/Users/alex/data/wiki/40002/4000225.txt"), "4000225", false);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private static void search(SolrDriver driver)
+  {
+    try {
+      driver.search("2e6ddb8e-d235-4286-94d0-fc8029f0114a", "4000225");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   public static void main(String[] args) throws IOException
   {
-/*
-    new SolrDriver().update(null, null);
-    new SolrDriver().search(null);
-*/
+    SolrDriver solr = new SolrDriver();
+    update(solr);
+    search(solr);
   }
 }
 /*
