@@ -1,4 +1,4 @@
-solr-4000
+Solr-4000
 
 clients 12, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
 search
@@ -18,7 +18,7 @@ search
 update
   avg: 26.538231	min: 13.000000	 max: 104.000000	 n: 667
 
-Baratine
+Baratine-4000
 ------------------------------------------------------------------------------------------------
 clients 12, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
 search
