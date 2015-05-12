@@ -25,6 +25,8 @@ public class SolrDriver implements SearchEngineDriver
 {
   JsonFactory _jsonFactory = new JsonFactory();
 
+  CloseableHttpClient _client = HttpClients.createDefault();
+
   @Override
   public void update(InputStream in, String id)
     throws IOException
@@ -32,7 +34,6 @@ public class SolrDriver implements SearchEngineDriver
     //http://localhost:8984/solr/foo/update/json/docs";
     String url = "http://localhost:8983/solr/foo/update/json/docs?commit=true";
 
-    CloseableHttpClient client = HttpClients.createDefault();
     HttpPost post = new HttpPost(url);
 
     RequestConfig config
@@ -66,7 +67,7 @@ public class SolrDriver implements SearchEngineDriver
 
     post.setEntity(e);
 
-    CloseableHttpResponse response = client.execute(post);
+    CloseableHttpResponse response = _client.execute(post);
 
     try (InputStream respIn = response.getEntity().getContent()) {
       ObjectMapper mapper = new ObjectMapper();
@@ -88,7 +89,6 @@ public class SolrDriver implements SearchEngineDriver
       = "http://localhost:8983/solr/foo/select?q=%1$s&wt=json&indent=true";
     url = String.format(url, query);
 
-    CloseableHttpClient client = HttpClients.createDefault();
     HttpGet get = new HttpGet(url);
 
     RequestConfig config
@@ -100,7 +100,7 @@ public class SolrDriver implements SearchEngineDriver
 
     get.setConfig(config);
 
-    CloseableHttpResponse response = client.execute(get);
+    CloseableHttpResponse response = _client.execute(get);
 
     try (InputStream in = response.getEntity().getContent()) {
       ObjectMapper mapper = new ObjectMapper();

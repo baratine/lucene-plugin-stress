@@ -331,7 +331,7 @@ public class TestDriver
     File file = new File(args[0]);
 
     SearchEngineDriver driver = new SolrDriver();
-    driver = new BaratineDriver();
+    //driver = new BaratineDriver();
     TestDriver testDriver = new TestDriver(4,
                                            5f,
                                            4000,
