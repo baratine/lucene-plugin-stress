@@ -56,3 +56,9 @@ search
   avg: 6.140240	min: 0.000000	 max: 327.000000	 n: 3330
 update
   avg: 5.805097	min: 3.000000	 max: 322.000000	 n: 667
+
+submitted 167, searched 834, search-update-ratio 4.994012, search-update-ratio-target 5.000000
+search
+  avg: 12.183894	min: 1.000000	 max: 696.000000	 n: 832
+update
+  avg: 11.837349	min: 4.000000	 max: 385.000000	 n: 166

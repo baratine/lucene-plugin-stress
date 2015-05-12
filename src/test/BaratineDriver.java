@@ -91,12 +91,6 @@ public class BaratineDriver implements SearchEngineDriver
 
     CloseableHttpResponse response = _client.execute(post);
 
-    if (isPreload) {
-      response.close();
-
-      return;
-    }
-
     if (_jampChannel == null)
       _jampChannel = getCookie(response);
 
@@ -210,6 +204,8 @@ public class BaratineDriver implements SearchEngineDriver
       if (tree == null || tree.size() == 0) {
         return null;
       }
+
+      System.out.println("BaratineDriver.parseResponse " + tree);
 
       if (!"reply".equals(tree.get(0).get(0).asText())) {
         System.out.println(" error: " + tree);

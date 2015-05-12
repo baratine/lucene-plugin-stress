@@ -116,6 +116,8 @@ public class TestDriver
       searchCounter,
       ((float) searchCounter / submitCounter),
       _searchSubmitRatio));
+
+    _searchEngineDriver.printState();
   }
 
   public void testResults()
@@ -246,6 +248,9 @@ public class TestDriver
       }
       _queryKeys.add(d.getKey());
     }
+
+    for (int i = 0; i < n && _provider.hasNext(); i++)
+      _searchEngineDriver.poll();
   }
 
   public void printStats()
@@ -321,11 +326,11 @@ public class TestDriver
     driver = new BaratineDriver();
     TestDriver testDriver = new TestDriver(4,
                                            5f,
-                                           1000,
+                                           100,
                                            new DataProvider(file),
                                            driver);
 
-    testDriver.preload(100);
+    testDriver.preload(10);
 
     testDriver.run();
 
