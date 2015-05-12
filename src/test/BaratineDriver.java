@@ -308,29 +308,24 @@ public class BaratineDriver implements SearchEngineDriver
 
     public void validate()
     {
-      try {
-        switch (_type) {
-        case SEARCH: {
-          if (!_expectedSearchResult.equals(_searchResult))
-            throw new IllegalStateException(String.format(
-              "unexpected search result %1$s",
-              this.toString()));
-          break;
-        }
-        case UPDATE: {
-          if (!Boolean.TRUE.equals(_updateResult))
-            throw new IllegalStateException(String.format(
-              "unexpected udpate result %1$s",
-              this.toString()));
-          break;
-        }
-        default: {
-          throw new IllegalStateException();
-        }
-        }
-      } catch (NullPointerException npe) {
-
-        System.out.println("BaratineQuery.validate: NPE " + this);
+      switch (_type) {
+      case SEARCH: {
+        if (!_expectedSearchResult.equals(_searchResult))
+          throw new IllegalStateException(String.format(
+            "unexpected search result %1$s",
+            this.toString()));
+        break;
+      }
+      case UPDATE: {
+        if (!Boolean.TRUE.equals(_updateResult))
+          throw new IllegalStateException(String.format(
+            "unexpected udpate result %1$s",
+            this.toString()));
+        break;
+      }
+      default: {
+        throw new IllegalStateException();
+      }
       }
     }
 

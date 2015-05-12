@@ -64,7 +64,7 @@ public class TestDriver
     _executors.submit(() -> testResults());
 
     while (true) {
-      if (_futureResults.size() == _clients || _limit <= 0) {
+      if (_futureResults.size() == _clients) {
         submitPoll();
 
         continue;
@@ -81,19 +81,23 @@ public class TestDriver
 
       ratio = (float) searchCounter / submitCounter;
 
-      if (_limit-- == 0 && _futureResults.size() == 0) {
-        break;
-      }
-
       if (_limit % 100 == 0) {
         System.out.println("limit:  " + _limit);
       }
+
+      if (_limit-- <= 0) {
+        break;
+      }
+    }
+
+    for (int i = 0; i < _futureResults.size(); i++) {
+      submitPoll();
     }
 
     _executors.shutdown();
 
     System.out.println(String.format(
-      "submitted %1$d searched %2$d search-update-ratio %3$f search-update-ratio-target %4$f",
+      "submitted %1$d, searched %2$d, search-update-ratio %3$f, search-update-ratio-target %4$f",
       submitCounter,
       searchCounter,
       ((float) searchCounter / submitCounter),
@@ -303,7 +307,7 @@ public class TestDriver
     driver = new BaratineDriver();
     TestDriver testDriver = new TestDriver(4,
                                            5f,
-                                           4000,
+                                           1000,
                                            new DataProvider(file),
                                            driver);
 
