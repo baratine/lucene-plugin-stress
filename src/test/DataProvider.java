@@ -19,9 +19,12 @@ public class DataProvider implements Iterator<DataProvider.Data>
   Properties _queries = new Properties();
 
   private int _current = 0;
+  private long _size;
 
-  public DataProvider(File file) throws IOException
+  public DataProvider(File file, long size) throws IOException
   {
+    _size = size;
+
     add(file);
 
     try (Reader in = new InputStreamReader(
@@ -33,6 +36,9 @@ public class DataProvider implements Iterator<DataProvider.Data>
 
   public void add(File file)
   {
+    if (_data.size() >= _size)
+      return;
+
     if (file.isDirectory()) {
       File[] files = file.listFiles(pathname -> {
         if (pathname.isDirectory())

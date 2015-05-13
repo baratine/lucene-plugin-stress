@@ -87,7 +87,7 @@ public class TestDriver
         System.out.println("limit:  "
                            + _limit
                            + ", polls: " + pollCounter
-                           +", futureResults.size: "
+                           + ", futureResults.size: "
                            + _futureResults.size());
       }
 
@@ -241,7 +241,7 @@ public class TestDriver
     }
   }
 
-  public void preload(int n) throws IOException
+  public void preload(long n) throws IOException
   {
     _searchEngineDriver.setPreload(true);
     for (int i = 0; i < n && _provider.hasNext(); i++) {
@@ -330,16 +330,21 @@ public class TestDriver
   {
     File file = new File(args[0]);
 
+    long preloadSize = 100;
+    long loadSize = 4000;
+
+    DataProvider provider = new DataProvider(file, preloadSize + loadSize);
+
     SearchEngineDriver driver = new SolrDriver();
-    //driver = new BaratineDriver();
+    driver = new BaratineDriver();
     TestDriver testDriver = new TestDriver(4,
                                            5f,
-                                           4000,
-                                           new DataProvider(file),
+                                           loadSize,
+                                           provider,
                                            driver);
 
     long start = System.currentTimeMillis();
-    testDriver.preload(100);
+    testDriver.preload(preloadSize);
 
     testDriver.run();
 

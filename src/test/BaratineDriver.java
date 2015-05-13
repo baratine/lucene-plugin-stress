@@ -56,7 +56,7 @@ public class BaratineDriver implements SearchEngineDriver
     HttpPost post = new HttpPost(url);
 
     String template
-      = "[[\"query\",{},\"/update\",%1$s,\"/lucene\",\"indexText\", \"%2$s\", \"%3$s\", \"%4$s\"]]";
+      = "[[\"query\",{},\"/update\",%1$s,\"/session\",\"indexText\", \"%2$s\", \"%3$s\", \"%4$s\"]]";
 
     StringWriter writer = new StringWriter();
 
@@ -150,9 +150,9 @@ public class BaratineDriver implements SearchEngineDriver
     _queries.put(messageId, searchQuery);
 
     String template
-      = "[[\"query\",{},\"/search\",%1$s,\"/lucene\",\"search\", \"%2$s\", \"%3$s\", \"%4$d\"]]";
+      = "[[\"query\",{},\"/search\",%1$s,\"/session\",\"search\", \"%2$s\", \"%3$s\"]]";
 
-    String data = String.format(template, messageId, "foo", luceneQuery, 1);
+    String data = String.format(template, messageId, "foo", luceneQuery);
 
     StringEntity e = new StringEntity(data, _defaultContentType);
 
@@ -187,7 +187,7 @@ public class BaratineDriver implements SearchEngineDriver
   @Override
   public void poll() throws IOException
   {
-    String url = "http://localhost:8085/s/lucene/lucene";
+    String url = "http://localhost:8085/s/lucene/session";
 
     HttpPost post = new HttpPost(url);
 
