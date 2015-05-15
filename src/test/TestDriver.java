@@ -348,7 +348,9 @@ public class TestDriver
                                            driver);
 
     long start = System.currentTimeMillis();
-    testDriver.preload(preloadSize);
+    testDriver.preload(1);
+    testDriver.submitPoll();
+    testDriver.preload(preloadSize - 1);
 
     testDriver.run();
 

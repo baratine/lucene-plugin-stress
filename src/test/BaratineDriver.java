@@ -158,9 +158,9 @@ public class BaratineDriver implements SearchEngineDriver
     _queries.put(messageId, searchQuery);
 
     String template
-      = "[[\"query\",{},\"/search\",%1$s,\"/session\",\"search\", \"%2$s\", \"%3$s\"]]";
+      = "[[\"query\",{},\"/search\",%1$s,\"/session\",\"search\", \"%2$s\", \"%3$s\", \"%4$d\"]]";
 
-    String data = String.format(template, messageId, "foo", luceneQuery);
+    String data = String.format(template, messageId, "foo", luceneQuery, 255);
 
     StringEntity e = new StringEntity(data, _defaultContentType);
 
@@ -300,9 +300,9 @@ public class BaratineDriver implements SearchEngineDriver
         }
       }
       else {
-        query.notify();
-
         _queries.remove(query.getMessageId());
+
+        query.notify();
       }
     }
   }
