@@ -64,11 +64,11 @@ public class TestDriver
 
     _executors.submit(() -> testResults());
 
+    submitPoll();
+
     while (true) {
       if (_futureResults.size() > _clients) {
-        submitPoll();
-        pollCounter++;
-
+        Thread.yield();
         continue;
       }
 
@@ -95,7 +95,8 @@ public class TestDriver
         break;
       }
     }
-
+    System.out.println(String.format("waiting for %1$d futures to complete",
+                                     _futureResults.size()));
     if (_futureResults.size() > 0) {
       for (int i = 0; i < 3; i++) {
 
@@ -115,6 +116,9 @@ public class TestDriver
     }
 
     _executors.shutdown();
+
+    System.out.println(String.format("%1$d futures did not complete",
+                                     _futureResults.size()));
 
     System.out.println(String.format(
       "clients %1$d, submitted %2$d, searched %3$d, search-update-ratio %4$f, search-update-ratio-target %5$f",
@@ -336,7 +340,7 @@ public class TestDriver
     DataProvider provider = new DataProvider(file, preloadSize + loadSize);
 
     SearchEngineDriver driver = new SolrDriver();
-    driver = new BaratineDriver();
+    driver = new BaratineDriver("http://localhost:8085");
     TestDriver testDriver = new TestDriver(4,
                                            5f,
                                            loadSize,
@@ -370,8 +374,9 @@ class TimedCallable implements Callable<RequestResult>
     final long start = System.currentTimeMillis();
 
     RequestResult result = _delegate.call();
-    result.setStartTime(start);
+
     result.setFinishTime(System.currentTimeMillis());
+    result.setStartTime(start);
 
     return result;
   }

@@ -34,11 +34,11 @@ public class BaratineDriver implements SearchEngineDriver
   Map<String,BaratineQuery> _queries = new ConcurrentHashMap<>();
 
   ContentType _defaultContentType
-    = ContentType.create("x-application/jamp-poll",
+    = ContentType.create("x-application/jamp-push",
                          StandardCharsets.UTF_8);
 
   ContentType _pollContentType
-    = ContentType.create("x-application/jamp-poll",
+    = ContentType.create("x-application/jamp-pull",
                          StandardCharsets.UTF_8);
 
   CloseableHttpClient _client = HttpClients.createDefault();
@@ -48,10 +48,18 @@ public class BaratineDriver implements SearchEngineDriver
   String _jampChannel;
   boolean _isPreload;
 
+  String _baseUrl;
+  private Thread _pollThread;
+
+  public BaratineDriver(String baseUrl)
+  {
+    _baseUrl = baseUrl;
+  }
+
   public void update(InputStream in, String id)
     throws IOException
   {
-    String url = "http://localhost:8085/s/lucene";
+    String url = _baseUrl + "/s/lucene";
 
     HttpPost post = new HttpPost(url);
 
@@ -133,7 +141,7 @@ public class BaratineDriver implements SearchEngineDriver
   @Override
   public void search(String luceneQuery, String expectedId) throws IOException
   {
-    String url = "http://localhost:8085/s/lucene";
+    String url = _baseUrl + "/s/lucene";
 
     HttpPost post = new HttpPost(url);
 
@@ -187,23 +195,43 @@ public class BaratineDriver implements SearchEngineDriver
   @Override
   public void poll() throws IOException
   {
-    String url = "http://localhost:8085/s/lucene/session";
+    if (_pollThread == null) {
+      _pollThread = new Thread(() -> pollImpl());
 
-    HttpPost post = new HttpPost(url);
+      _pollThread.setDaemon(true);
 
-    if (_jampChannel != null)
-      post.setHeader("Cookie", _jampChannel);
+      _pollThread.start();
+    }
+  }
 
-    StringEntity e = new StringEntity("[]", _pollContentType);
+  private void pollImpl()
+  {
+    while (true) {
+      try {
+        String url = _baseUrl + "/s/lucene/session";
 
-    post.setEntity(e);
+        HttpPost post = new HttpPost(url);
 
-    CloseableHttpResponse response = _client.execute(post);
+        if (_jampChannel != null)
+          post.setHeader("Cookie", _jampChannel);
 
-    BaratineQuery[] queries = parseResponse(response);
+        StringEntity e = new StringEntity("[]", _pollContentType);
 
-    for (BaratineQuery query : queries) {
-      processQuery(query);
+        post.setEntity(e);
+
+        CloseableHttpResponse response = _client.execute(post);
+
+        BaratineQuery[] queries = parseResponse(response);
+
+        //System.out.println("BaratineDriver.pollImpl: " + queries.length);
+
+        for (BaratineQuery query : queries) {
+          //System.out.println("  " + query);
+          processQuery(query);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
   }
 
@@ -417,7 +445,7 @@ public class BaratineDriver implements SearchEngineDriver
   {
     ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-    BaratineDriver driver = new BaratineDriver();
+    BaratineDriver driver = new BaratineDriver("http://localhost:8085");
 
     executorService.submit(() -> update(driver));
     Thread.sleep(100);
