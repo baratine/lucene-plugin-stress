@@ -340,7 +340,8 @@ public class TestDriver
     DataProvider provider = new DataProvider(file, preloadSize + loadSize);
 
     SearchEngineDriver driver = new SolrDriver();
-    driver = new BaratineDriver("http://localhost:8085");
+    //driver = new BaratineDriver("http://localhost:8085");
+    driver = new BaratineDriverRpc("http://localhost:8085");
     TestDriver testDriver = new TestDriver(4,
                                            5f,
                                            loadSize,

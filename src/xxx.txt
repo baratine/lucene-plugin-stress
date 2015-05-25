@@ -20,21 +20,30 @@ update
 
 Baratine-4000
 ------------------------------------------------------------------------------------------------
-clients 12, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
+clients 4, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
 search
-  avg: 24.867726	min: 1.000000	 max: 305.000000	 n: 3334
+  avg: 7.342531	min: 1.000000	 max: 75.000000	 n: 3334
 update
-  avg: 35.079460	min: 3.000000	 max: 261.000000	 n: 667
-
-clients 8, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
-search
-  avg: 16.687163	min: 0.000000	 max: 277.000000	 n: 3334
-update
-  avg: 24.020990	min: 3.000000	 max: 248.000000	 n: 667
+  avg: 16.461769	min: 7.000000	 max: 83.000000	 n: 667
 
 clients 4, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
 search
-  avg: 8.610378	min: 0.000000	 max: 232.000000	 n: 3334
+  avg: 6.686263	min: 1.000000	 max: 71.000000	 n: 3334
 update
-  avg: 13.205397	min: 3.000000	 max: 231.000000	 n: 667
+  avg: 13.577211	min: 6.000000	 max: 70.000000	 n: 667
+
+Baratine-4000-RPC
+------------------------------------------------------------------------------------------------
+clients 4, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
+search
+  avg: 7.793579	min: 0.000000	 max: 77.000000	 n: 3333
+update
+  avg: 9.397301	min: 3.000000	 max: 37.000000	 n: 667
+
+clients 4, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
+search
+  avg: 7.484848	min: 1.000000	 max: 92.000000	 n: 3333
+update
+  avg: 9.310345	min: 2.000000	 max: 61.000000	 n: 667
+test run time: 16345
 
