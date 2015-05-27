@@ -2,6 +2,7 @@ package test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public interface SearchEngineDriver
 {
@@ -14,4 +15,6 @@ public interface SearchEngineDriver
   void printState();
 
   void setPreload(boolean preload);
+
+  List<String> getMatches();
 }

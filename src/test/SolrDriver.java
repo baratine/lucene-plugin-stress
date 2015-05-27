@@ -133,6 +133,12 @@ public class SolrDriver implements SearchEngineDriver
 
   }
 
+  @Override
+  public List<String> getMatches()
+  {
+    return null;
+  }
+
   private static void update(SolrDriver driver)
   {
     try {

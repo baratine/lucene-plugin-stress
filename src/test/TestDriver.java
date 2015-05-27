@@ -356,6 +356,8 @@ public class TestDriver
 
     System.out.println("\ntest run time: " + (System.currentTimeMillis()
                                               - start));
+
+    System.out.println("TestDriver.main " + driver.getMatches());
   }
 }
 

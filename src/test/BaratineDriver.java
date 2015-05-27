@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -323,6 +324,12 @@ public class BaratineDriver implements SearchEngineDriver
   public void setPreload(boolean preload)
   {
     _isPreload = preload;
+  }
+
+  @Override
+  public List<String> getMatches()
+  {
+    return null;
   }
 
   class BaratineQuery

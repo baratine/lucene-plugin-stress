@@ -23,6 +23,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,13 +47,14 @@ public class BaratineDriverRpc implements SearchEngineDriver
 
   String _baseUrl;
 
+  List<String> _matches = new ArrayList<>(8000);
+
   public BaratineDriverRpc(String baseUrl)
   {
     _baseUrl = baseUrl;
   }
 
-  public void update(InputStream in, String id)
-    throws IOException
+  public void update(InputStream in, String id) throws IOException
   {
     String url = _baseUrl + "/s/lucene";
 
@@ -112,7 +115,8 @@ public class BaratineDriverRpc implements SearchEngineDriver
   }
 
   @Override
-  public void search(String luceneQuery, String expectedDocId) throws IOException
+  public void search(String luceneQuery, String expectedDocId)
+    throws IOException
   {
     String url = _baseUrl + "/s/lucene";
 
@@ -199,6 +203,8 @@ public class BaratineDriverRpc implements SearchEngineDriver
           new String(bytes)));
       }
 
+      _matches.add(messageId);
+
       String type = node.get(2).asText();
 
       LuceneRpcResponse query;
@@ -242,6 +248,12 @@ public class BaratineDriverRpc implements SearchEngineDriver
   @Override
   public void setPreload(boolean preload)
   {
+  }
+
+  @Override
+  public List<String> getMatches()
+  {
+    return _matches;
   }
 
   class LuceneRpcResponse
