@@ -45,5 +45,12 @@ search
   avg: 7.484848	min: 1.000000	 max: 92.000000	 n: 3333
 update
   avg: 9.310345	min: 2.000000	 max: 61.000000	 n: 667
-test run time: 16345
+
+Baratine-BFS-400-RPC
+------------------------------------------------------------------------------------------------
+clients 4, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
+search
+  avg: 12.514997	min: 1.000000	 max: 77.000000	 n: 3334
+update
+  avg: 15.041979	min: 3.000000	 max: 55.000000	 n: 667
 

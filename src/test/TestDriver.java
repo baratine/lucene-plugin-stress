@@ -342,11 +342,8 @@ public class TestDriver
     SearchEngineDriver driver = new SolrDriver();
     //driver = new BaratineDriver("http://localhost:8085");
     driver = new BaratineDriverRpc("http://localhost:8085");
-    TestDriver testDriver = new TestDriver(4,
-                                           5f,
-                                           loadSize,
-                                           provider,
-                                           driver);
+
+    TestDriver testDriver = new TestDriver(4, 5f, loadSize, provider, driver);
 
     long start = System.currentTimeMillis();
     testDriver.preload(1);

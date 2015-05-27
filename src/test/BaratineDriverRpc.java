@@ -92,9 +92,7 @@ public class BaratineDriverRpc implements SearchEngineDriver
     if (_jampChannel == null)
       _jampChannel = getCookie(response);
 
-    LuceneRpcResponse[] responses = parseResponse(response);
-
-    LuceneRpcResponse rpcResponse = responses[0];
+    LuceneRpcResponse rpcResponse = parseResponse(response, messageId);
 
     rpcResponse.validate();
   }
@@ -114,7 +112,7 @@ public class BaratineDriverRpc implements SearchEngineDriver
   }
 
   @Override
-  public void search(String luceneQuery, String expectedId) throws IOException
+  public void search(String luceneQuery, String expectedDocId) throws IOException
   {
     String url = _baseUrl + "/s/lucene";
 
@@ -139,17 +137,15 @@ public class BaratineDriverRpc implements SearchEngineDriver
     if (_jampChannel == null)
       _jampChannel = getCookie(response);
 
-    LuceneRpcResponse[] responses = parseResponse(response);
-    LuceneRpcResponse rpcResponse = responses[0];
+    LuceneRpcResponse rpcResponse = parseResponse(response, messageId);
 
-    assert responses.length == 1;
-
-    rpcResponse.setExcpectedSearchResult(expectedId);
+    rpcResponse.setExcpectedSearchResult(expectedDocId);
 
     rpcResponse.validate();
   }
 
-  private LuceneRpcResponse[] parseResponse(CloseableHttpResponse response)
+  private LuceneRpcResponse parseResponse(CloseableHttpResponse response,
+                                          String expectedMessageId)
     throws IOException
   {
     byte[] bytes;
@@ -166,7 +162,6 @@ public class BaratineDriverRpc implements SearchEngineDriver
       bytes = out.toByteArray();
     }
 
-//    try (InputStream in = response.getEntity().getContent()) {
     try (InputStream in = new ByteArrayInputStream(bytes)) {
       ObjectMapper mapper = new ObjectMapper();
 
@@ -175,41 +170,55 @@ public class BaratineDriverRpc implements SearchEngineDriver
       JsonNode tree = mapper.readTree(parser);
 
       if (tree == null || tree.size() == 0) {
-        return new LuceneRpcResponse[0];
+        throw new IllegalStateException(String.format(
+          "received no reply for message %1$s",
+          expectedMessageId));
       }
+      else if (tree.size() > 1) {
+        throw new IllegalStateException(String.format(
+          "too many replies for message %1$s %2$s",
+          expectedMessageId, new String(bytes)));
+      }
+
 //BaratineDriver.parseResponse: [["reply",{},"/search",193,[{"_externalId":"3925383","_id":116,"_score":0.44276124238967896}]],["reply",{},"/search",192,[{"_externalId":"3925383","_id":116,"_score":0.44276124238967896}]]]
 
-      LuceneRpcResponse[] queries = new LuceneRpcResponse[tree.size()];
-      for (int i = 0; i < tree.size(); i++) {
-        JsonNode node = tree.get(i);
+      LuceneRpcResponse[] queries = new LuceneRpcResponse[1];
 
-        if (!"reply".equals(node.get(0).asText())) {
-          System.out.println(" error: " + tree);
-        }
+      JsonNode node = tree.get(0);
 
-        String messageId = node.get(3).asText();
-
-        String type = node.get(2).asText();
-
-        LuceneRpcResponse query;
-        if ("/update".equals(type)) {
-          query = new LuceneRpcResponse(messageId, QueryType.UPDATE);
-          query.setUpdateResult(node.get(4).asBoolean());
-        }
-        else if ("/search".equals(type)) {
-          query = new LuceneRpcResponse(messageId, QueryType.SEARCH);
-
-          String extId = node.get(4).get(0).get("_externalId").asText();
-
-          query.setSearchResult(extId);
-        }
-        else {
-          throw new IllegalStateException(tree.toString());
-        }
-        queries[i] = query;
+      if (!"reply".equals(node.get(0).asText())) {
+        System.out.println(" error: " + tree);
       }
 
-      return queries;
+      String messageId = node.get(3).asText();
+
+      if (!expectedMessageId.equals(messageId)) {
+        throw new IllegalStateException(String.format(
+          "unexpected messageId in reply to %1$s '%2$s'",
+          expectedMessageId,
+          new String(bytes)));
+      }
+
+      String type = node.get(2).asText();
+
+      LuceneRpcResponse query;
+
+      if ("/update".equals(type)) {
+        query = new LuceneRpcResponse(messageId, QueryType.UPDATE);
+        query.setUpdateResult(node.get(4).asBoolean());
+      }
+      else if ("/search".equals(type)) {
+        query = new LuceneRpcResponse(messageId, QueryType.SEARCH);
+
+        String extId = node.get(4).get(0).get("_externalId").asText();
+
+        query.setSearchResult(extId);
+      }
+      else {
+        throw new IllegalStateException(tree.toString());
+      }
+
+      return query;
     } catch (JsonParseException e) {
       System.err.println(new String(bytes));
 
@@ -283,7 +292,7 @@ public class BaratineDriverRpc implements SearchEngineDriver
 
     public void validate()
     {
-     switch (_type) {
+      switch (_type) {
       case SEARCH: {
         if (!_expectedSearchResult.equals(_searchResult))
           throw new IllegalStateException(String.format(
