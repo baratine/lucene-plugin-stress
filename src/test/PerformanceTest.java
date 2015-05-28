@@ -5,54 +5,53 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class TestDriver
+public class PerformanceTest
 {
   private final ExecutorService _executors;
   private final int _clients;
 
   private final DataProvider _provider;
 
-  private final SearchEngineDriver _searchEngineDriver;
+  private final SearchEngine _searchEngine;
 
   private final List<String> _queryKeys = new ArrayList<>();
 
-  private final List<Future<RequestResult>> _futureResults
-    = new ArrayList<>();
+  private final ConcurrentLinkedQueue<RequestResult> _results
+    = new ConcurrentLinkedQueue<>();
 
-  private final List<RequestResult> _results = new ArrayList<>();
+  private final AtomicInteger _currentRequests = new AtomicInteger(0);
 
-  private final float _searchSubmitRatio;
+  private final float _searchSubmitTarget;
 
   private long _limit;
 
-  public TestDriver(int n,
-                    float searchSubmitRatio,
-                    long limit,
-                    DataProvider provider,
-                    SearchEngineDriver driver)
+  public PerformanceTest(int n,
+                         float searchSubmitTarget,
+                         long limit,
+                         DataProvider provider,
+                         SearchEngine driver)
   {
     Objects.requireNonNull(provider);
     Objects.requireNonNull(driver);
 
-    if (0f > searchSubmitRatio)
+    if (0f > searchSubmitTarget)
       throw new IllegalArgumentException();
 
-    _searchSubmitRatio = searchSubmitRatio;
+    _searchSubmitTarget = searchSubmitTarget;
     _limit = limit;
     _clients = n;
     _provider = provider;
-    _searchEngineDriver = driver;
+    _searchEngine = driver;
 
-    _executors = Executors.newFixedThreadPool(n + 1);
+    _executors = Executors.newFixedThreadPool(n);
   }
 
   public void run()
@@ -62,17 +61,15 @@ public class TestDriver
     long pollCounter = 0;
     float ratio = 1;
 
-    _executors.submit(() -> testResults());
-
     submitPoll();
 
     while (true) {
-      if (_futureResults.size() > _clients) {
+      if (_currentRequests.get() > _clients) {
         Thread.yield();
         continue;
       }
 
-      if (ratio < _searchSubmitRatio) {
+      if (ratio < _searchSubmitTarget) {
         if (submitSearch())
           searchCounter++;
       }
@@ -88,37 +85,39 @@ public class TestDriver
                            + _limit
                            + ", polls: " + pollCounter
                            + ", futureResults.size: "
-                           + _futureResults.size());
+                           + _currentRequests.get());
       }
+
+      _currentRequests.incrementAndGet();
 
       if (_limit-- <= 0) {
         break;
       }
     }
-    System.out.println(String.format("waiting for %1$d futures to complete",
-                                     _futureResults.size()));
-    if (_futureResults.size() > 0) {
-      for (int i = 0; i < 3; i++) {
 
-        for (int j = 0; j < _futureResults.size(); j++) {
-          submitPoll();
-          try {
-            Thread.sleep(100 * i);
-          } catch (InterruptedException e) {
-          }
-        }
+    System.out.println(String.format("waiting for %1$d requests to complete",
+                                     _currentRequests.get()));
 
+    for (int i = 0; i < 3; i++) {
+
+      for (int j = 0; j < _currentRequests.get(); j++) {
+        submitPoll();
         try {
-          Thread.sleep(1000 * i);
+          Thread.sleep(100 * i);
         } catch (InterruptedException e) {
         }
+      }
+
+      try {
+        Thread.sleep(1000 * i);
+      } catch (InterruptedException e) {
       }
     }
 
     _executors.shutdown();
 
-    System.out.println(String.format("%1$d futures did not complete",
-                                     _futureResults.size()));
+    System.out.println(String.format("%1$d rquests did not complete",
+                                     _currentRequests.get()));
 
     System.out.println(String.format(
       "clients %1$d, submitted %2$d, searched %3$d, search-update-ratio %4$f, search-update-ratio-target %5$f",
@@ -126,41 +125,15 @@ public class TestDriver
       submitCounter,
       searchCounter,
       ((float) searchCounter / submitCounter),
-      _searchSubmitRatio));
+      _searchSubmitTarget));
 
-    _searchEngineDriver.printState();
-  }
-
-  public void testResults()
-  {
-    while (!_executors.isShutdown()) {
-      synchronized (_futureResults) {
-        for (Iterator<Future<RequestResult>> it = _futureResults.iterator();
-             it.hasNext(); ) {
-          Future<RequestResult> future = it.next();
-
-          if (future.isCancelled()) {
-            throw new IllegalStateException();
-          }
-          else if (future.isDone()) {
-            it.remove();
-            try {
-              _results.add(future.get(1, TimeUnit.MILLISECONDS));
-            } catch (Throwable t) {
-              _results.add(RequestResult.createErrorResult(t));
-            }
-          }
-        }
-      }
-
-      Thread.yield();
-    }
+    _searchEngine.printState();
   }
 
   public boolean submitPoll()
   {
     try {
-      _searchEngineDriver.poll();
+      _searchEngine.poll();
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -185,7 +158,7 @@ public class TestDriver
       String key = getSearchKey();
       String query = _provider.getQuery(key);
 
-      _searchEngineDriver.search(query, key);
+      _searchEngine.search(query, key);
 
       result = RequestResult.createSearchResult();
     } catch (Throwable t) {
@@ -219,7 +192,7 @@ public class TestDriver
     RequestResult result;
 
     try (InputStream in = data.getInputStream()) {
-      _searchEngineDriver.update(in, data.getKey());
+      _searchEngine.update(in, data.getKey());
       _queryKeys.add(data.getKey());
 
       result = RequestResult.createUpdateResult();
@@ -232,27 +205,18 @@ public class TestDriver
 
   private void submit(Callable<RequestResult> callable)
   {
-    Future<RequestResult> future
-      = _executors.submit(new TimedCallable(callable));
-
-    addFutureResult(future);
-  }
-
-  private void addFutureResult(Future<RequestResult> result)
-  {
-    synchronized (_futureResults) {
-      _futureResults.add(result);
-    }
+    _executors.submit(new TimedCallable(callable));
   }
 
   public void preload(long n) throws IOException
   {
-    _searchEngineDriver.setPreload(true);
+    _searchEngine.setPreload(true);
+
     for (int i = 0; i < n && _provider.hasNext(); i++) {
       DataProvider.Data d = _provider.next();
 
       try {
-        _searchEngineDriver.update(d.getInputStream(), d.getKey());
+        _searchEngine.update(d.getInputStream(), d.getKey());
       } catch (Exception e) {
         System.out.println("TestDriver.preload " + e);
       }
@@ -260,9 +224,9 @@ public class TestDriver
     }
 
     for (int i = 0; i < n && _provider.hasNext(); i++)
-      _searchEngineDriver.poll();
+      _searchEngine.poll();
 
-    _searchEngineDriver.setPreload(false);
+    _searchEngine.setPreload(false);
   }
 
   public void printStats()
@@ -339,48 +303,56 @@ public class TestDriver
 
     DataProvider provider = new DataProvider(file, preloadSize + loadSize);
 
-    SearchEngineDriver driver = new SolrDriver();
+    SearchEngine driver = new Solr();
     //driver = new BaratineDriver("http://localhost:8085");
-    driver = new BaratineDriverRpc("http://localhost:8085");
+    driver = new BaratineRpc("http://localhost:8085");
 
-    TestDriver testDriver = new TestDriver(4, 5f, loadSize, provider, driver);
+    PerformanceTest performanceTest = new PerformanceTest(4,
+                                                          5f,
+                                                          loadSize,
+                                                          provider,
+                                                          driver);
 
     long start = System.currentTimeMillis();
-    testDriver.preload(1);
-    testDriver.submitPoll();
-    testDriver.preload(preloadSize - 1);
+    performanceTest.preload(1);
+    performanceTest.submitPoll();
+    performanceTest.preload(preloadSize - 1);
 
-    testDriver.run();
+    performanceTest.run();
 
-    testDriver.printStats();
+    performanceTest.printStats();
 
     System.out.println("\ntest run time: " + (System.currentTimeMillis()
                                               - start));
 
     System.out.println("TestDriver.main " + driver.getMatches());
   }
-}
 
-class TimedCallable implements Callable<RequestResult>
-{
-  private Callable<RequestResult> _delegate;
-
-  public TimedCallable(Callable<RequestResult> delegate)
+  class TimedCallable implements Callable<RequestResult>
   {
-    _delegate = delegate;
-  }
+    private Callable<RequestResult> _delegate;
 
-  @Override
-  public RequestResult call() throws Exception
-  {
-    final long start = System.currentTimeMillis();
+    public TimedCallable(Callable<RequestResult> delegate)
+    {
+      _delegate = delegate;
+    }
 
-    RequestResult result = _delegate.call();
+    @Override
+    public RequestResult call() throws Exception
+    {
+      final long start = System.currentTimeMillis();
 
-    result.setFinishTime(System.currentTimeMillis());
-    result.setStartTime(start);
+      RequestResult result = _delegate.call();
 
-    return result;
+      result.setFinishTime(System.currentTimeMillis());
+      result.setStartTime(start);
+
+      _currentRequests.decrementAndGet();
+
+      _results.add(result);
+
+      return result;
+    }
   }
 }
 /**

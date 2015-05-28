@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class BaratineDriver implements SearchEngineDriver
+public class Baratine implements SearchEngine
 {
   //[["reply",{},"/update",3085,true]]
   //[["reply",{},"/search",3023,[{"_searchResult":"3926930","_id":766,"_score":1.9077651500701904}]]]
@@ -52,7 +52,7 @@ public class BaratineDriver implements SearchEngineDriver
   String _baseUrl;
   private Thread _pollThread;
 
-  public BaratineDriver(String baseUrl)
+  public Baratine(String baseUrl)
   {
     _baseUrl = baseUrl;
   }
@@ -419,7 +419,7 @@ public class BaratineDriver implements SearchEngineDriver
     UPDATE
   }
 
-  private static void update(BaratineDriver driver)
+  private static void update(Baratine driver)
   {
     try {
       driver.update(new FileInputStream(
@@ -429,7 +429,7 @@ public class BaratineDriver implements SearchEngineDriver
     }
   }
 
-  private static void search(BaratineDriver driver)
+  private static void search(Baratine driver)
   {
     try {
       driver.search("2e6ddb8e-d235-4286-94d0-fc8029f0114a", "4000225");
@@ -438,7 +438,7 @@ public class BaratineDriver implements SearchEngineDriver
     }
   }
 
-  private static void poll(BaratineDriver driver)
+  private static void poll(Baratine driver)
   {
     try {
       driver.poll();
@@ -452,7 +452,7 @@ public class BaratineDriver implements SearchEngineDriver
   {
     ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-    BaratineDriver driver = new BaratineDriver("http://localhost:8085");
+    Baratine driver = new Baratine("http://localhost:8085");
 
     executorService.submit(() -> update(driver));
     Thread.sleep(100);

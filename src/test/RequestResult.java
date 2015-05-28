@@ -78,7 +78,6 @@ public class RequestResult
 
   public static RequestResult createErrorResult(Throwable t)
   {
-    t.printStackTrace();
     return new RequestResult(RequestType.ERROR, t);
   }
 

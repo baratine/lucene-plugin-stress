@@ -30,8 +30,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class BaratineDriverRpc implements SearchEngineDriver
+public class BaratineRpc implements SearchEngine
 {
   //[["reply",{},"/update",3085,true]]
   //[["reply",{},"/search",3023,[{"_searchResult":"3926930","_id":766,"_score":1.9077651500701904}]]]
@@ -43,13 +44,13 @@ public class BaratineDriverRpc implements SearchEngineDriver
   JsonFactory _jsonFactory = new JsonFactory();
   private AtomicLong _counter = new AtomicLong(0);
 
-  String _jampChannel;
+  private AtomicReference<String> _jampChannel = new AtomicReference<>();
 
   String _baseUrl;
 
   List<String> _matches = new ArrayList<>(8000);
 
-  public BaratineDriverRpc(String baseUrl)
+  public BaratineRpc(String baseUrl)
   {
     _baseUrl = baseUrl;
   }
@@ -78,7 +79,7 @@ public class BaratineDriverRpc implements SearchEngineDriver
     }
 
     if (_jampChannel != null)
-      post.setHeader("Cookie", _jampChannel);
+      post.setHeader("Cookie", _jampChannel.get());
 
     String data = writer.getBuffer().toString();
 
@@ -93,7 +94,7 @@ public class BaratineDriverRpc implements SearchEngineDriver
     CloseableHttpResponse response = _client.execute(post);
 
     if (_jampChannel == null)
-      _jampChannel = getCookie(response);
+      _jampChannel.set(getCookie(response));
 
     LuceneRpcResponse rpcResponse = parseResponse(response, messageId);
 
@@ -123,7 +124,7 @@ public class BaratineDriverRpc implements SearchEngineDriver
     HttpPost post = new HttpPost(url);
 
     if (_jampChannel != null)
-      post.setHeader("Cookie", _jampChannel);
+      post.setHeader("Cookie", _jampChannel.get());
 
     String messageId = Long.toString(_counter.getAndIncrement());
 
@@ -139,7 +140,7 @@ public class BaratineDriverRpc implements SearchEngineDriver
     CloseableHttpResponse response = _client.execute(post);
 
     if (_jampChannel == null)
-      _jampChannel = getCookie(response);
+      _jampChannel.set(getCookie(response));
 
     LuceneRpcResponse rpcResponse = parseResponse(response, messageId);
 
@@ -343,7 +344,7 @@ public class BaratineDriverRpc implements SearchEngineDriver
     UPDATE
   }
 
-  private static void update(BaratineDriverRpc driver)
+  private static void update(BaratineRpc driver)
   {
     try {
       driver.update(new FileInputStream(
@@ -353,7 +354,7 @@ public class BaratineDriverRpc implements SearchEngineDriver
     }
   }
 
-  private static void search(BaratineDriverRpc driver)
+  private static void search(BaratineRpc driver)
   {
     try {
       driver.search("2e6ddb8e-d235-4286-94d0-fc8029f0114a", "4000225");
@@ -367,7 +368,7 @@ public class BaratineDriverRpc implements SearchEngineDriver
   {
     ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-    BaratineDriverRpc driver = new BaratineDriverRpc("http://localhost:8085");
+    BaratineRpc driver = new BaratineRpc("http://localhost:8085");
 
     Future future = executorService.submit(() -> update(driver));
     Thread.sleep(100);

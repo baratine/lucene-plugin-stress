@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-public interface SearchEngineDriver
+public interface SearchEngine
 {
   void update(InputStream file, String id) throws IOException;
 

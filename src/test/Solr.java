@@ -21,7 +21,7 @@ import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
-public class SolrDriver implements SearchEngineDriver
+public class Solr implements SearchEngine
 {
   JsonFactory _jsonFactory = new JsonFactory();
 
@@ -139,7 +139,7 @@ public class SolrDriver implements SearchEngineDriver
     return null;
   }
 
-  private static void update(SolrDriver driver)
+  private static void update(Solr driver)
   {
     try {
       driver.update(new FileInputStream(
@@ -149,7 +149,7 @@ public class SolrDriver implements SearchEngineDriver
     }
   }
 
-  private static void search(SolrDriver driver)
+  private static void search(Solr driver)
   {
     try {
       driver.search("2e6ddb8e-d235-4286-94d0-fc8029f0114a", "4000225");
@@ -160,7 +160,7 @@ public class SolrDriver implements SearchEngineDriver
 
   public static void main(String[] args) throws IOException
   {
-    SolrDriver solr = new SolrDriver();
+    Solr solr = new Solr();
     update(solr);
     search(solr);
   }
