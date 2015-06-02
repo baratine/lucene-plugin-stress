@@ -50,7 +50,21 @@ Baratine-BFS-400-RPC
 ------------------------------------------------------------------------------------------------
 clients 4, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
 search
-  avg: 12.514997	min: 1.000000	 max: 77.000000	 n: 3334
+  avg: 10.204859	min: 1	 max: 287 277 270 265 165 157 155 	 n: 3334
 update
-  avg: 15.041979	min: 3.000000	 max: 55.000000	 n: 667
+  avg: 12.665667	min: 2	 max: 162 78 77 47 43 42 36 	 n: 667
 
+June 1
+----- f7fa682158114d66f33bf29ab7e6868ffab6604e ----
+0 requests did not complete
+clients 4, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
+search
+  avg: 7.105279	min: 1	 max: 124 123 122 59 58 53 46 	 n: 3334
+update
+  avg: 8.802099	min: 2	 max: 123 41 38 35 35 33 31 	 n: 667
+
+clients 4, submitted 667, searched 3334, search-update-ratio 4.998501, search-update-ratio-target 5.000000
+search
+  avg: 7.115477	min: 1	 max: 125 123 122 108 70 52 52 	 n: 3334
+update
+  avg: 8.326837	min: 2	 max: 37 36 35 35 27 27 27 	 n: 667

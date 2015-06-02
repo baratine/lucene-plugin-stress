@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -116,7 +118,7 @@ public class PerformanceTest
 
     _executors.shutdown();
 
-    System.out.println(String.format("%1$d rquests did not complete",
+    System.out.println(String.format("%1$d requests did not complete",
                                      _currentRequests.get()));
 
     System.out.println(String.format(
@@ -236,8 +238,9 @@ public class PerformanceTest
       String _name;
       double _sum = 0d;
       int _n = 0;
-      float _max = 0f;
-      float _min = Float.MAX_VALUE;
+      List<Long> _max = new ArrayList<>();
+
+      long _min = Long.MAX_VALUE;
 
       public Stat(String name)
       {
@@ -246,12 +249,13 @@ public class PerformanceTest
 
       void add(RequestResult result)
       {
-        float time = result.getFinishTime() - result.getStartTime();
+        long time = result.getFinishTime() - result.getStartTime();
 
         _sum += time;
         _n++;
-        if (time > _max)
-          _max = time;
+
+        _max.add(time);
+
         if (time < _min)
           _min = time;
       }
@@ -260,11 +264,16 @@ public class PerformanceTest
       {
         out.print(_name);
         double avg = _sum / _n;
-        out.print(String.format("\n  avg: %1$f\tmin: %2$f\t max: %3$f\t n: %4$d",
-                                avg,
-                                _min,
-                                _max,
-                                _n));
+        StringBuilder max = new StringBuilder();
+        Collections.sort(_max);
+
+        for (int i = _max.size() - 1; i > _max.size() - 8; i--) {
+          long v = _max.get(i);
+          max.append(v).append(" ");
+        }
+
+        out.print(String.format("\n  avg: %1$f\tmin: %2$d\t max: %3$s\t n: %4$d",
+                                avg, _min, max, _n));
       }
     }
     Stat search = new Stat("search");
@@ -296,6 +305,7 @@ public class PerformanceTest
 
   public static void main(String[] args) throws IOException
   {
+    System.out.println("Start-Time: " + new Date());
     File file = new File(args[0]);
 
     long preloadSize = 100;
@@ -305,7 +315,8 @@ public class PerformanceTest
 
     SearchEngine driver = new Solr();
     //driver = new BaratineDriver("http://localhost:8085");
-    driver = new BaratineRpc("http://localhost:8085");
+    driver = new BaratineRpc("http://debosx:8085");
+    //driver = new BaratineTest("http://localhost:8085");
 
     PerformanceTest performanceTest = new PerformanceTest(4,
                                                           5f,
