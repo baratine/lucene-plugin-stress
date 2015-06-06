@@ -1,12 +1,11 @@
-
 package test;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,16 +18,18 @@ public class HttpClient implements AutoCloseable
   private OutputStream _out;
   private InputStream _in;
 
+  ByteBuffer _outBuffer = ByteBuffer.allocateDirect(1024 * 512);
+
   public HttpClient(String host, int port) throws IOException
   {
     _host = host;
     _socket = new Socket(host, port);
-    _socket.setReceiveBufferSize(512);
-    _socket.setSendBufferSize(512);
+    _socket.setReceiveBufferSize(1024);
+    _socket.setSendBufferSize(1024);
     _socket.setKeepAlive(true);
     _socket.setTcpNoDelay(true);
 
-    _out = new BufferedOutputStream(_socket.getOutputStream());
+    _out = _socket.getOutputStream();
 
     _in = new BufferedInputStream(_socket.getInputStream());
   }
@@ -56,25 +57,33 @@ public class HttpClient implements AutoCloseable
                                       byte[] data)
     throws IOException
   {
-    writeMethod(_out, method, path);
+    _outBuffer.clear();
 
-    writeHeader(_out, "Host", _host);
+    writeMethod(_outBuffer, method, path);
+
+    writeHeader(_outBuffer, "Host", _host);
 
     if (HttpMethod.GET == method) {
-      _out.write(CRLF);
+      _outBuffer.put(CRLF);
     }
     else {
-      writeHeader(_out, "Content-Type", contentType);
+      writeHeader(_outBuffer, "Content-Type", contentType);
 
       int l = data == null ? 0 : data.length;
 
-      writeHeader(_out, "Content-Length", l);
+      writeHeader(_outBuffer, "Content-Length", l);
 
-      _out.write(CRLF);
+      _outBuffer.put(CRLF);
 
-      _out.write(data);
+      _outBuffer.put(data);
     }
 
+    byte[] dataOut = new byte[_outBuffer.position()];
+
+    _outBuffer.flip();
+    _outBuffer.get(dataOut);
+
+    _out.write(dataOut);
     _out.flush();
 
     int status = parseStatus(_in);
@@ -87,40 +96,40 @@ public class HttpClient implements AutoCloseable
     return new ClientResponseStream(status, headers, _in);
   }
 
-  private OutputStream writeMethod(OutputStream out,
-                                   HttpMethod method,
-                                   String path)
+  private ByteBuffer writeMethod(ByteBuffer out,
+                                 HttpMethod method,
+                                 String path)
     throws IOException
   {
-    out.write(method.method().getBytes());
-    out.write(' ');
-    out.write(path.getBytes());
-    out.write(" HTTP/1.1".getBytes());
-    out.write(CRLF);
+    out.put(method.method().getBytes());
+    out.put((byte) ' ');
+    out.put(path.getBytes());
+    out.put(" HTTP/1.1".getBytes());
+    out.put(CRLF);
 
     return out;
   }
 
-  private OutputStream writeHeader(OutputStream out, String key, String value)
+  private ByteBuffer writeHeader(ByteBuffer out, String key, String value)
     throws IOException
   {
     return writeHeader(out, key, value.getBytes());
   }
 
-  private OutputStream writeHeader(OutputStream out, String key, int v)
+  private ByteBuffer writeHeader(ByteBuffer out, String key, int v)
     throws IOException
   {
     return writeHeader(out, key, Integer.toString(v).getBytes());
   }
 
-  private OutputStream writeHeader(OutputStream out, String key, byte[] header)
+  private ByteBuffer writeHeader(ByteBuffer out, String key, byte[] header)
     throws IOException
   {
-    out.write(key.getBytes());
-    out.write(':');
-    out.write(' ');
-    out.write(header);
-    out.write(CRLF);
+    out.put(key.getBytes());
+    out.put((byte) ':');
+    out.put((byte) ' ');
+    out.put(header);
+    out.put(CRLF);
 
     return out;
   }
@@ -130,6 +139,8 @@ public class HttpClient implements AutoCloseable
     private int _status;
     Map<String,HttpHeader> _headers;
     private InputStream _in;
+    private byte[] _buffer = new byte[1024];
+    private int _position = 0;
 
     public ClientResponseStream(int status,
                                 Map<String,HttpHeader> headers,
@@ -138,6 +149,7 @@ public class HttpClient implements AutoCloseable
       _status = status;
       _headers = headers;
       _in = in;
+
     }
 
     public int getStatus()
@@ -187,15 +199,6 @@ public class HttpClient implements AutoCloseable
     }
   }
 
-  /*
-  HTTP/1.1 200 OK
-  Server: Resin/snap
-  Content-Length: 29
-  Date: Fri, 05 Jun 2015 16:55:11 GMT
-
-  [["reply",{},"/test",0,true]]
-  */
-
   private static int parseStatus(InputStream in) throws IOException
   {
     int i;
@@ -218,15 +221,6 @@ public class HttpClient implements AutoCloseable
 
     return status;
   }
-
-  /*
-  HTTP/1.1 200 OK
-  Server: Resin/snap
-  Content-Length: 29
-  Date: Fri, 05 Jun 2015 16:55:11 GMT
-
-  [["reply",{},"/test",0,true]]
-  */
 
   static class HttpHeader
   {
@@ -258,8 +252,8 @@ public class HttpClient implements AutoCloseable
 
   public static HttpHeader parseHeader(InputStream in) throws IOException
   {
-    StringBuilder key = new StringBuilder();
-    StringBuilder value = new StringBuilder();
+    StringBuilder key = new StringBuilder(32);
+    StringBuilder value = new StringBuilder(32);
 
     int i = in.read();
 
@@ -335,8 +329,8 @@ public class HttpClient implements AutoCloseable
 
   public static void main(String[] args) throws IOException
   {
-    //testGet();
-    testPost();
+    testGet();
+    //testPost();
   }
 
   enum HttpMethod

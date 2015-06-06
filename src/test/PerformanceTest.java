@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.LockSupport;
 
 public class PerformanceTest
 {
@@ -66,8 +67,9 @@ public class PerformanceTest
     submitPoll();
 
     while (true) {
-      if (_currentRequests.get() > _clients) {
+      if (_currentRequests.get() > _clients * 2) {
         Thread.yield();
+        LockSupport.parkNanos(1);
         continue;
       }
 
@@ -82,7 +84,7 @@ public class PerformanceTest
 
       ratio = (float) searchCounter / submitCounter;
 
-      if (_limit % 100 == 0) {
+      if (_limit % 1000 == 0) {
         System.out.println("limit:  "
                            + _limit
                            + ", polls: " + pollCounter
@@ -100,19 +102,11 @@ public class PerformanceTest
     System.out.println(String.format("waiting for %1$d requests to complete",
                                      _currentRequests.get()));
 
-    for (int i = 0; i < 3; i++) {
-
-      for (int j = 0; j < _currentRequests.get(); j++) {
-        submitPoll();
-        try {
-          Thread.sleep(100 * i);
-        } catch (InterruptedException e) {
-        }
-      }
-
+    for (int i = 0; i < 3 && _currentRequests.get() > 0; i++) {
       try {
-        Thread.sleep(1000 * i);
+        Thread.sleep(100);
       } catch (InterruptedException e) {
+        e.printStackTrace();
       }
     }
 
@@ -189,13 +183,13 @@ public class PerformanceTest
     return true;
   }
 
-  private RequestResult update(DataProvider.Data data)
+  private RequestResult update(DataProvider.Data wikiData)
   {
     RequestResult result;
 
-    try (InputStream in = data.getInputStream()) {
-      _searchEngine.update(in, data.getKey());
-      _queryKeys.add(data.getKey());
+    try (InputStream in = wikiData.getInputStream()) {
+      _searchEngine.update(in, wikiData.getKey());
+      _queryKeys.add(wikiData.getKey());
 
       result = RequestResult.createUpdateResult();
     } catch (Throwable t) {
@@ -311,12 +305,21 @@ public class PerformanceTest
     long preloadSize = 100;
     long loadSize = 4000;
 
-    DataProvider provider = new DataProvider(file, preloadSize + loadSize);
+    DataProvider provider;//= new DataProvider(file, preloadSize + loadSize);
 
-    SearchEngine driver = new Solr();
-    //driver = new BaratineDriver("http://localhost:8085");
-    driver = new BaratineRpc("http://debosx:8085");
-    //driver = new BaratineTest("http://localhost:8085");
+    SearchEngine driver;
+    if (false) {
+      driver = new Solr();
+      //driver = new BaratineDriver("http://localhost:8085");
+      //driver = new BaratineRpc("http://debosx:8085");
+      provider = new WikiDataProvider(file, preloadSize + loadSize);
+    }
+
+    {
+      driver = new BaratineTest("http://localhost:8085");
+
+      provider = new NullDataProvider(preloadSize + loadSize);
+    }
 
     PerformanceTest performanceTest = new PerformanceTest(4,
                                                           5f,
