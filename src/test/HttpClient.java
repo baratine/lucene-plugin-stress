@@ -17,6 +17,7 @@ public class HttpClient implements AutoCloseable
   private Socket _socket;
   private OutputStream _out;
   private InputStream _in;
+  private ClientResponseStream _clientResponseStream;
 
   ByteBuffer _outBuffer = ByteBuffer.allocateDirect(1024 * 512);
 
@@ -32,6 +33,8 @@ public class HttpClient implements AutoCloseable
     _out = _socket.getOutputStream();
 
     _in = new BufferedInputStream(_socket.getInputStream());
+
+    _clientResponseStream = new ClientResponseStream(_in);
   }
 
   @Override
@@ -86,14 +89,10 @@ public class HttpClient implements AutoCloseable
     _out.write(dataOut);
     _out.flush();
 
-    int status = parseStatus(_in);
+    _clientResponseStream.reset();
+    _clientResponseStream.parse();
 
-    Map<String,HttpHeader> headers = new HashMap<>();
-    HttpHeader header;
-    while ((header = parseHeader(_in)) != null)
-      headers.put(header.getKey(), header);
-
-    return new ClientResponseStream(status, headers, _in);
+    return _clientResponseStream;
   }
 
   private ByteBuffer writeMethod(ByteBuffer out,
@@ -136,20 +135,103 @@ public class HttpClient implements AutoCloseable
 
   class ClientResponseStream
   {
-    private int _status;
-    Map<String,HttpHeader> _headers;
+    private int _status = 0;
+    Map<String,HttpHeader> _headers = new HashMap<>();
     private InputStream _in;
-    private byte[] _buffer = new byte[1024];
-    private int _position = 0;
 
-    public ClientResponseStream(int status,
-                                Map<String,HttpHeader> headers,
-                                InputStream in)
+    public ClientResponseStream(InputStream in) throws IOException
     {
-      _status = status;
-      _headers = headers;
       _in = in;
+    }
 
+    public void reset()
+    {
+      _headers.clear();
+      _status = 0;
+    }
+
+    private void parse() throws IOException
+    {
+      _status = parseStatus(_in);
+
+      HttpHeader header;
+      while ((header = parseHeader(_in)) != null)
+        _headers.put(header.getKey(), header);
+    }
+
+    private int parseStatus(InputStream in) throws IOException
+    {
+      int i;
+
+      for (i = in.read(); i != ' '; i = in.read()) ;
+
+      int status = 0;
+
+      for (i = in.read(); i != ' '; i = in.read()) {
+        status = status * 10 + i - '0';
+      }
+
+      for (i = in.read(); i != '\r'; i = in.read()) ;
+
+      if ((i = in.read()) != '\n')
+        throw new IllegalStateException(String.format(
+          "expected %1$s but recieved %2$s",
+          Integer.toHexString('\n'),
+          Integer.toHexString(i)));
+
+      return status;
+    }
+
+    private HttpHeader parseHeader(InputStream in) throws IOException
+    {
+      StringBuilder key = new StringBuilder(32);
+      StringBuilder value = new StringBuilder(32);
+
+      int i = in.read();
+
+      if (i == '\r')
+        if ((i = in.read()) == '\n') {
+          return null;
+        }
+        else {
+          throw new IllegalStateException(String.format(
+            "expected %1$s but recieved %2$s",
+            Integer.toHexString('\n'),
+            Integer.toHexString(i)));
+        }
+
+      key.append((char) i);
+
+      for (i = in.read(); i != ':'; i = in.read()) {
+        key.append((char) i);
+      }
+
+      for (i = in.read(); i == ' '; i = in.read()) ;
+
+      if (i == '\r')
+        if ((i = in.read()) == '\n') {
+          return new HttpHeader(key, null);
+        }
+        else {
+          throw new IllegalStateException(String.format(
+            "expected %1$s but recieved %2$s",
+            Integer.toHexString('\n'),
+            Integer.toHexString(i)));
+        }
+
+      value.append((char) i);
+
+      for (i = in.read(); i != '\r'; i = in.read()) {
+        value.append((char) i);
+      }
+
+      if ((i = in.read()) != '\n')
+        throw new IllegalStateException(String.format(
+          "expected %1$s but recieved %2$s",
+          Integer.toHexString('\n'),
+          Integer.toHexString(i)));
+
+      return new HttpHeader(key, value);
     }
 
     public int getStatus()
@@ -199,29 +281,6 @@ public class HttpClient implements AutoCloseable
     }
   }
 
-  private static int parseStatus(InputStream in) throws IOException
-  {
-    int i;
-
-    for (i = in.read(); i != ' '; i = in.read()) ;
-
-    int status = 0;
-
-    for (i = in.read(); i != ' '; i = in.read()) {
-      status = status * 10 + i - '0';
-    }
-
-    for (i = in.read(); i != '\r'; i = in.read()) ;
-
-    if ((i = in.read()) != '\n')
-      throw new IllegalStateException(String.format(
-        "expected %1$s but recieved %2$s",
-        Integer.toHexString('\n'),
-        Integer.toHexString(i)));
-
-    return status;
-  }
-
   static class HttpHeader
   {
     private String _key;
@@ -248,58 +307,6 @@ public class HttpClient implements AutoCloseable
     {
       return "HttpHeader[" + _key + ": " + _value + ']';
     }
-  }
-
-  public static HttpHeader parseHeader(InputStream in) throws IOException
-  {
-    StringBuilder key = new StringBuilder(32);
-    StringBuilder value = new StringBuilder(32);
-
-    int i = in.read();
-
-    if (i == '\r')
-      if ((i = in.read()) == '\n') {
-        return null;
-      }
-      else {
-        throw new IllegalStateException(String.format(
-          "expected %1$s but recieved %2$s",
-          Integer.toHexString('\n'),
-          Integer.toHexString(i)));
-      }
-
-    key.append((char) i);
-
-    for (i = in.read(); i != ':'; i = in.read()) {
-      key.append((char) i);
-    }
-
-    for (i = in.read(); i == ' '; i = in.read()) ;
-
-    if (i == '\r')
-      if ((i = in.read()) == '\n') {
-        return new HttpHeader(key, null);
-      }
-      else {
-        throw new IllegalStateException(String.format(
-          "expected %1$s but recieved %2$s",
-          Integer.toHexString('\n'),
-          Integer.toHexString(i)));
-      }
-
-    value.append((char) i);
-
-    for (i = in.read(); i != '\r'; i = in.read()) {
-      value.append((char) i);
-    }
-
-    if ((i = in.read()) != '\n')
-      throw new IllegalStateException(String.format(
-        "expected %1$s but recieved %2$s",
-        Integer.toHexString('\n'),
-        Integer.toHexString(i)));
-
-    return new HttpHeader(key, value);
   }
 
   public static void testGet() throws IOException
@@ -330,7 +337,7 @@ public class HttpClient implements AutoCloseable
   public static void main(String[] args) throws IOException
   {
     testGet();
-    //testPost();
+    testPost();
   }
 
   enum HttpMethod
