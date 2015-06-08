@@ -1,0 +1,15 @@
+SOLR:
+  clients 4, submitted 668, searched 3332, search-update-ratio 4.988024, search-update-ratio-target 5.000000
+  search avg: 0.818727 total-time: 2728 ops: 1221.407593
+  update avg: 9.270958 total-time: 6193 ops: 107.863716
+
+BRPC2:
+  clients 4, submitted 668, searched 3332, search-update-ratio 4.988024, search-update-ratio-target 5.000000
+  search avg: 1.444778 total-time: 4814 ops: 692.147888
+  update avg: 1.603293 total-time: 1071 ops: 623.716187
+
+BRPC:
+  clients 4, submitted 668, searched 3332, search-update-ratio 4.988024, search-update-ratio-target 5.000000
+  search avg: 1.540216 total-time: 5132 ops: 649.259583
+  update avg: 1.634731 total-time: 1092 ops: 611.721619
+

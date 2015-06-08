@@ -150,7 +150,7 @@ public class HttpClient implements AutoCloseable
       _status = 0;
     }
 
-    private void parse() throws IOException
+    void parse() throws IOException
     {
       _status = parseStatus(_in);
 
@@ -342,7 +342,6 @@ public class HttpClient implements AutoCloseable
 
   enum HttpMethod
   {
-
     GET {
       @Override
       public String method()

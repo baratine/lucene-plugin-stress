@@ -22,7 +22,8 @@ public class PerformanceTest
                          String host,
                          int port,
                          float targetRatio,
-                         DataProvider provider)
+                         DataProvider provider,
+                         ClientType type)
     throws IOException, ExecutionException, InterruptedException
   {
     Objects.requireNonNull(provider);
@@ -33,11 +34,37 @@ public class PerformanceTest
     _clients = new SearchClient[c];
 
     for (int i = 0; i < c; i++) {
-      SearchClient client = new BaratineRpc2(_provider,
-                                             n,
-                                             targetRatio,
-                                             host,
-                                             port);
+      SearchClient client = null;
+
+      switch (type) {
+      case BRPC: {
+        client = new BaratineRpc(_provider,
+                                 n,
+                                 targetRatio,
+                                 host,
+                                 port);
+        break;
+      }
+      case BRPC2: {
+        client = new BaratineRpc2(_provider,
+                                  n,
+                                  targetRatio,
+                                  host,
+                                  port);
+        break;
+      }
+      case SOLR: {
+        client = new Solr(_provider,
+                          n,
+                          targetRatio,
+                          host,
+                          port);
+        break;
+      }
+      default: {
+        throw new IllegalArgumentException();
+      }
+      }
 
       _clients[i] = client;
     }
@@ -79,7 +106,7 @@ public class PerformanceTest
 
     System.out.println(
       String.format(
-        "clients %1$d, submitted %2$d, searched %3$d, search-update-ratio %4$f, search-update-ratio-target %5$f",
+        "  clients %1$d, submitted %2$d, searched %3$d, search-update-ratio %4$f, search-update-ratio-target %5$f",
         _clients.length,
         updates,
         searches,
@@ -87,11 +114,11 @@ public class PerformanceTest
         _targetRatio));
 
     System.out.println(
-      String.format("search avg: %1$f total-time: %2$d ops: %3$f",
+      String.format("  search avg: %1$f total-time: %2$d ops: %3$f",
                     ((float) searchTime / searches), searchTime,
                     ((float) searches / searchTime * 1000)));
     System.out.println(
-      String.format("update avg: %1$f total-time: %2$d ops: %3$f",
+      String.format("  update avg: %1$f total-time: %2$d ops: %3$f",
                     ((float) updateTime / updates), updateTime,
                     ((float) updates / updateTime * 1000)));
   }
@@ -119,23 +146,30 @@ public class PerformanceTest
 
     DataProvider provider = new WikiDataProvider(file, size);
 
+    ClientType type = ClientType.BRPC2;
+    //type = ClientType.BRPC;
+      type = ClientType.SOLR;
+
     PerformanceTest test = new PerformanceTest(c,
                                                n,
                                                preload,
                                                host,
                                                port,
                                                targetRatio,
-                                               provider);
+                                               provider,
+                                               type);
 
     System.out.println("Start-Time-Run : " + new Date());
 
+    System.out.println("Finish-Time-Run: " + new Date());
     test.run();
 
-    System.out.println("Finish-Time-Run: " + new Date());
+    System.out.println(type + ":");
 
     test.printStats();
   }
 }
+
 /**
  * 5 clients
  * - 1 update
@@ -150,3 +184,10 @@ public class PerformanceTest
  * <p>
  * out: Rate requests per second (or cycles per second)
  */
+
+enum ClientType
+{
+  BRPC2,
+  BRPC,
+  SOLR
+}

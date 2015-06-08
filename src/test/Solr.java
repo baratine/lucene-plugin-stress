@@ -28,28 +28,45 @@ public class Solr extends BaseSearchClient
 
   private CloseableHttpClient _client = HttpClients.createDefault();
 
-  public Solr(DataProvider data, int n, float targetRatio)
+  final String _updateUrl;
+  final String _searchUrl;
+
+  RequestConfig _config = null;
+
+  public Solr(DataProvider data,
+              int n,
+              float targetRatio,
+              String host,
+              int port)
   {
     super(data, n, targetRatio);
+    _updateUrl = "http://"
+                 + host
+                 + ":"
+                 + port
+                 + "/solr/foo/update/json/docs?commit=true";
+
+    _searchUrl
+      = "http://"
+        + host
+        + ":"
+        + port
+        + "/solr/foo/select?q=%1$s&wt=json&indent=true";
+
+    _config = RequestConfig.copy(RequestConfig.DEFAULT)
+                           .setConnectTimeout(100)
+                           .setSocketTimeout(1000)
+                           .setConnectionRequestTimeout(1000)
+                           .build();
   }
 
   @Override
   public void update(InputStream in, String id)
     throws IOException
   {
-    //http://localhost:8984/solr/foo/update/json/docs";
-    String url = "http://localhost:8983/solr/foo/update/json/docs?commit=true";
+    HttpPost post = new HttpPost(_updateUrl);
 
-    HttpPost post = new HttpPost(url);
-
-    RequestConfig config
-      = RequestConfig.copy(RequestConfig.DEFAULT)
-                     .setConnectTimeout(100)
-                     .setSocketTimeout(1000)
-                     .setConnectionRequestTimeout(1000)
-                     .build();
-
-    post.setConfig(config);
+    post.setConfig(_config);
 
     StringWriter writer = new StringWriter();
 
@@ -76,11 +93,9 @@ public class Solr extends BaseSearchClient
     CloseableHttpResponse response = _client.execute(post);
 
     try (InputStream respIn = response.getEntity().getContent()) {
-      ObjectMapper mapper = new ObjectMapper();
-
       JsonParser parser = _jsonFactory.createJsonParser(respIn);
 
-      Map map = mapper.readValue(parser, Map.class);
+      Map map = _jsonMapper.readValue(parser, Map.class);
 
       if (!"0".equals(
         ((Map) map.get("responseHeader")).get("status").toString()))
@@ -91,29 +106,18 @@ public class Solr extends BaseSearchClient
   @Override
   public void search(String query, String expectedId) throws IOException
   {
-    String url
-      = "http://localhost:8983/solr/foo/select?q=%1$s&wt=json&indent=true";
-    url = String.format(url, query);
+    String url = String.format(_searchUrl, query);
 
     HttpGet get = new HttpGet(url);
 
-    RequestConfig config
-      = RequestConfig.copy(RequestConfig.DEFAULT)
-                     .setConnectTimeout(100)
-                     .setSocketTimeout(1000)
-                     .setConnectionRequestTimeout(1000)
-                     .build();
-
-    get.setConfig(config);
+    get.setConfig(_config);
 
     CloseableHttpResponse response = _client.execute(get);
 
     try (InputStream in = response.getEntity().getContent()) {
-      ObjectMapper mapper = new ObjectMapper();
-
       JsonParser parser = _jsonFactory.createJsonParser(in);
 
-      Map map = mapper.readValue(parser, Map.class);
+      Map map = _jsonMapper.readValue(parser, Map.class);
 
       if (!expectedId.equals(((Map) ((List) ((Map) map.get("response")).get(
         "docs")).get(0)).get("id")))
@@ -148,7 +152,7 @@ public class Solr extends BaseSearchClient
 
   public static void main(String[] args) throws IOException
   {
-    Solr solr = new Solr(new NullDataProvider(1), 1, 1);
+    Solr solr = new Solr(new NullDataProvider(1), 1, 1, "localhost", 8984);
     update(solr);
     search(solr);
   }
