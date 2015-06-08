@@ -147,8 +147,8 @@ public class PerformanceTest
     DataProvider provider = new WikiDataProvider(file, size);
 
     ClientType type = ClientType.BRPC2;
-    //type = ClientType.BRPC;
-      type = ClientType.SOLR;
+    type = ClientType.BRPC;
+    //type = ClientType.SOLR;
 
     PerformanceTest test = new PerformanceTest(c,
                                                n,
@@ -161,8 +161,9 @@ public class PerformanceTest
 
     System.out.println("Start-Time-Run : " + new Date());
 
-    System.out.println("Finish-Time-Run: " + new Date());
     test.run();
+
+    System.out.println("Finish-Time-Run: " + new Date());
 
     System.out.println(type + ":");
 

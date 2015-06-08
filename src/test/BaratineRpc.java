@@ -67,7 +67,7 @@ public class BaratineRpc extends BaseSearchClient
     HttpPost post = new HttpPost(url);
 
     String template
-      = "[[\"query\",{},\"/update\",%1$s,\"/session\",\"indexText\", \"%2$s\", \"%3$s\", \"%4$s\"]]";
+      = "[[\"query\",{},\"/update\",%1$s,\"/service\",\"indexText\", \"%2$s\", \"%3$s\", \"%4$s\"]]";
 
     StringWriter writer = new StringWriter();
 
@@ -134,7 +134,7 @@ public class BaratineRpc extends BaseSearchClient
     String messageId = Long.toString(_counter.getAndIncrement());
 
     String template
-      = "[[\"query\",{},\"/search\",%1$s,\"/session\",\"search\", \"%2$s\", \"%3$s\", \"%4$d\"]]";
+      = "[[\"query\",{},\"/search\",%1$s,\"/service\",\"search\", \"%2$s\", \"%3$s\", \"%4$d\"]]";
 
     String data = String.format(template, messageId, "foo", luceneQuery, 255);
 
