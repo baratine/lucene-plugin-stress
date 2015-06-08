@@ -1,8 +1,5 @@
 package test;
 
-import test.DataProvider;
-import test.SearchClient;
-
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -61,41 +58,45 @@ public abstract class BaseSearchClient implements SearchClient
     }
   }
 
+  private float ratio()
+  {
+    return (float) _searchCount / _updateCount;
+  }
+
   @Override
   final public void run()
   {
     for (int i = 0; i < _n; i++) {
-      float ratio = _updateCount > 0 ? _searchCount / _updateCount : 0;
-
-      if (ratio < _ratioTarget) {
-        DataProvider.Query query = _data.getQuery(i);
-        search(query);
-        _searchCount++;
+      if (_updateCount == 0 || ratio() > _ratioTarget) {
+        update();
       }
       else {
-        update(_iterator.next());
-        _updateCount++;
+        search();
       }
     }
   }
 
-  private void search(DataProvider.Query query)
+  private void search()
   {
     try {
+      DataProvider.Query query = _data.getQuery();
       long start = System.currentTimeMillis();
       search(query.getQuery(), query.getKey());
       _searchTime += System.currentTimeMillis() - start;
+      _searchCount++;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  private void update(DataProvider.Data data)
+  private void update()
   {
     try {
+      DataProvider.Data data = _iterator.next();
       long start = System.currentTimeMillis();
       update(data.getInputStream(), data.getKey());
       _updateTime += System.currentTimeMillis() - start;
+      _updateCount++;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 public interface DataProvider
 {
-  Query getQuery(int n);
+  Query getQuery();
 
   Iterator<Data> iterator();
 

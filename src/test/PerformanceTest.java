@@ -4,123 +4,136 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
-import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class PerformanceTest
 {
-  private final int _c;
-
+  private final int _preload;
   private final DataProvider _provider;
+  private final float _targetRatio;
+  private SearchClient[] _clients;
 
   public PerformanceTest(int c,
                          int n,
+                         int preload,
                          String host,
                          int port,
                          float targetRatio,
                          DataProvider provider)
+    throws IOException, ExecutionException, InterruptedException
   {
     Objects.requireNonNull(provider);
+    _preload = preload;
+    _provider = provider;
+    _targetRatio = targetRatio;
 
-    _c = c;
+    _clients = new SearchClient[c];
 
-    ExecutorService _executors = Executors.newFixedThreadPool(c);
-
-    SearchClient[] clients = new SearchClient[c];
-
-    for (int i = 0; i < clients.length; i++) {
-      SearchClient client = new BaratineRpc2(provider,
+    for (int i = 0; i < c; i++) {
+      SearchClient client = new BaratineRpc2(_provider,
                                              n,
                                              targetRatio,
                                              host,
                                              port);
 
+      _clients[i] = client;
     }
-
-    _executors.shutdown();
   }
 
-  public void run()
+  public void run() throws IOException, ExecutionException, InterruptedException
   {
+    ExecutorService executors = Executors.newFixedThreadPool(_clients.length);
 
+    for (SearchClient client : _clients) {
+      client.preload(_preload);
+    }
+
+    Future[] futures = new Future[_clients.length];
+    for (int i = 0; i < _clients.length; i++) {
+      futures[i] = executors.submit(_clients[i]);
+    }
+
+    for (Future future : futures) {
+      future.get();
+    }
+
+    executors.shutdown();
   }
 
   public void printStats()
   {
+    int updates = 0;
+    int searches = 0;
+    long updateTime = 0;
+    long searchTime = 0;
+    for (SearchClient client : _clients) {
+      updates += client.getUpdateCount();
+      searches += client.getSearchCount();
 
+      updateTime = Math.max(updateTime, client.getUpdateTime());
+      searchTime = Math.max(searchTime, client.getSearchTime());
+    }
+
+    System.out.println(
+      String.format(
+        "clients %1$d, submitted %2$d, searched %3$d, search-update-ratio %4$f, search-update-ratio-target %5$f",
+        _clients.length,
+        updates,
+        searches,
+        ((float) searches / updates),
+        _targetRatio));
+
+    System.out.println(
+      String.format("search avg: %1$f total-time: %2$d ops: %3$f",
+                    ((float) searchTime / searches), searchTime,
+                    ((float) searches / searchTime * 1000)));
+    System.out.println(
+      String.format("update avg: %1$f total-time: %2$d ops: %3$f",
+                    ((float) updateTime / updates), updateTime,
+                    ((float) updates / updateTime * 1000)));
   }
 
-  public static void main(String[] args) throws IOException
+  public static void main(String[] args)
+    throws IOException, ExecutionException, InterruptedException
   {
     System.out.println("Start-Time: " + new Date());
     File file = new File(args[0]);
 
-    long preloadSize = 100;
-    long loadSize = 4000;
+    int c = 4;
+    int n = 1000;
+    int preload = 100;
+    String host = "localhost";
+    int port = 8085;
+    float targetRatio = 5;
 
-    DataProvider provider;//= new DataProvider(file, preloadSize + loadSize);
-
-    SearchClient driver;
-    if (false) {
-      driver = new Solr();
-      //driver = new BaratineDriver("http://localhost:8085");
-      //driver = new BaratineRpc("http://debosx:8085");
-      provider = new WikiDataProvider(file, preloadSize + loadSize);
+    if (!true) {
+      c = 4;
+      n = 400;
+      preload = 10;
     }
 
-    {
-      driver = new BaratineTest("http://localhost:8085");
+    int size = c * (n + preload);
 
-      provider = new NullDataProvider(preloadSize + loadSize);
-    }
+    DataProvider provider = new WikiDataProvider(file, size);
 
-    PerformanceTest performanceTest = new PerformanceTest(4,
-                                                          5f,
-                                                          loadSize,
-                                                          provider,
-                                                          driver);
+    PerformanceTest test = new PerformanceTest(c,
+                                               n,
+                                               preload,
+                                               host,
+                                               port,
+                                               targetRatio,
+                                               provider);
 
-    long start = System.currentTimeMillis();
-    performanceTest.preload(1);
-    performanceTest.submitPoll();
-    performanceTest.preload(preloadSize - 1);
+    System.out.println("Start-Time-Run : " + new Date());
 
-    performanceTest.run();
+    test.run();
 
-    performanceTest.printStats();
+    System.out.println("Finish-Time-Run: " + new Date());
 
-    System.out.println("\ntest run time: " + (System.currentTimeMillis()
-                                              - start));
-
-    System.out.println("TestDriver.main " + driver.getMatches());
-  }
-
-  class TimedCallable implements Callable<RequestResult>
-  {
-    private Callable<RequestResult> _delegate;
-
-    public TimedCallable(Callable<RequestResult> delegate)
-    {
-      _delegate = delegate;
-    }
-
-    @Override
-    public RequestResult call() throws Exception
-    {
-      final long start = System.currentTimeMillis();
-
-      RequestResult result = _delegate.call();
-
-      result.setFinishTime(System.currentTimeMillis());
-      result.setStartTime(start);
-
-      _currentRequests.decrementAndGet();
-
-      _results.add(result);
-
-      return result;
-    }
+    test.printStats();
   }
 }
 /**

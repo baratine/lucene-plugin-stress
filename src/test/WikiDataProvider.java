@@ -13,13 +13,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class WikiDataProvider implements DataProvider, Iterator
 {
   List<WikiData> _wikiData = new ArrayList<>();
   Properties _queries = new Properties();
 
-  private int _current = 0;
+  private AtomicInteger _current = new AtomicInteger(0);
   private long _size;
   private Random _random = new Random();
 
@@ -38,8 +39,9 @@ public class WikiDataProvider implements DataProvider, Iterator
 
   public void add(File file)
   {
-    if (_wikiData.size() >= _size)
+    if (_size != -1 && _wikiData.size() >= _size) {
       return;
+    }
 
     if (file.isDirectory()) {
       File[] files = file.listFiles(pathname -> {
@@ -63,19 +65,20 @@ public class WikiDataProvider implements DataProvider, Iterator
   @Override
   public boolean hasNext()
   {
-    return _current < _wikiData.size();
+    return _current.get() < _wikiData.size();
   }
 
   @Override
   public WikiData next()
   {
-    return _wikiData.get(_current++);
+    return _wikiData.get(_current.getAndIncrement());
   }
 
   @Override
-  public Query getQuery(int n)
+  public Query getQuery()
   {
-    int i = _random.nextInt(n);
+    int i = _random.nextInt(_current.get() - 4);
+
     WikiData data = _wikiData.get(i);
     String key = data.getKey();
 

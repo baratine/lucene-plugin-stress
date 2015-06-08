@@ -33,7 +33,7 @@ public class NullDataProvider implements DataProvider, Iterator
   }
 
   @Override
-  public Query getQuery(int n)
+  public Query getQuery()
   {
     return new Query()
     {
