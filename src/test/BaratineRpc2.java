@@ -1,13 +1,5 @@
 package test;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
@@ -22,57 +14,50 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
-public class BaratineRpc extends BaseSearchClient
+public class BaratineRpc2 extends BaseSearchClient
 {
   //[["reply",{},"/update",3085,true]]
   //[["reply",{},"/search",3023,[{"_searchResult":"3926930","_id":766,"_score":1.9077651500701904}]]]
 
-  ContentType _defaultContentType
-    = ContentType.create("x-application/jamp-rpc", StandardCharsets.UTF_8);
+  static int bufferSize = 8 * 1024;
 
-  CloseableHttpClient _client = HttpClients.createDefault();
-  JsonFactory _jsonFactory = new JsonFactory();
+  String _defaultContentType = "x-application/jamp-rpc";
+
+  private JsonFactory _jsonFactory = new JsonFactory();
+  private ObjectMapper _jsonMapper = new ObjectMapper();
+
   private AtomicLong _counter = new AtomicLong(0);
 
-  private AtomicReference<String> _jampChannel = new AtomicReference<>();
+  private HttpClient _client;
 
-  String _baseUrl;
-
-  List<String> _matches = new ArrayList<>(8000);
-
-  public BaratineRpc(DataProvider dataProvider,
-                     int n,
-                     float targetRatio,
-                     String host,
-                     int port)
+  public BaratineRpc2(DataProvider dataProvider,
+                      int n,
+                      float targetRatio,
+                      String host,
+                      int port)
+    throws IOException
   {
     super(dataProvider, n, targetRatio);
-    _baseUrl = "http://" + host + ':' + port;
+
+    _client = new HttpClient(host, port);
   }
 
   public void update(InputStream in, String id) throws IOException
   {
-    String url = _baseUrl + "/s/lucene";
-
-    HttpPost post = new HttpPost(url);
-
     String template
       = "[[\"query\",{},\"/update\",%1$s,\"/session\",\"indexText\", \"%2$s\", \"%3$s\", \"%4$s\"]]";
 
     StringWriter writer = new StringWriter();
 
     try (Reader reader = new InputStreamReader(in, "UTF-8")) {
-      char[] buffer = new char[0x1024];
+      char[] buffer = new char[bufferSize];
       int l;
 
       while ((l = reader.read(buffer)) > 0) {
@@ -83,54 +68,27 @@ public class BaratineRpc extends BaseSearchClient
       writer.close();
     }
 
-    if (_jampChannel != null)
-      post.setHeader("Cookie", _jampChannel.get());
-
     String data = writer.getBuffer().toString();
 
     String messageId = Long.toString(_counter.getAndIncrement());
 
     data = String.format(template, messageId, "foo", id, data);
 
-    StringEntity e = new StringEntity(data, _defaultContentType);
-
-    post.setEntity(e);
-
-    CloseableHttpResponse response = _client.execute(post);
-
-    if (_jampChannel == null)
-      _jampChannel.set(getCookie(response));
+    HttpClient.ClientResponseStream response
+      = _client.execute(HttpClient.HttpMethod.POST,
+                        "/s/lucene",
+                        _defaultContentType,
+                        data.getBytes());
 
     LuceneRpcResponse rpcResponse = parseResponse(response, messageId);
 
     rpcResponse.validate();
   }
 
-  private String getCookie(HttpResponse response)
-  {
-    Header header = response.getFirstHeader("Set-Cookie");
-    if (header == null)
-      return null;
-
-    String cookie = header.getValue();
-
-    if (cookie.startsWith("Jamp_Channel="))
-      return cookie;
-
-    return null;
-  }
-
   @Override
   public void search(String luceneQuery, String expectedDocId)
     throws IOException
   {
-    String url = _baseUrl + "/s/lucene";
-
-    HttpPost post = new HttpPost(url);
-
-    if (_jampChannel != null)
-      post.setHeader("Cookie", _jampChannel.get());
-
     String messageId = Long.toString(_counter.getAndIncrement());
 
     String template
@@ -138,14 +96,11 @@ public class BaratineRpc extends BaseSearchClient
 
     String data = String.format(template, messageId, "foo", luceneQuery, 255);
 
-    StringEntity e = new StringEntity(data, _defaultContentType);
-
-    post.setEntity(e);
-
-    CloseableHttpResponse response = _client.execute(post);
-
-    if (_jampChannel == null)
-      _jampChannel.set(getCookie(response));
+    HttpClient.ClientResponseStream response
+      = _client.execute(HttpClient.HttpMethod.POST,
+                        "/s/lucene",
+                        _defaultContentType,
+                        data.getBytes());
 
     LuceneRpcResponse rpcResponse = parseResponse(response, messageId);
 
@@ -154,30 +109,35 @@ public class BaratineRpc extends BaseSearchClient
     rpcResponse.validate();
   }
 
-  private LuceneRpcResponse parseResponse(CloseableHttpResponse response,
+  private LuceneRpcResponse parseResponse(HttpClient.ClientResponseStream response,
                                           String expectedMessageId)
     throws IOException
   {
     byte[] bytes;
 
-    try (InputStream in = response.getEntity().getContent();
-         ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-      byte[] buffer = new byte[0xFFFF];
+    InputStream in = response.getInputStream();
 
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+      byte[] buffer = new byte[bufferSize];
+
+      int len = response.getLength();
       int l;
 
-      while ((l = in.read(buffer)) > 0)
+      while (len > 0) {
+        l = in.read(buffer);
+
         out.write(buffer, 0, l);
+
+        len -= l;
+      }
 
       bytes = out.toByteArray();
     }
 
-    try (InputStream in = new ByteArrayInputStream(bytes)) {
-      ObjectMapper mapper = new ObjectMapper();
+    try (InputStream buffer = new ByteArrayInputStream(bytes)) {
+      JsonParser parser = _jsonFactory.createJsonParser(buffer);
 
-      JsonParser parser = _jsonFactory.createJsonParser(in);
-
-      JsonNode tree = mapper.readTree(parser);
+      JsonNode tree = _jsonMapper.readTree(parser);
 
       if (tree == null || tree.size() == 0) {
         throw new IllegalStateException(String.format(
@@ -208,8 +168,6 @@ public class BaratineRpc extends BaseSearchClient
           expectedMessageId,
           new String(bytes)));
       }
-
-      _matches.add(messageId);
 
       String type = node.get(2).asText();
 
@@ -243,7 +201,7 @@ public class BaratineRpc extends BaseSearchClient
   @Override
   public List<String> getMatches()
   {
-    return _matches;
+    return null;
   }
 
   class LuceneRpcResponse
@@ -333,7 +291,7 @@ public class BaratineRpc extends BaseSearchClient
     UPDATE
   }
 
-  private static void update(BaratineRpc driver)
+  private static void update(BaratineRpc2 driver)
   {
     try {
       driver.update(new FileInputStream(
@@ -343,7 +301,7 @@ public class BaratineRpc extends BaseSearchClient
     }
   }
 
-  private static void search(BaratineRpc driver)
+  private static void search(BaratineRpc2 driver)
   {
     try {
       driver.search("2e6ddb8e-d235-4286-94d0-fc8029f0114a", "4000225");
@@ -357,11 +315,11 @@ public class BaratineRpc extends BaseSearchClient
   {
     ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-    BaratineRpc driver = new BaratineRpc(new NullDataProvider(1),
-                                         1,
-                                         1,
-                                         "localhost",
-                                         8085);
+    BaratineRpc2 driver = new BaratineRpc2(new NullDataProvider(1),
+                                           1,
+                                           1,
+                                           "localhost",
+                                           8085);
 
     Future future = executorService.submit(() -> update(driver));
     Thread.sleep(100);
@@ -371,6 +329,6 @@ public class BaratineRpc extends BaseSearchClient
     Thread.sleep(100);
     System.out.println("BaratineDriverRpc.search " + future.get());
 
-    executorService.shutdown();
+    executorService.shutdownNow();
   }
 }

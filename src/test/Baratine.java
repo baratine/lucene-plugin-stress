@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class Baratine implements SearchEngine
+public class Baratine extends BaseSearchClient
 {
   //[["reply",{},"/update",3085,true]]
   //[["reply",{},"/search",3023,[{"_searchResult":"3926930","_id":766,"_score":1.9077651500701904}]]]
@@ -52,9 +52,14 @@ public class Baratine implements SearchEngine
   String _baseUrl;
   private Thread _pollThread;
 
-  public Baratine(String baseUrl)
+  public Baratine(DataProvider dataProvider,
+                  int n,
+                  float targetRatio,
+                  String host,
+                  int port)
   {
-    _baseUrl = baseUrl;
+    super(dataProvider, n, targetRatio);
+    _baseUrl = "http://" + host + ':' + port;
   }
 
   public void update(InputStream in, String id)
@@ -193,18 +198,6 @@ public class Baratine implements SearchEngine
       searchQuery.validate();
   }
 
-  @Override
-  public void poll() throws IOException
-  {
-    if (_pollThread == null) {
-      _pollThread = new Thread(() -> pollImpl());
-
-      _pollThread.setDaemon(true);
-
-      _pollThread.start();
-    }
-  }
-
   private void pollImpl()
   {
     while (true) {
@@ -306,24 +299,6 @@ public class Baratine implements SearchEngine
         query.notify();
       }
     }
-  }
-
-  @Override
-  public void printState()
-  {
-    if (_queries.size() > 0) {
-
-      System.out.println("unfinished queries:");
-      for (BaratineQuery query : _queries.values()) {
-        System.out.println("  " + query);
-      }
-    }
-  }
-
-  @Override
-  public void setPreload(boolean preload)
-  {
-    _isPreload = preload;
   }
 
   @Override
@@ -440,11 +415,7 @@ public class Baratine implements SearchEngine
 
   private static void poll(Baratine driver)
   {
-    try {
-      driver.poll();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    driver.poll(driver);
   }
 
   public static void main(String[] args)
@@ -452,7 +423,11 @@ public class Baratine implements SearchEngine
   {
     ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-    Baratine driver = new Baratine("http://localhost:8085");
+    Baratine driver = new Baratine(new NullDataProvider(1),
+                                   1,
+                                   1,
+                                   "localhost",
+                                   8085);
 
     executorService.submit(() -> update(driver));
     Thread.sleep(100);

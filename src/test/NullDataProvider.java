@@ -4,9 +4,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class NullDataProvider implements DataProvider
+public class NullDataProvider implements DataProvider, Iterator
 {
   private long _size;
   private Data _data;
@@ -32,15 +33,28 @@ public class NullDataProvider implements DataProvider
   }
 
   @Override
-  public String getQuery(String key)
+  public Query getQuery(int n)
   {
-    return null;
+    return new Query()
+    {
+      @Override
+      public String getKey()
+      {
+        return null;
+      }
+
+      @Override
+      public String getQuery()
+      {
+        return null;
+      }
+    };
   }
 
   @Override
-  public void reset()
+  public Iterator<Data> iterator()
   {
-
+    return null;
   }
 
   class NullData implements Data

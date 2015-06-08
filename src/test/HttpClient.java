@@ -133,7 +133,7 @@ public class HttpClient implements AutoCloseable
     return out;
   }
 
-  class ClientResponseStream
+  public static class ClientResponseStream
   {
     private int _status = 0;
     Map<String,HttpHeader> _headers = new HashMap<>();

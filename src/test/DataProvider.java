@@ -3,16 +3,13 @@ package test;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Iterator;
 
 public interface DataProvider
 {
-  boolean hasNext();
+  Query getQuery(int n);
 
-  Data next();
-
-  String getQuery(String key);
-
-  void reset();
+  Iterator<Data> iterator();
 
   interface Data
   {
@@ -21,5 +18,12 @@ public interface DataProvider
     InputStream getInputStream() throws FileNotFoundException;
 
     File getFile();
+  }
+
+  interface Query
+  {
+    String getKey();
+
+    String getQuery();
   }
 }

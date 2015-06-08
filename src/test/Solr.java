@@ -21,11 +21,17 @@ import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
-public class Solr implements SearchEngine
+public class Solr extends BaseSearchClient
 {
-  JsonFactory _jsonFactory = new JsonFactory();
+  private JsonFactory _jsonFactory = new JsonFactory();
+  private ObjectMapper _jsonMapper = new ObjectMapper();
 
-  CloseableHttpClient _client = HttpClients.createDefault();
+  private CloseableHttpClient _client = HttpClients.createDefault();
+
+  public Solr(DataProvider data, int n, float targetRatio)
+  {
+    super(data, n, targetRatio);
+  }
 
   @Override
   public void update(InputStream in, String id)
@@ -116,24 +122,6 @@ public class Solr implements SearchEngine
   }
 
   @Override
-  public void poll() throws IOException
-  {
-    Thread.yield();
-  }
-
-  @Override
-  public void printState()
-  {
-
-  }
-
-  @Override
-  public void setPreload(boolean preload)
-  {
-
-  }
-
-  @Override
   public List<String> getMatches()
   {
     return null;
@@ -160,7 +148,7 @@ public class Solr implements SearchEngine
 
   public static void main(String[] args) throws IOException
   {
-    Solr solr = new Solr();
+    Solr solr = new Solr(new NullDataProvider(1), 1, 1);
     update(solr);
     search(solr);
   }

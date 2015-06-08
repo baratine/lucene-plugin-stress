@@ -4,17 +4,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-public interface SearchEngine
+public interface SearchClient extends Runnable
 {
   void update(InputStream file, String id) throws IOException;
 
   void search(String query, String expectedId) throws IOException;
 
-  void poll() throws IOException;
-
-  void printState();
-
-  void setPreload(boolean preload);
+  void preload(int preload) throws IOException;
 
   List<String> getMatches();
+
+  int getUpdateCount();
+
+  int getSearchCount();
+
+  long getUpdateTime();
+
+  long getSearchTime();
 }

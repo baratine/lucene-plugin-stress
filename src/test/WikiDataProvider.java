@@ -12,15 +12,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
-public class WikiDataProvider implements Iterator<WikiDataProvider.WikiData>,
-  DataProvider
+public class WikiDataProvider implements DataProvider, Iterator
 {
   List<WikiData> _wikiData = new ArrayList<>();
   Properties _queries = new Properties();
 
   private int _current = 0;
   private long _size;
+  private Random _random = new Random();
 
   public WikiDataProvider(File file, long size) throws IOException
   {
@@ -72,15 +73,34 @@ public class WikiDataProvider implements Iterator<WikiDataProvider.WikiData>,
   }
 
   @Override
-  public String getQuery(String key)
+  public Query getQuery(int n)
   {
-    return _queries.getProperty(key);
+    int i = _random.nextInt(n);
+    WikiData data = _wikiData.get(i);
+    String key = data.getKey();
+
+    String query = _queries.getProperty(key);
+
+    return new Query()
+    {
+      @Override
+      public String getKey()
+      {
+        return key;
+      }
+
+      @Override
+      public String getQuery()
+      {
+        return query;
+      }
+    };
   }
 
   @Override
-  public void reset()
+  public Iterator<Data> iterator()
   {
-    _current = 0;
+    return this;
   }
 
   class WikiData implements DataProvider.Data

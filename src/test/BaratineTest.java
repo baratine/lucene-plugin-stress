@@ -30,7 +30,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class BaratineTest implements SearchEngine
+public class BaratineTest extends BaseSearchClient
 {
   ContentType _defaultContentType
     = ContentType.create("x-application/jamp-rpc", StandardCharsets.UTF_8);
@@ -51,9 +51,14 @@ public class BaratineTest implements SearchEngine
   List<String> _matches = new ArrayList<>(8000);
   ObjectMapper _mapper = new ObjectMapper();
 
-  public BaratineTest(String baseUrl)
+  public BaratineTest(DataProvider dataProvider,
+                     int n,
+                     float targetRatio,
+                     String host,
+                     int port)
   {
-    _baseUrl = baseUrl;
+    super(dataProvider, n, targetRatio);
+    _baseUrl = "http://" + host + ':' + port;
   }
 
   public void update(InputStream in, String id) throws IOException
@@ -177,22 +182,6 @@ public class BaratineTest implements SearchEngine
   }
 
   @Override
-  public void poll() throws IOException
-  {
-
-  }
-
-  @Override
-  public void printState()
-  {
-  }
-
-  @Override
-  public void setPreload(boolean preload)
-  {
-  }
-
-  @Override
   public List<String> getMatches()
   {
     return _matches;
@@ -254,7 +243,11 @@ public class BaratineTest implements SearchEngine
   {
     ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-    BaratineTest driver = new BaratineTest("http://localhost:9999");
+    BaratineTest driver = new BaratineTest(new NullDataProvider(1),
+                                           1,
+                                           1,
+                                           "localhost",
+                                           8085);
 
     Future future = executorService.submit(() -> update(driver));
     Thread.sleep(100);
