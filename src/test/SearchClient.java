@@ -21,4 +21,6 @@ public interface SearchClient extends Runnable
   long getUpdateTime();
 
   long getSearchTime();
+
+  List getErrors();
 }

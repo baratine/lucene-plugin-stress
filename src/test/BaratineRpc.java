@@ -52,11 +52,11 @@ public class BaratineRpc extends BaseSearchClient
 
   public BaratineRpc(DataProvider dataProvider,
                      int n,
-                     float targetRatio,
+                     int searchRate,
                      String host,
                      int port)
   {
-    super(dataProvider, n, targetRatio);
+    super(dataProvider, n, searchRate);
     _baseUrl = "http://" + host + ':' + port;
   }
 

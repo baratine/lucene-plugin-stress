@@ -179,6 +179,8 @@ class ArticleHandler extends DefaultHandler
     int id = Integer.parseInt(sid);
 
     String uuid = UUID.randomUUID().toString();
+    uuid = uuid.replace('-', '0');
+
     _properties.setProperty(sid, uuid);
 
     int bucket = id / 100;

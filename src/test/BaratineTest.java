@@ -53,11 +53,11 @@ public class BaratineTest extends BaseSearchClient
 
   public BaratineTest(DataProvider dataProvider,
                      int n,
-                     float targetRatio,
+                     int searchRate,
                      String host,
                      int port)
   {
-    super(dataProvider, n, targetRatio);
+    super(dataProvider, n, searchRate);
     _baseUrl = "http://" + host + ':' + port;
   }
 

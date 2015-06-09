@@ -35,11 +35,11 @@ public class Solr extends BaseSearchClient
 
   public Solr(DataProvider data,
               int n,
-              float targetRatio,
+              int searchRate,
               String host,
               int port)
   {
-    super(data, n, targetRatio);
+    super(data, n, searchRate);
     _updateUrl = "http://"
                  + host
                  + ":"

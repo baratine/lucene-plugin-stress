@@ -1,7 +1,9 @@
 package test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public abstract class BaseSearchClient implements SearchClient
 {
@@ -9,19 +11,20 @@ public abstract class BaseSearchClient implements SearchClient
 
   private int _n;
 
-  private float _ratioTarget;
+  private int _searchRate;
   private int _updateCount;
   private int _searchCount;
   //
   private long _updateTime;
   private long _searchTime;
   private Iterator<DataProvider.Data> _iterator;
+  private List _errors = new ArrayList();
 
-  public BaseSearchClient(DataProvider data, int n, float targetRatio)
+  public BaseSearchClient(DataProvider data, int n, int searchRate)
   {
     _data = data;
     _n = n;
-    _ratioTarget = targetRatio;
+    _searchRate = searchRate;
     _iterator = _data.iterator();
   }
 
@@ -49,6 +52,16 @@ public abstract class BaseSearchClient implements SearchClient
     return _searchTime;
   }
 
+  public void addError(Object error)
+  {
+    _errors.add(error);
+  }
+
+  public List getErrors()
+  {
+    return _errors;
+  }
+
   @Override
   final public void preload(int preload) throws IOException
   {
@@ -60,14 +73,18 @@ public abstract class BaseSearchClient implements SearchClient
 
   private float ratio()
   {
-    return (float) _searchCount / _updateCount;
+    return (float) _updateCount / _searchCount;
   }
 
   @Override
   final public void run()
   {
-    for (int i = 0; i < _n; i++) {
-      if (_updateCount == 0 || ratio() > _ratioTarget) {
+    while ((_searchCount + _updateCount) < _n) {
+      if (_searchRate == Integer.MAX_VALUE) {
+        search();
+      }
+      else if ((_searchCount % _searchRate) == 0) {
+        search();
         update();
       }
       else {
@@ -84,8 +101,8 @@ public abstract class BaseSearchClient implements SearchClient
       search(query.getQuery(), query.getKey());
       _searchTime += System.currentTimeMillis() - start;
       _searchCount++;
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    } catch (Throwable e) {
+      addError(e);
     }
   }
 
@@ -97,8 +114,8 @@ public abstract class BaseSearchClient implements SearchClient
       update(data.getInputStream(), data.getKey());
       _updateTime += System.currentTimeMillis() - start;
       _updateCount++;
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    } catch (Throwable e) {
+      addError(e);
     }
   }
 }

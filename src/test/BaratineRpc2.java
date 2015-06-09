@@ -39,12 +39,12 @@ public class BaratineRpc2 extends BaseSearchClient
 
   public BaratineRpc2(DataProvider dataProvider,
                       int n,
-                      float targetRatio,
+                      int searchRate,
                       String host,
                       int port)
     throws IOException
   {
-    super(dataProvider, n, targetRatio);
+    super(dataProvider, n, searchRate);
 
     _client = new HttpClient(host, port);
   }
@@ -102,11 +102,34 @@ public class BaratineRpc2 extends BaseSearchClient
                         _defaultContentType,
                         data.getBytes());
 
-    LuceneRpcResponse rpcResponse = parseResponse(response, messageId);
+    LuceneRpcResponse rpcResponse = null;
 
-    rpcResponse.setExcpectedSearchResult(expectedDocId);
+    try {
+      rpcResponse = parseResponse(response, messageId);
 
-    rpcResponse.validate();
+      rpcResponse.setExcpectedSearchResult(expectedDocId);
+
+      rpcResponse.validate();
+    } catch (IllegalStateException t) {
+      String message;
+
+      if (rpcResponse == null) {
+        message = String.format(
+          "expected %1$s for query %2$s received empty reply",
+          expectedDocId,
+          luceneQuery);
+
+      }
+      else {
+        message = String.format(
+          "expected %1$s for query %2$s received %3$s",
+          expectedDocId,
+          luceneQuery,
+          rpcResponse.getSearchResult());
+      }
+
+      throw new IllegalStateException(message, t);
+    }
   }
 
   private LuceneRpcResponse parseResponse(HttpClient.ClientResponseStream response,
@@ -140,9 +163,9 @@ public class BaratineRpc2 extends BaseSearchClient
       JsonNode tree = _jsonMapper.readTree(parser);
 
       if (tree == null || tree.size() == 0) {
-        throw new IllegalStateException(String.format(
-          "received no reply for message %1$s",
-          expectedMessageId));
+        throw new IllegalStateException(
+          String.format("received no reply for message %1$s",
+                        expectedMessageId));
       }
       else if (tree.size() > 1) {
         throw new IllegalStateException(String.format(
@@ -151,8 +174,6 @@ public class BaratineRpc2 extends BaseSearchClient
       }
 
 //BaratineDriver.parseResponse: [["reply",{},"/search",193,[{"_externalId":"3925383","_id":116,"_score":0.44276124238967896}]],["reply",{},"/search",192,[{"_externalId":"3925383","_id":116,"_score":0.44276124238967896}]]]
-
-      LuceneRpcResponse[] queries = new LuceneRpcResponse[1];
 
       JsonNode node = tree.get(0);
 
@@ -189,12 +210,9 @@ public class BaratineRpc2 extends BaseSearchClient
       }
 
       return query;
-    } catch (JsonParseException e) {
-      System.err.println(new String(bytes));
-
-      e.printStackTrace();
-
-      throw e;
+    } catch (NullPointerException | JsonParseException e) {
+      throw new IllegalStateException(
+        String.format("unexpected result %1$s", new String(bytes)), e);
     }
   }
 

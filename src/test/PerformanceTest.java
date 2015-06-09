@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -37,7 +39,7 @@ public class PerformanceTest
       case BRPC: {
         client = new BaratineRpc(_provider,
                                  _args.n(),
-                                 _args.ratio(),
+                                 _args.searchRate(),
                                  _args.host(),
                                  _args.port());
         break;
@@ -45,7 +47,7 @@ public class PerformanceTest
       case BRPC2: {
         client = new BaratineRpc2(_provider,
                                   _args.n(),
-                                  _args.ratio(),
+                                  _args.searchRate(),
                                   _args.host(),
                                   _args.port());
         break;
@@ -53,7 +55,7 @@ public class PerformanceTest
       case SOLR: {
         client = new Solr(_provider,
                           _args.n(),
-                          _args.ratio(),
+                          _args.searchRate(),
                           _args.host(),
                           _args.port());
         break;
@@ -89,6 +91,7 @@ public class PerformanceTest
 
   public void printStats() throws IOException
   {
+    List errors = new ArrayList<>();
     try (PrintWriter writer
            = new PrintWriter(new FileWriter(_args.getFile(), true), true)) {
 
@@ -102,16 +105,15 @@ public class PerformanceTest
 
         updateTime = Math.max(updateTime, client.getUpdateTime());
         searchTime = Math.max(searchTime, client.getSearchTime());
+
+        errors.addAll(client.getErrors());
       }
 
       writer.println(_args);
       writer.println(
         String.format(
-          "  submitted %1$d, searched %2$d, search-update-ratio %3$f, search-update-target %4$f",
-          updates,
-          searches,
-          ((float) searches / updates),
-          _args.ratio()));
+          "  submitted %1$d, searched %2$d, search-rate-target: %3$d",
+          updates, searches, _args.searchRate()));
 
       writer.println(
         String.format("  search avg: %1$f total-time: %2$d ops: %3$f",
@@ -122,6 +124,13 @@ public class PerformanceTest
                       ((float) updateTime / updates), updateTime,
                       ((float) updates / updateTime * 1000)));
 
+      if (errors != null) {
+        for (Object error : errors) {
+          //writer.println(error);
+          ((Throwable) error).printStackTrace(writer);
+        }
+      }
+
       writer.println();
     }
   }
@@ -130,6 +139,8 @@ public class PerformanceTest
     throws IOException, ExecutionException, InterruptedException
   {
     Args args = new Args(vargs);
+
+    System.out.println("PerformanceTest.main " + args);
 
     PerformanceTest test = new PerformanceTest(args);
 
@@ -146,7 +157,7 @@ class Args
   private int _pre = 1;
   private String _host = "localhost";
   private int _port = 8085;
-  private float _ratio = 5;
+  private int _searchRate = 0;
   private ClientType _type = ClientType.BRPC2;
   private File _dataDir;
   private File _file;
@@ -171,8 +182,8 @@ class Args
       else if ("-port".equals(arg)) {
         _port = Integer.parseInt(args[++i]);
       }
-      else if ("-ratio".equals(arg)) {
-        _ratio = Float.parseFloat(args[++i]);
+      else if ("-rate".equals(arg)) {
+        _searchRate = Integer.parseInt(args[++i]);
       }
       else if ("-type".equals(arg)) {
         _type = ClientType.valueOf(args[++i]);
@@ -221,9 +232,9 @@ class Args
     return _port;
   }
 
-  public float ratio()
+  public int searchRate()
   {
-    return _ratio;
+    return _searchRate;
   }
 
   public ClientType type()
@@ -244,13 +255,13 @@ class Args
   @Override
   public String toString()
   {
-    return String.format("Args[%1$s, %2$d, %3$d, %4$d, %5$s, %6$d]",
+    return String.format("Args[type: %1$s, c: %2$d, n: %3$d, pre: %4$d, search-rate: %5$d, address: %6$s]",
                          _type,
                          _c,
                          _n,
                          _pre,
-                         _host,
-                         _port);
+                         _searchRate,
+                         _host + ':' + _port);
   }
 }
 
@@ -258,7 +269,7 @@ class Args
  * 5 clients
  * - 1 update
  * - 1 search
- * in: Reade Write ratio
+ * in: Reade Write searchRate
  * Search Data sorted
  * Search Terms
  * URL
