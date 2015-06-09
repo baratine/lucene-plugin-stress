@@ -13,3 +13,19 @@ BRPC:
   search avg: 1.586134 total-time: 5285 ops: 630.463623
   update avg: 1.799401 total-time: 1202 ops: 555.740417
 
+  clients 4, submitted 668, searched 3332, search-update-ratio 4.988024, search-update-target 5.000000  search avg: 2.759304 total-time: 9194 ops: 362.410278
+  update avg: 1.308383 total-time: 874 ops: 764.302063
+Args[BRPC2, 4, 1000, 100, localhost, 8085]
+  submitted 668, searched 3332, search-update-ratio 4.988024, search-update-target 5.000000
+  search avg: 3.210684 total-time: 10698 ops: 311.460083
+  update avg: 1.291916 total-time: 863 ops: 774.044067
+Args[BRPC2, 4, 1000, 100, localhost, 8085]
+  submitted 668, searched 3332, search-update-ratio 4.988024, search-update-target 5.000000
+  search avg: 3.842137 total-time: 12802 ops: 260.271851
+  update avg: 1.350299 total-time: 902 ops: 740.576477
+
+Args[BRPC2, 4, 1000, 100, localhost, 8085]
+  submitted 668, searched 3332, search-update-ratio 4.988024, search-update-target 5.000000
+  search avg: 4.888656 total-time: 16289 ops: 204.555222
+  update avg: 1.511976 total-time: 1010 ops: 661.386108
+
