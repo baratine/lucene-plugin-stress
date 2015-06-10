@@ -1,31 +1,20 @@
-SOLR:
-  clients 4, submitted 668, searched 3332, search-update-ratio 4.988024, search-update-ratio-target 5.000000
-  search avg: 0.818727 total-time: 2728 ops: 1221.407593
-  update avg: 9.270958 total-time: 6193 ops: 107.863716
+Args[type: SOLR, c: 4, n: 1000, pre: 100, search-rate: 5, address: localhost:8085]: Tue Jun 09 20:04:36 PDT 2015
+  submitted 668, searched 3332, search-rate-target: 5
+  search avg: 0.578932 total-time: 1929 ops: 1727.319824
+  update avg: 10.571856 total-time: 7062 ops: 94.590767
 
-BRPC2:
-  clients 4, submitted 668, searched 3332, search-update-ratio 4.988024, search-update-ratio-target 5.000000
-  search avg: 1.394958 total-time: 4648 ops: 716.867432
-  update avg: 1.550898 total-time: 1036 ops: 644.787659
+Args[type: BRPC2, c: 4, n: 1000, pre: 100, search-rate: 5, address: localhost:8085]: Tue Jun 09 20:05:03 PDT 2015
+  submitted 668, searched 3332, search-rate-target: 5
+  search avg: 0.309124 total-time: 1030 ops: 3234.951416
+  update avg: 3.842814 total-time: 2567 ops: 260.225952
 
-BRPC:
-  clients 4, submitted 668, searched 3332, search-update-ratio 4.988024, search-update-ratio-target 5.000000
-  search avg: 1.586134 total-time: 5285 ops: 630.463623
-  update avg: 1.799401 total-time: 1202 ops: 555.740417
+Args[type: SOLR, c: 4, n: 1000, pre: 1000, search-rate: 2147483647, address: localhost:8085]: Tue Jun 09 20:06:03 PDT 2015
+  submitted 0, searched 4000, search-rate-target: 2147483647
+  search avg: 0.624250 total-time: 2497 ops: 1601.922241
+  update avg: NaN total-time: 0 ops: NaN
 
-  clients 4, submitted 668, searched 3332, search-update-ratio 4.988024, search-update-target 5.000000  search avg: 2.759304 total-time: 9194 ops: 362.410278
-  update avg: 1.308383 total-time: 874 ops: 764.302063
-Args[BRPC2, 4, 1000, 100, localhost, 8085]
-  submitted 668, searched 3332, search-update-ratio 4.988024, search-update-target 5.000000
-  search avg: 3.210684 total-time: 10698 ops: 311.460083
-  update avg: 1.291916 total-time: 863 ops: 774.044067
-Args[BRPC2, 4, 1000, 100, localhost, 8085]
-  submitted 668, searched 3332, search-update-ratio 4.988024, search-update-target 5.000000
-  search avg: 3.842137 total-time: 12802 ops: 260.271851
-  update avg: 1.350299 total-time: 902 ops: 740.576477
-
-Args[BRPC2, 4, 1000, 100, localhost, 8085]
-  submitted 668, searched 3332, search-update-ratio 4.988024, search-update-target 5.000000
-  search avg: 4.888656 total-time: 16289 ops: 204.555222
-  update avg: 1.511976 total-time: 1010 ops: 661.386108
+Args[type: BRPC2, c: 4, n: 1000, pre: 1000, search-rate: 2147483647, address: localhost:8085]: Tue Jun 09 20:07:11 PDT 2015
+  submitted 0, searched 4000, search-rate-target: 2147483647
+  search avg: 0.597500 total-time: 2390 ops: 1673.640137
+  update avg: NaN total-time: 0 ops: NaN
 

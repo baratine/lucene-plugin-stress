@@ -3,6 +3,7 @@ package test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,6 +22,7 @@ public class WikiDataProvider implements DataProvider, Iterator
   Properties _queries = new Properties();
 
   private AtomicInteger _current = new AtomicInteger(0);
+  private AtomicInteger _query = new AtomicInteger(0);
   private long _size;
   private Random _random = new Random();
 
@@ -34,6 +36,13 @@ public class WikiDataProvider implements DataProvider, Iterator
       new FileInputStream(
         new File(file, "query.properties")), StandardCharsets.UTF_8)) {
       _queries.load(in);
+    }
+
+    try (FileWriter writer = new FileWriter("/tmp/data-files.txt")) {
+      for (int i = 0; i < _wikiData.size(); i++) {
+        WikiData wikiData = _wikiData.get(i);
+        writer.write(wikiData.getKey() + ":" + wikiData.getFile() + '\n');
+      }
     }
   }
 
@@ -77,7 +86,11 @@ public class WikiDataProvider implements DataProvider, Iterator
   @Override
   public Query getQuery()
   {
-    int i = _random.nextInt(_current.get() - 4);
+    int i = _random.nextInt(_current.get()) - 400;
+
+    i = Math.max(0, i);
+
+    //int i = _query.incrementAndGet();
 
     WikiData data = _wikiData.get(i);
     String key = data.getKey();

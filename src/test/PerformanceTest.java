@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -109,7 +110,9 @@ public class PerformanceTest
         errors.addAll(client.getErrors());
       }
 
-      writer.println(_args);
+      Date date = new Date();
+      writer.println(_args + ": " + date);
+
       writer.println(
         String.format(
           "  submitted %1$d, searched %2$d, search-rate-target: %3$d",
@@ -126,8 +129,8 @@ public class PerformanceTest
 
       if (errors != null) {
         for (Object error : errors) {
-          //writer.println(error);
-          ((Throwable) error).printStackTrace(writer);
+          //((Throwable) error).printStackTrace(writer);
+          writer.println(error);
         }
       }
 
@@ -255,13 +258,14 @@ class Args
   @Override
   public String toString()
   {
-    return String.format("Args[type: %1$s, c: %2$d, n: %3$d, pre: %4$d, search-rate: %5$d, address: %6$s]",
-                         _type,
-                         _c,
-                         _n,
-                         _pre,
-                         _searchRate,
-                         _host + ':' + _port);
+    return String.format(
+      "Args[type: %1$s, c: %2$d, n: %3$d, pre: %4$d, search-rate: %5$d, address: %6$s]",
+      _type,
+      _c,
+      _n,
+      _pre,
+      _searchRate,
+      _host + ':' + _port);
   }
 }
 

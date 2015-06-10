@@ -67,7 +67,13 @@ public abstract class BaseSearchClient implements SearchClient
   {
     for (int i = 0; i < preload; i++) {
       DataProvider.Data data = _iterator.next();
-      update(data.getInputStream(), data.getKey());
+
+      try {
+        update(data.getInputStream(), data.getKey());
+      } catch (Throwable e) {
+        e.printStackTrace();
+        System.out.println("preload error: " + data.getFile());
+      }
     }
   }
 
@@ -79,7 +85,13 @@ public abstract class BaseSearchClient implements SearchClient
   @Override
   final public void run()
   {
+    int x = _n / 5;
+
     while ((_searchCount + _updateCount) < _n) {
+
+      if ((_searchCount + _updateCount) % x == 0)
+        System.out.println("run " + (_searchCount + _updateCount));
+
       if (_searchRate == Integer.MAX_VALUE) {
         search();
       }
