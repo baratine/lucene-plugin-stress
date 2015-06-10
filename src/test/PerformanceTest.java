@@ -20,6 +20,8 @@ public class PerformanceTest
 
   private Args _args;
 
+  private long _start, _finish;
+
   public PerformanceTest(Args args)
     throws IOException, ExecutionException, InterruptedException
   {
@@ -78,6 +80,8 @@ public class PerformanceTest
       client.preload(_args.preload());
     }
 
+    _start = System.currentTimeMillis();
+
     Future[] futures = new Future[_clients.length];
     for (int i = 0; i < _clients.length; i++) {
       futures[i] = executors.submit(_clients[i]);
@@ -86,6 +90,8 @@ public class PerformanceTest
     for (Future future : futures) {
       future.get();
     }
+
+    _finish = System.currentTimeMillis();
 
     executors.shutdown();
   }
@@ -110,8 +116,10 @@ public class PerformanceTest
         errors.addAll(client.getErrors());
       }
 
-      Date date = new Date();
-      writer.println(_args + ": " + date);
+      writer.println(_args);
+      writer.println(String.format("date: %1$s, run-time: %2$f",
+                                   new Date(),
+                                   (float) (_finish - _start) / 1000.f));
 
       writer.println(
         String.format(

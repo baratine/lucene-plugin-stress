@@ -18,3 +18,48 @@ Args[type: BRPC2, c: 4, n: 1000, pre: 1000, search-rate: 2147483647, address: lo
   search avg: 0.597500 total-time: 2390 ops: 1673.640137
   update avg: NaN total-time: 0 ops: NaN
 
+Args[type: SOLR, c: 4, n: 1000, pre: 100, search-rate: 5, address: localhost:8085]: Tue Jun 09 20:11:40 PDT 2015
+  submitted 668, searched 3332, search-rate-target: 5
+  search avg: 0.629652 total-time: 2098 ops: 1588.179199
+  update avg: 9.779940 total-time: 6533 ops: 102.250114
+
+Args[type: BRPC2, c: 4, n: 1000, pre: 100, search-rate: 5, address: localhost:8085]: Tue Jun 09 20:12:06 PDT 2015
+  submitted 668, searched 3332, search-rate-target: 5
+  search avg: 0.313325 total-time: 1044 ops: 3191.571045
+  update avg: 4.181138 total-time: 2793 ops: 239.169357
+
+Args[type: SOLR, c: 4, n: 1000, pre: 1000, search-rate: 2147483647, address: localhost:8085]: Tue Jun 09 20:13:09 PDT 2015
+  submitted 0, searched 4000, search-rate-target: 2147483647
+  search avg: 0.664000 total-time: 2656 ops: 1506.024170
+  update avg: NaN total-time: 0 ops: NaN
+
+Args[type: BRPC2, c: 4, n: 1000, pre: 1000, search-rate: 2147483647, address: localhost:8085]: Tue Jun 09 20:14:20 PDT 2015
+  submitted 0, searched 4000, search-rate-target: 2147483647
+  search avg: 0.487750 total-time: 1951 ops: 2050.230713
+  update avg: NaN total-time: 0 ops: NaN
+
+---
+Args[type: SOLR, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jun 10 14:13:38 PDT 2015, run-time: 89.153999
+  submitted 3172, searched 316828, search-rate-target: 100
+  search avg: 0.229655 total-time: 72761 ops: 4354.365723
+  update avg: 5.230769 total-time: 16592 ops: 191.176468
+
+Args[type: BRPC2, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jun 10 14:15:17 PDT 2015, run-time: 65.476997
+  submitted 3172, searched 316828, search-rate-target: 100
+  search avg: 0.187278 total-time: 59335 ops: 5339.647949
+  update avg: 1.928752 total-time: 6118 ops: 518.470093
+
+Args[type: SOLR, c: 4, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Wed Jun 10 14:17:36 PDT 2015, run-time: 67.852997
+  submitted 0, searched 400000, search-rate-target: 2147483647
+  search avg: 0.169028 total-time: 67611 ops: 5916.197266
+  update avg: NaN total-time: 0 ops: NaN
+
+Args[type: BRPC2, c: 4, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Wed Jun 10 14:19:48 PDT 2015, run-time: 55.575001
+  submitted 0, searched 400000, search-rate-target: 2147483647
+  search avg: 0.138327 total-time: 55331 ops: 7229.220215
+  update avg: NaN total-time: 0 ops: NaN
+
