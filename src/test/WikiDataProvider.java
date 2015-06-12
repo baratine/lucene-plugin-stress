@@ -86,11 +86,9 @@ public class WikiDataProvider implements DataProvider, Iterator
   @Override
   public Query getQuery()
   {
-    int i = _random.nextInt(_current.get()) - 400;
+    int i = _random.nextInt(_current.get()) - 4;
 
     i = Math.max(0, i);
-
-    //int i = _query.incrementAndGet();
 
     WikiData data = _wikiData.get(i);
     String key = data.getKey();

@@ -29,7 +29,9 @@ public class PerformanceTest
 
     _args = args;
 
-    long size = _args.c() * (_args.n() + _args.preload());
+    long size = _args.c() * (_args.n() / args.searchRate()
+                             + _args.preload()
+                             + 1);
 
     _provider = new WikiDataProvider(args.getDataDir(), size);
 
@@ -76,13 +78,32 @@ public class PerformanceTest
   {
     ExecutorService executors = Executors.newFixedThreadPool(_clients.length);
 
-    for (SearchClient client : _clients) {
-      client.preload(_args.preload());
+    long preload = System.currentTimeMillis();
+    Future[] futures = new Future[_clients.length];
+    for (int i = 0; i < _clients.length; i++) {
+      SearchClient client = _clients[i];
+      futures[i] = executors.submit(() -> {
+        try {
+          client.preload(_args.preload());
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      });
     }
+
+    for (Future future : futures) {
+      future.get();
+    }
+
+    float elapsed = (float) (System.currentTimeMillis() - preload) / 1000;
+
+    System.out.println(String.format(
+      "preload complete %1$f seconds",
+      elapsed));
 
     _start = System.currentTimeMillis();
 
-    Future[] futures = new Future[_clients.length];
+    futures = new Future[_clients.length];
     for (int i = 0; i < _clients.length; i++) {
       futures[i] = executors.submit(_clients[i]);
     }

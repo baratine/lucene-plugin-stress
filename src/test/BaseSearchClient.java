@@ -107,27 +107,31 @@ public abstract class BaseSearchClient implements SearchClient
 
   private void search()
   {
+    long start = System.currentTimeMillis();
     try {
       DataProvider.Query query = _data.getQuery();
-      long start = System.currentTimeMillis();
+      start = System.currentTimeMillis();
       search(query.getQuery(), query.getKey());
-      _searchTime += System.currentTimeMillis() - start;
-      _searchCount++;
     } catch (Throwable e) {
       addError(e);
+    } finally {
+      _searchTime += System.currentTimeMillis() - start;
+      _searchCount++;
     }
   }
 
   private void update()
   {
+    long start = System.currentTimeMillis();
     try {
       DataProvider.Data data = _iterator.next();
-      long start = System.currentTimeMillis();
+      start = System.currentTimeMillis();
       update(data.getInputStream(), data.getKey());
-      _updateTime += System.currentTimeMillis() - start;
-      _updateCount++;
     } catch (Throwable e) {
       addError(e);
+    } finally {
+      _updateTime += System.currentTimeMillis() - start;
+      _updateCount++;
     }
   }
 }

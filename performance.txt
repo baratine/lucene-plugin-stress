@@ -1,65 +1,25 @@
-Args[type: SOLR, c: 4, n: 1000, pre: 100, search-rate: 5, address: localhost:8085]: Tue Jun 09 20:04:36 PDT 2015
-  submitted 668, searched 3332, search-rate-target: 5
-  search avg: 0.578932 total-time: 1929 ops: 1727.319824
-  update avg: 10.571856 total-time: 7062 ops: 94.590767
-
-Args[type: BRPC2, c: 4, n: 1000, pre: 100, search-rate: 5, address: localhost:8085]: Tue Jun 09 20:05:03 PDT 2015
-  submitted 668, searched 3332, search-rate-target: 5
-  search avg: 0.309124 total-time: 1030 ops: 3234.951416
-  update avg: 3.842814 total-time: 2567 ops: 260.225952
-
-Args[type: SOLR, c: 4, n: 1000, pre: 1000, search-rate: 2147483647, address: localhost:8085]: Tue Jun 09 20:06:03 PDT 2015
-  submitted 0, searched 4000, search-rate-target: 2147483647
-  search avg: 0.624250 total-time: 2497 ops: 1601.922241
-  update avg: NaN total-time: 0 ops: NaN
-
-Args[type: BRPC2, c: 4, n: 1000, pre: 1000, search-rate: 2147483647, address: localhost:8085]: Tue Jun 09 20:07:11 PDT 2015
-  submitted 0, searched 4000, search-rate-target: 2147483647
-  search avg: 0.597500 total-time: 2390 ops: 1673.640137
-  update avg: NaN total-time: 0 ops: NaN
-
-Args[type: SOLR, c: 4, n: 1000, pre: 100, search-rate: 5, address: localhost:8085]: Tue Jun 09 20:11:40 PDT 2015
-  submitted 668, searched 3332, search-rate-target: 5
-  search avg: 0.629652 total-time: 2098 ops: 1588.179199
-  update avg: 9.779940 total-time: 6533 ops: 102.250114
-
-Args[type: BRPC2, c: 4, n: 1000, pre: 100, search-rate: 5, address: localhost:8085]: Tue Jun 09 20:12:06 PDT 2015
-  submitted 668, searched 3332, search-rate-target: 5
-  search avg: 0.313325 total-time: 1044 ops: 3191.571045
-  update avg: 4.181138 total-time: 2793 ops: 239.169357
-
-Args[type: SOLR, c: 4, n: 1000, pre: 1000, search-rate: 2147483647, address: localhost:8085]: Tue Jun 09 20:13:09 PDT 2015
-  submitted 0, searched 4000, search-rate-target: 2147483647
-  search avg: 0.664000 total-time: 2656 ops: 1506.024170
-  update avg: NaN total-time: 0 ops: NaN
-
-Args[type: BRPC2, c: 4, n: 1000, pre: 1000, search-rate: 2147483647, address: localhost:8085]: Tue Jun 09 20:14:20 PDT 2015
-  submitted 0, searched 4000, search-rate-target: 2147483647
-  search avg: 0.487750 total-time: 1951 ops: 2050.230713
-  update avg: NaN total-time: 0 ops: NaN
-
----
+run 1
 Args[type: SOLR, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
-date: Wed Jun 10 14:13:38 PDT 2015, run-time: 89.153999
+date: Fri Jun 12 13:26:37 PDT 2015, run-time: 90.348000
   submitted 3172, searched 316828, search-rate-target: 100
-  search avg: 0.229655 total-time: 72761 ops: 4354.365723
-  update avg: 5.230769 total-time: 16592 ops: 191.176468
+  search avg: 0.233445 total-time: 73962 ops: 4283.659180
+  update avg: 5.209016 total-time: 16523 ops: 191.974823
 
 Args[type: BRPC2, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
-date: Wed Jun 10 14:15:17 PDT 2015, run-time: 65.476997
+date: Fri Jun 12 13:28:15 PDT 2015, run-time: 78.328003
   submitted 3172, searched 316828, search-rate-target: 100
-  search avg: 0.187278 total-time: 59335 ops: 5339.647949
-  update avg: 1.928752 total-time: 6118 ops: 518.470093
+  search avg: 0.230472 total-time: 73020 ops: 4338.920898
+  update avg: 1.602144 total-time: 5082 ops: 624.163696
 
 Args[type: SOLR, c: 4, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jun 10 14:17:36 PDT 2015, run-time: 67.852997
+date: Fri Jun 12 13:30:15 PDT 2015, run-time: 66.816002
   submitted 0, searched 400000, search-rate-target: 2147483647
-  search avg: 0.169028 total-time: 67611 ops: 5916.197266
+  search avg: 0.166380 total-time: 66552 ops: 6010.337891
   update avg: NaN total-time: 0 ops: NaN
 
 Args[type: BRPC2, c: 4, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jun 10 14:19:48 PDT 2015, run-time: 55.575001
+date: Fri Jun 12 13:31:53 PDT 2015, run-time: 70.767998
   submitted 0, searched 400000, search-rate-target: 2147483647
-  search avg: 0.138327 total-time: 55331 ops: 7229.220215
+  search avg: 0.176310 total-time: 70524 ops: 5671.827637
   update avg: NaN total-time: 0 ops: NaN
 
