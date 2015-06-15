@@ -86,7 +86,7 @@ public class WikiDataProvider implements DataProvider, Iterator
   @Override
   public Query getQuery()
   {
-    int i = _random.nextInt(_current.get()) - 4;
+    int i = _random.nextInt(_current.get()) - 32;
 
     i = Math.max(0, i);
 
