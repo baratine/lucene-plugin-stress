@@ -51,7 +51,7 @@ public class Solr extends BaseSearchClient
         + host
         + ":"
         + port
-        + "/solr/foo/select?q=%1$s&wt=json&indent=true";
+        + "/solr/foo/select?q=%1$s&wt=json";
 
     _config = RequestConfig.copy(RequestConfig.DEFAULT)
                            .setConnectTimeout(100)
@@ -82,7 +82,7 @@ public class Solr extends BaseSearchClient
       writer.close();
     }
 
-    String template = "{\"id\": \"%1$s\", \"data_t\":\"%2$s\"}";
+    String template = "{\"id\": \"%1$s\", \"data_tt\":\"%2$s\"}";
 
     String data = String.format(template, id, writer.getBuffer().toString());
 
@@ -135,7 +135,7 @@ public class Solr extends BaseSearchClient
   {
     try {
       driver.update(new FileInputStream(
-        "/Users/alex/data/wiki/40002/4000225.txt"), "4000225");
+        "/Users/alex/projects/data/wiki/40002/4000225.txt"), "4000225");
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -144,7 +144,7 @@ public class Solr extends BaseSearchClient
   private static void search(Solr driver)
   {
     try {
-      driver.search("2e6ddb8e-d235-4286-94d0-fc8029f0114a", "4000225");
+      driver.search("11a66e0d0dad9040920abe40c55e226a8700", "4000225");
     } catch (IOException e) {
       e.printStackTrace();
     }
