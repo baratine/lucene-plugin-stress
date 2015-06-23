@@ -22,9 +22,10 @@ public class WikiDataProvider implements DataProvider, Iterator
   Properties _queries = new Properties();
 
   private AtomicInteger _current = new AtomicInteger(0);
-  private AtomicInteger _query = new AtomicInteger(0);
   private long _size;
   private Random _random = new Random();
+
+  private List<String> _uploads = new ArrayList<>();
 
   public WikiDataProvider(File file, long size) throws IOException
   {
@@ -86,11 +87,19 @@ public class WikiDataProvider implements DataProvider, Iterator
   @Override
   public Query getQuery()
   {
-    int i = _random.nextInt(_current.get()) - 32;
+    int i;
+    synchronized (_uploads) {
+      i = _random.nextInt(_uploads.size() - 1);
+    }
 
     i = Math.max(0, i);
 
-    WikiData data = _wikiData.get(i);
+    WikiData data;
+
+    synchronized (_uploads) {
+      data = _wikiData.get(i);
+    }
+
     String key = data.getKey();
 
     String query = _queries.getProperty(key);
@@ -115,6 +124,14 @@ public class WikiDataProvider implements DataProvider, Iterator
   public Iterator<Data> iterator()
   {
     return this;
+  }
+
+  @Override
+  public void updateComplete(Data data)
+  {
+    synchronized (_uploads) {
+      _uploads.add(data.getKey());
+    }
   }
 
   class WikiData implements DataProvider.Data

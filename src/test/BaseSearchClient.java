@@ -7,7 +7,7 @@ import java.util.List;
 
 public abstract class BaseSearchClient implements SearchClient
 {
-  DataProvider _data;
+  private DataProvider _dataProvider;
 
   private int _n;
 
@@ -20,12 +20,12 @@ public abstract class BaseSearchClient implements SearchClient
   private Iterator<DataProvider.Data> _iterator;
   private List _errors = new ArrayList();
 
-  public BaseSearchClient(DataProvider data, int n, int searchRate)
+  public BaseSearchClient(DataProvider dataProvider, int n, int searchRate)
   {
-    _data = data;
+    _dataProvider = dataProvider;
     _n = n;
     _searchRate = searchRate;
-    _iterator = _data.iterator();
+    _iterator = _dataProvider.iterator();
   }
 
   @Override
@@ -70,6 +70,7 @@ public abstract class BaseSearchClient implements SearchClient
 
       try {
         update(data.getInputStream(), data.getKey());
+        _dataProvider.updateComplete(data);
       } catch (Throwable e) {
         e.printStackTrace();
         System.out.println("preload error: " + data.getFile());
@@ -109,7 +110,7 @@ public abstract class BaseSearchClient implements SearchClient
   {
     long start = System.currentTimeMillis();
     try {
-      DataProvider.Query query = _data.getQuery();
+      DataProvider.Query query = _dataProvider.getQuery();
       start = System.currentTimeMillis();
       search(query.getQuery(), query.getKey());
     } catch (Throwable e) {
@@ -127,6 +128,8 @@ public abstract class BaseSearchClient implements SearchClient
       DataProvider.Data data = _iterator.next();
       start = System.currentTimeMillis();
       update(data.getInputStream(), data.getKey());
+
+      _dataProvider.updateComplete(data);
     } catch (Throwable e) {
       addError(e);
     } finally {

@@ -11,6 +11,8 @@ public interface DataProvider
 
   Iterator<Data> iterator();
 
+  void updateComplete(Data data);
+
   interface Data
   {
     String getKey();

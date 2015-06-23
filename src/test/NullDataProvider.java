@@ -57,6 +57,12 @@ public class NullDataProvider implements DataProvider, Iterator
     return null;
   }
 
+  @Override
+  public void updateComplete(Data data)
+  {
+
+  }
+
   class NullData implements Data
   {
     InputStream _inputStream = new InputStream()
