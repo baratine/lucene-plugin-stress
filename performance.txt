@@ -1,57 +1,93 @@
 run 1
-Args[type: SOLR, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
-date: Sat Jun 13 17:43:25 PDT 2015, run-time: 88.967003
-  submitted 3172, searched 316828, search-rate-target: 100
-  search avg: 0.232577 total-time: 73687 ops: 4299.645996
-  update avg: 4.904792 total-time: 15558 ops: 203.882248
-
 Args[type: BRPC2, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
-date: Sat Jun 13 17:44:56 PDT 2015, run-time: 72.809998
+date: Thu Jun 25 07:07:59 PDT 2015, run-time: 57.098999
   submitted 3172, searched 316828, search-rate-target: 100
-  search avg: 0.215369 total-time: 68235 ops: 4643.188965
-  update avg: 1.553594 total-time: 4928 ops: 643.668823
-
-Args[type: SOLR, c: 4, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Sat Jun 13 17:47:05 PDT 2015, run-time: 72.774002
-  submitted 0, searched 400000, search-rate-target: 2147483647
-  search avg: 0.181260 total-time: 72504 ops: 5516.937012
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.170174 total-time: 53916 ops: 5876.326172
+  update avg: 0.939155 total-time: 2979 ops: 1064.786743
 
 Args[type: BRPC2, c: 4, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Sat Jun 13 17:49:12 PDT 2015, run-time: 97.877998
+date: Thu Jun 25 07:10:06 PDT 2015, run-time: 41.181000
   submitted 0, searched 400000, search-rate-target: 2147483647
-  search avg: 0.244017 total-time: 97607 ops: 4098.066895
+  search avg: 0.102190 total-time: 40876 ops: 9785.693359
   update avg: NaN total-time: 0 ops: NaN
 
 =========================================================================
-MMappedDirectory:
-
-=========================================================================
-BFS:
-
-  search avg: 0.163231 total-time: 51716 ops: 6126.305176
-  update avg: 0.919294 total-time: 2916 ops: 1087.791504
-java.lang.IllegalStateException: expected 3926043 for query 3943b5ff0429004af10ae3a01c85fc1efe0e received empty reply
-
-=========================================================================
-run 10
+run 2
 Args[type: BRPC2, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
-date: Mon Jun 22 15:17:12 PDT 2015, run-time: 52.814999
+date: Thu Jun 25 07:11:20 PDT 2015, run-time: 54.976002
   submitted 3172, searched 316828, search-rate-target: 100
-  search avg: 0.158386 total-time: 50181 ops: 6313.704590
-  update avg: 0.934426 total-time: 2964 ops: 1070.175415
-java.lang.IllegalStateException: expected 3925003 for query cedd9ee308ea804cec08061016878f710ae0 received empty reply
-
-=========================================================================
-Args[type: BRPC2, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
-date: Mon Jun 22 15:29:06 PDT 2015, run-time: 86.945000
-  submitted 3172, searched 316828, search-rate-target: 100
-  search avg: 0.250205 total-time: 79272 ops: 3996.719971
-  update avg: 2.721942 total-time: 8634 ops: 367.384766
+  search avg: 0.164461 total-time: 52106 ops: 6080.451660
+  update avg: 0.831967 total-time: 2639 ops: 1201.970459
+java.lang.IllegalStateException: expected 3926383 for query bd290819090bb0489a0acc60655a642ef998 received empty reply
+java.lang.IllegalStateException: expected 3926453 for query 1a55d9d904cde0456f0a7db066d92adc46b7 received empty reply
 
 Args[type: BRPC2, c: 4, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Mon Jun 22 15:32:25 PDT 2015, run-time: 108.739998
+date: Thu Jun 25 07:12:20 PDT 2015, run-time: 35.599998
   submitted 0, searched 400000, search-rate-target: 2147483647
-  search avg: 0.271158 total-time: 108463 ops: 3687.893555
+  search avg: 0.088403 total-time: 35361 ops: 11311.897461
+  update avg: NaN total-time: 0 ops: NaN
+
+=========================================================================
+run 3
+Args[type: BRPC2, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Thu Jun 25 07:13:34 PDT 2015, run-time: 56.908001
+  submitted 3172, searched 316828, search-rate-target: 100
+  search avg: 0.170635 total-time: 54062 ops: 5860.456543
+  update avg: 0.847100 total-time: 2687 ops: 1180.498779
+java.lang.IllegalStateException: expected 3926851 for query 623035dd0dc69044790957a053000bb0b16c received empty reply
+
+Args[type: BRPC2, c: 4, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Thu Jun 25 07:14:37 PDT 2015, run-time: 37.624001
+  submitted 0, searched 400000, search-rate-target: 2147483647
+  search avg: 0.093465 total-time: 37386 ops: 10699.192383
+  update avg: NaN total-time: 0 ops: NaN
+
+=========================================================================
+run 4
+Args[type: BRPC2, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Thu Jun 25 07:15:52 PDT 2015, run-time: 57.941002
+  submitted 3172, searched 316828, search-rate-target: 100
+  search avg: 0.173072 total-time: 54834 ops: 5777.947754
+  update avg: 0.923707 total-time: 2930 ops: 1082.593750
+java.lang.IllegalStateException: expected 3926385 for query d1ced9370ac2b04f870975b0462f41b0edb2 received empty reply
+
+Args[type: BRPC2, c: 4, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Thu Jun 25 07:16:53 PDT 2015, run-time: 36.339001
+  submitted 0, searched 400000, search-rate-target: 2147483647
+  search avg: 0.090280 total-time: 36112 ops: 11076.650391
+  update avg: NaN total-time: 0 ops: NaN
+
+=========================================================================
+run 5
+Args[type: BRPC2, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Thu Jun 25 07:18:09 PDT 2015, run-time: 57.969002
+  submitted 3172, searched 316828, search-rate-target: 100
+  search avg: 0.173687 total-time: 55029 ops: 5757.473633
+  update avg: 0.861286 total-time: 2732 ops: 1161.054077
+
+=========================================================================
+run 6
+Args[type: BRPC2, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Thu Jun 25 07:54:13 PDT 2015, run-time: 108.314003
+  submitted 3172, searched 316828, search-rate-target: 100
+  search avg: 0.313691 total-time: 99386 ops: 3187.853271
+  update avg: 3.067465 total-time: 9730 ops: 326.002075
+
+Args[type: BRPC2, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Thu Jun 25 07:57:15 PDT 2015, run-time: 82.869003
+  submitted 3172, searched 316828, search-rate-target: 100
+  search avg: 0.235633 total-time: 74655 ops: 4243.895020
+  update avg: 2.706494 total-time: 8585 ops: 369.481659
+java.lang.IllegalStateException: expected 3926389 for query a3b5a0a10653204f640b2920dc29760bef43 received empty reply
+java.lang.IllegalStateException: expected 3927854 for query 48343c0a02c3d04626086e607a1391c1b1c9 received empty reply
+java.lang.IllegalStateException: expected 3930296 for query b3e3bdad0444a04d6e0b895038dde2fb462e received empty reply
+java.lang.IllegalStateException: expected 3930367 for query db3fc3ba048d104fac0aa1e017ad404c2334 received empty reply
+java.lang.IllegalStateException: expected 3926383 for query bd290819090bb0489a0acc60655a642ef998 received empty reply
+java.lang.IllegalStateException: expected 3926389 for query a3b5a0a10653204f640b2920dc29760bef43 received empty reply
+
+Args[type: BRPC2, c: 4, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Thu Jun 25 08:00:23 PDT 2015, run-time: 50.852001
+  submitted 0, searched 400000, search-rate-target: 2147483647
+  search avg: 0.126357 total-time: 50543 ops: 7914.053223
   update avg: NaN total-time: 0 ops: NaN
 
