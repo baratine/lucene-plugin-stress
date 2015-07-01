@@ -63,7 +63,7 @@ runsolr() {
   $SOLR/bin/solr stop -port $PORT
 }
 
-LOAD=$BIG
+LOAD=$MIXED
 
 ARGS=`echo $LOAD | sed 's/TYPE/SOLR/g'`
 runsolr $ARGS
@@ -71,9 +71,11 @@ runsolr $ARGS
 ARGS=`echo $LOAD | sed 's/TYPE/BRPC2/g'`
 runbaratine $ARGS
 
-ARGS=`echo $READ | sed 's/TYPE/SOLR/g'`
-#runsolr $ARGS
+LOAD=$READ
 
-ARGS=`echo $READ | sed 's/TYPE/BRPC2/g'`
-#runbaratine $ARGS
+ARGS=`echo $LOAD | sed 's/TYPE/SOLR/g'`
+runsolr $ARGS
+
+ARGS=`echo $LOAD | sed 's/TYPE/BRPC2/g'`
+runbaratine $ARGS
 
