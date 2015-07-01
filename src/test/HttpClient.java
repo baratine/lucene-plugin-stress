@@ -19,7 +19,7 @@ public class HttpClient implements AutoCloseable
   private InputStream _in;
   private ClientResponseStream _clientResponseStream;
 
-  ByteBuffer _outBuffer = ByteBuffer.allocateDirect(1024 * 512);
+  ByteBuffer _outBuffer = ByteBuffer.allocateDirect(1024 * 1024 * 2);
 
   public HttpClient(String host, int port) throws IOException
   {

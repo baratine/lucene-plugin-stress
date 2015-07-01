@@ -9,10 +9,10 @@ fi;
 USER_HOME=$HOME
 
 M2=$USER_HOME/.m2/repository
-BRTN=$USER_HOME/Users/alex/baratine
-SOLR=$USER_HOME/Users/alex/projects/solr-5.1.0
+BRTN=$USER_HOME/baratine
+SOLR=$USER_HOME/projects/solr-5.1.0
 
-LCN_BAR=$USER_HOME/projects/baratine-github/lucene-plugin/service/lucene.bar
+LCN_BAR=$USER_HOME/projects/baratine-github/lucene-plugin/service/lucene-plugin-service.bar
 
 CP=$M2/org/apache/httpcomponents/httpclient/4.4.1/httpclient-4.4.1.jar
 CP=$CP:$M2/org/apache/httpcomponents/httpcore/4.4.1/httpcore-4.4.1.jar
@@ -24,9 +24,13 @@ CP=$CP:$USER_HOME/projects/baratine-github/lucene-plugin-stress/target/classes
 
 PORT=8085
 
-MIXED="-c 4 -n 80000 -pre 100 -host localhost -port $PORT -rate 100 -type TYPE -dir /Users/alex/data/wiki -file performance.txt"
+WIKI=/Users/alex/projects/data/wiki
 
-READ="-c 4 -n 100000 -pre 1000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir /Users/alex/data/wiki -file performance.txt"
+MIXED="-c 4 -n 80000 -pre 100 -host localhost -port $PORT -rate 100 -type TYPE -dir $WIKI -file performance.txt"
+
+READ="-c 4 -n 100000 -pre 1000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file performance.txt"
+
+BIG="-c 4 -n 500000 -pre 70000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file performance.txt"
 
 runbaratine() {
   $BRTN/bin/baratine stop
@@ -50,7 +54,7 @@ runsolr() {
 
   $SOLR/bin/solr stop -port $PORT
 
-  $SOLR/bin/solr start -port $PORT
+  $SOLR/bin/solr start -port $PORT -m 2g
 
   sleep 3
 
@@ -59,15 +63,17 @@ runsolr() {
   $SOLR/bin/solr stop -port $PORT
 }
 
-ARGS=`echo $MIXED | sed 's/TYPE/SOLR/g'`
+LOAD=$BIG
+
+ARGS=`echo $LOAD | sed 's/TYPE/SOLR/g'`
 runsolr $ARGS
 
-ARGS=`echo $MIXED | sed 's/TYPE/BRPC2/g'`
+ARGS=`echo $LOAD | sed 's/TYPE/BRPC2/g'`
 runbaratine $ARGS
 
 ARGS=`echo $READ | sed 's/TYPE/SOLR/g'`
-runsolr $ARGS
+#runsolr $ARGS
 
 ARGS=`echo $READ | sed 's/TYPE/BRPC2/g'`
-runbaratine $ARGS
+#runbaratine $ARGS
 
