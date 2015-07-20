@@ -9,8 +9,10 @@ fi;
 USER_HOME=$HOME
 
 M2=$USER_HOME/.m2/repository
-BRTN=$USER_HOME/baratine
+BRTN=$BARATINE_HOME
 SOLR=$USER_HOME/projects/solr-5.1.0
+
+cp $USER_HOME/projects/baratine-github/lucene-plugin/service/target/lucene-plugin-service-*.bar $USER_HOME/projects/baratine-github/lucene-plugin/service/lucene-plugin-service.bar
 
 LCN_BAR=$USER_HOME/projects/baratine-github/lucene-plugin/service/lucene-plugin-service.bar
 
@@ -26,11 +28,11 @@ PORT=8085
 
 WIKI=/Users/alex/projects/data/wiki
 
-MIXED="-c 4 -n 80000 -pre 100 -host localhost -port $PORT -rate 100 -type TYPE -dir $WIKI -file performance.txt"
+MIXED="-c CLIENTS -n 80000 -pre 100 -host localhost -port $PORT -rate 100 -type TYPE -dir $WIKI -file performance.txt"
 
-READ="-c 4 -n 100000 -pre 1000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file performance.txt"
+READ="-c CLIENTS -n 100000 -pre 1000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file performance.txt"
 
-BIG="-c 4 -n 500000 -pre 70000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file performance.txt"
+BIG="-c CLIENTS -n 500000 -pre 70000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file performance.txt"
 
 runbaratine() {
   $BRTN/bin/baratine stop
@@ -48,8 +50,6 @@ runbaratine() {
 }
 
 runsolr() {
-  echo "$*";
-
   rm -rf $SOLR/server/solr/foo/data/*
 
   $SOLR/bin/solr stop -port $PORT
@@ -63,19 +63,31 @@ runsolr() {
   $SOLR/bin/solr stop -port $PORT
 }
 
-LOAD=$MIXED
+run_1_8() {
 
-ARGS=`echo $LOAD | sed 's/TYPE/SOLR/g'`
-runsolr $ARGS
+  for i in `seq 1 8`; do
+    ARGS=`echo $MIXED | sed "s/CLIENTS/$i/g"`
+    ARGS_SOLR=`echo $ARGS | sed 's/TYPE/SOLR/g'`
+    ARGS_BAR=`echo $ARGS | sed 's/TYPE/BRPC2/g'`
 
-ARGS=`echo $LOAD | sed 's/TYPE/BRPC2/g'`
-runbaratine $ARGS
+    echo $ARGS_SOLR;
+    runsolr $ARGS_SOLR
+    runbaratine $ARGS_BAR
+  done;
 
-LOAD=$READ
+}
 
-ARGS=`echo $LOAD | sed 's/TYPE/SOLR/g'`
-runsolr $ARGS
+run_1_8;
 
-ARGS=`echo $LOAD | sed 's/TYPE/BRPC2/g'`
-runbaratine $ARGS
-
+x1() {
+  LOAD=$MIXED
+  ARGS=`echo $LOAD | sed 's/TYPE/SOLR/g'`
+  runsolr $ARGS
+  ARGS=`echo $LOAD | sed 's/TYPE/BRPC2/g'`
+  runbaratine $ARGS
+  LOAD=$READ
+  RGS=`echo $LOAD | sed 's/TYPE/SOLR/g'`
+  runsolr $ARGS
+  ARGS=`echo $LOAD | sed 's/TYPE/BRPC2/g'`
+  runbaratine $ARGS
+}

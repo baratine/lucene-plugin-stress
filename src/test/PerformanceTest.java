@@ -78,6 +78,29 @@ public class PerformanceTest
   {
     ExecutorService executors = Executors.newFixedThreadPool(_clients.length);
 
+    preload(executors);
+
+    warmupSearch(executors);
+
+    _start = System.currentTimeMillis();
+
+    Future[] futures = new Future[_clients.length];
+    for (int i = 0; i < _clients.length; i++) {
+      futures[i] = executors.submit(_clients[i]);
+    }
+
+    for (Future future : futures) {
+      future.get();
+    }
+
+    _finish = System.currentTimeMillis();
+
+    executors.shutdown();
+  }
+
+  private void preload(ExecutorService executors)
+    throws ExecutionException, InterruptedException
+  {
     long preload = System.currentTimeMillis();
     Future[] futures = new Future[_clients.length];
     for (int i = 0; i < _clients.length; i++) {
@@ -101,20 +124,36 @@ public class PerformanceTest
       "preload complete %1$f seconds",
       elapsed));
 
-    _start = System.currentTimeMillis();
+  }
 
-    futures = new Future[_clients.length];
+  private void warmupSearch(ExecutorService executors)
+    throws ExecutionException, InterruptedException
+  {
+    long preload = System.currentTimeMillis();
+    Future[] futures = new Future[_clients.length];
     for (int i = 0; i < _clients.length; i++) {
-      futures[i] = executors.submit(_clients[i]);
+      SearchClient client = _clients[i];
+      futures[i] = executors.submit(() -> {
+        for (int j = 0; j < 100; j++) {
+          DataProvider.Query query = _provider.getQuery();
+          try {
+            client.search(query.getQuery(), query.getKey());
+          } catch (Throwable t) {
+            t.printStackTrace();
+          }
+        }
+      });
     }
 
     for (Future future : futures) {
       future.get();
     }
 
-    _finish = System.currentTimeMillis();
+    float elapsed = (float) (System.currentTimeMillis() - preload) / 1000;
 
-    executors.shutdown();
+    System.out.println(String.format("warmupSearch complete %1$f seconds",
+                                     elapsed));
+
   }
 
   public void printStats() throws IOException
