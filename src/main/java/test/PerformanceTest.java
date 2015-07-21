@@ -1,12 +1,15 @@
 package test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -196,14 +199,36 @@ public class PerformanceTest
                       ((float) updates / updateTime * 1000)));
 
       if (errors != null) {
+        Map<String,Integer> map = new HashMap<>();
+
         for (Object error : errors) {
-          //((Throwable) error).printStackTrace(writer);
-          writer.println(error);
+          String trace = toString((Throwable) error);
+          Integer i = map.get(trace);
+          if (i == null)
+            i = new Integer(0);
+          else
+            i = new Integer(i.intValue() + 1);
+
+          map.put(trace, i);
+        }
+
+        for (Map.Entry<String,Integer> entry : map.entrySet()) {
+          writer.println(entry.getValue() + "  " + entry.getKey());
         }
       }
 
       writer.println();
     }
+  }
+
+  private String toString(Throwable t)
+  {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    PrintWriter writer = new PrintWriter(out, true);
+
+    t.printStackTrace(writer);
+
+    return new String(out.toByteArray());
   }
 
   public static void main(String[] vargs)
