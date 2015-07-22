@@ -77,7 +77,21 @@ run_1_8() {
 
 }
 
-run_1_8;
+run_1_16() {
+
+  for i in `seq 1 16`; do
+    ARGS=`echo $MIXED | sed "s/CLIENTS/$i/g"`
+    ARGS_SOLR=`echo $ARGS | sed 's/TYPE/SOLR/g'`
+    ARGS_BAR=`echo $ARGS | sed 's/TYPE/BRPC2/g'`
+
+    echo $ARGS_SOLR;
+    runsolr $ARGS_SOLR
+    runbaratine $ARGS_BAR
+  done;
+
+}
+
+run_1_16;
 
 x1() {
   LOAD=$MIXED
