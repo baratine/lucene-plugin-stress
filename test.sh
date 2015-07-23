@@ -11,8 +11,9 @@ USER_HOME=$HOME
 M2=$USER_HOME/.m2/repository
 BRTN=$BARATINE_HOME
 SOLR=$USER_HOME/projects/solr-5.1.0
+LP_HOME=$USER_HOME/projects/baratine-github/lucene-plugin
 
-cp $USER_HOME/projects/baratine-github/lucene-plugin/service/target/lucene-plugin-service-*.bar $USER_HOME/projects/baratine-github/lucene-plugin/service/lucene-plugin-service.bar
+cp $LP_HOME/service/target/lucene-plugin-service-*.bar $LP_HOME/service/lucene-plugin-service.bar
 
 LCN_BAR=$USER_HOME/projects/baratine-github/lucene-plugin/service/lucene-plugin-service.bar
 
@@ -22,6 +23,11 @@ CP=$CP:$M2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar
 CP=$CP:$M2/commons-codec/commons-codec/1.9/commons-codec-1.9.jar
 CP=$CP:$M2/org/codehaus/jackson/jackson-core-asl/1.9.11/jackson-core-asl-1.9.11.jar
 CP=$CP:$M2/org/codehaus/jackson/jackson-mapper-asl/1.9.11/jackson-mapper-asl-1.9.11.jar
+CP=$CP:$LP_HOME/client/target/lucene-plugin-client-1.0-SNAPSHOT.jar
+CP=$CP:$BRTN/lib/baratine.jar
+CP=$CP:$BRTN/lib/baratine-api.jar
+CP=$CP:$BRTN/lib/javaee-7.jar
+CP=$CP:$BRTN/lib/hessian.jar
 CP=$CP:$USER_HOME/projects/baratine-github/lucene-plugin-stress/target/classes
 
 PORT=8085
@@ -34,6 +40,7 @@ READ="-c CLIENTS -n 100000 -pre 1000 -host localhost -port $PORT -rate 214748364
 
 BIG="-c CLIENTS -n 500000 -pre 70000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file performance-big.txt"
 
+N="" #N is set below
 runbaratine() {
   $BRTN/bin/baratine stop
   rm -rf /tmp/baratine
@@ -47,6 +54,9 @@ runbaratine() {
   sleep 1
 
   $BRTN/bin/baratine stop
+
+  rm -rf "/tmp/baratine-$N"
+  mv -f /tmp/baratine "/tmp/baratine-$N"
 }
 
 runsolr() {
@@ -89,8 +99,23 @@ run_1_16() {
   done;
 }
 
-run_1_16 $MIXED;
-run_1_16 $READ;
+run_b_4_8() {
+
+  for i in 4 8; do
+    ARGS=`echo $* | sed "s/CLIENTS/$i/g"`
+    ARGS_BAR=`echo $ARGS | sed 's/TYPE/BRPC2/g'`
+    #ARGS_BAR=`echo $ARGS | sed 's/TYPE/BRPJ/g'`
+
+    N=$i
+
+    runbaratine $ARGS_BAR
+  done;
+}
+
+run_b_4_8 $MIXED;
+
+#run_1_16 $MIXED;
+#run_1_16 $READ;
 
 x1() {
   LOAD=$MIXED

@@ -71,7 +71,7 @@ public class Solr extends BaseSearchClient
     StringWriter writer = new StringWriter();
 
     try (Reader reader = new InputStreamReader(in, "UTF-8")) {
-      char[] buffer = new char[0x1024];
+      char[] buffer = new char[bufferSize];
       int l;
 
       while ((l = reader.read(buffer)) > 0) {

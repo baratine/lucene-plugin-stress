@@ -20,6 +20,8 @@ public abstract class BaseSearchClient implements SearchClient
   private Iterator<DataProvider.Data> _iterator;
   private List _errors = new ArrayList();
 
+  static int bufferSize = 8 * 1024;
+
   public BaseSearchClient(DataProvider dataProvider, int n, int searchRate)
   {
     _dataProvider = dataProvider;

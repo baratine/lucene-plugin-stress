@@ -1,5 +1,7 @@
 package test;
 
+import io.baratine.core.ServiceClient;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -24,6 +26,9 @@ public class PerformanceTest
   private Args _args;
 
   private long _start, _finish;
+
+  //
+  private ServiceClient _serviceClient;
 
   public PerformanceTest(Args args)
     throws IOException, ExecutionException, InterruptedException
@@ -60,6 +65,11 @@ public class PerformanceTest
                                   _args.port());
         break;
       }
+      case BRPJ: {
+        client = createBaratineJavaClient();
+
+        break;
+      }
       case SOLR: {
         client = new Solr(_provider,
                           _args.n(),
@@ -75,6 +85,21 @@ public class PerformanceTest
 
       _clients[i] = client;
     }
+  }
+
+  private BaratineJava createBaratineJavaClient()
+  {
+    if (_serviceClient == null) {
+      String url
+        = String.format("http://%1$s:%2$d/s/lucene", _args.host(), _args.port());
+
+      _serviceClient = ServiceClient.newClient(url).build();
+    }
+
+    return new BaratineJava(_provider,
+                            _args.n(),
+                            _args.searchRate(),
+                            _serviceClient);
   }
 
   public void run() throws IOException, ExecutionException, InterruptedException
@@ -381,5 +406,6 @@ enum ClientType
 {
   BRPC2,
   BRPC,
+  BRPJ,
   SOLR
 }

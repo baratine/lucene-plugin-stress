@@ -26,8 +26,6 @@ public class BaratineRpc2 extends BaseSearchClient
   //[["reply",{},"/update",3085,true]]
   //[["reply",{},"/search",3023,[{"_searchResult":"3926930","_id":766,"_score":1.9077651500701904}]]]
 
-  static int bufferSize = 8 * 1024;
-
   String _defaultContentType = "x-application/jamp-rpc";
 
   private JsonFactory _jsonFactory = new JsonFactory();
