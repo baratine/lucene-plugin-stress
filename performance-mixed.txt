@@ -1,0 +1,204 @@
+Args[type: SOLR, c: 1, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:02:26 PDT 2015, run-time: 29.584000
+  submitted 793, searched 79207, search-rate-target: 100
+  search avg: 0.284407 total-time: 22527 ops: 3516.091797
+  update avg: 8.513241 total-time: 6751 ops: 117.464081
+
+Args[type: BRPC2, c: 1, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:03:04 PDT 2015, run-time: 20.525999
+  submitted 793, searched 79207, search-rate-target: 100
+  search avg: 0.231873 total-time: 18366 ops: 4312.697266
+  update avg: 2.433796 total-time: 1930 ops: 410.880829
+
+Args[type: SOLR, c: 2, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:03:58 PDT 2015, run-time: 38.637001
+  submitted 1586, searched 158414, search-rate-target: 100
+  search avg: 0.174568 total-time: 27654 ops: 5728.429688
+  update avg: 6.732661 total-time: 10678 ops: 148.529694
+
+Args[type: BRPC2, c: 2, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:04:43 PDT 2015, run-time: 27.577999
+  submitted 1586, searched 158414, search-rate-target: 100
+  search avg: 0.157991 total-time: 25028 ops: 6329.471191
+  update avg: 1.451450 total-time: 2302 ops: 688.966125
+
+Args[type: SOLR, c: 3, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:05:48 PDT 2015, run-time: 48.411999
+  submitted 2379, searched 237621, search-rate-target: 100
+  search avg: 0.148194 total-time: 35214 ops: 6747.913086
+  update avg: 5.523749 total-time: 13141 ops: 181.036453
+
+Args[type: BRPC2, c: 3, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:06:46 PDT 2015, run-time: 39.480999
+  submitted 2379, searched 237621, search-rate-target: 100
+  search avg: 0.154275 total-time: 36659 ops: 6481.927734
+  update avg: 1.185792 total-time: 2821 ops: 843.317993
+
+Args[type: SOLR, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:08:02 PDT 2015, run-time: 58.680000
+  submitted 3172, searched 316828, search-rate-target: 100
+  search avg: 0.131942 total-time: 41803 ops: 7579.073242
+  update avg: 5.317780 total-time: 16868 ops: 188.048370
+
+Args[type: BRPC2, c: 4, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:09:10 PDT 2015, run-time: 48.928001
+  submitted 3172, searched 316828, search-rate-target: 100
+  search avg: 0.144561 total-time: 45801 ops: 6917.490723
+  update avg: 1.014502 total-time: 3218 ops: 985.705444
+
+Args[type: SOLR, c: 5, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:10:35 PDT 2015, run-time: 66.323997
+  submitted 3965, searched 396035, search-rate-target: 100
+  search avg: 0.119260 total-time: 47231 ops: 8385.065430
+  update avg: 5.015132 total-time: 19885 ops: 199.396530
+
+Args[type: BRPC2, c: 5, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:11:55 PDT 2015, run-time: 60.865002
+  submitted 3965, searched 396035, search-rate-target: 100
+  search avg: 0.145086 total-time: 57459 ops: 6892.479980
+  update avg: 0.814124 total-time: 3228 ops: 1228.314697
+
+Args[type: SOLR, c: 6, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:13:31 PDT 2015, run-time: 76.682999
+  submitted 4758, searched 475242, search-rate-target: 100
+  search avg: 0.111234 total-time: 52863 ops: 8990.068359
+  update avg: 5.116436 total-time: 24344 ops: 195.448578
+
+Args[type: BRPC2, c: 6, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:15:05 PDT 2015, run-time: 73.804001
+  submitted 4758, searched 475242, search-rate-target: 100
+  search avg: 0.147765 total-time: 70224 ops: 6767.515137
+  update avg: 0.718159 total-time: 3417 ops: 1392.449463
+
+Args[type: SOLR, c: 7, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:16:50 PDT 2015, run-time: 85.195000
+  submitted 5551, searched 554449, search-rate-target: 100
+  search avg: 0.106650 total-time: 59132 ops: 9376.462891
+  update avg: 4.878581 total-time: 27081 ops: 204.977661
+
+Args[type: BRPC2, c: 7, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:18:26 PDT 2015, run-time: 76.305000
+  submitted 5551, searched 554449, search-rate-target: 100
+  search avg: 0.130742 total-time: 72490 ops: 7648.627441
+  update avg: 0.699694 total-time: 3884 ops: 1429.196655
+
+Args[type: SOLR, c: 8, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:20:23 PDT 2015, run-time: 96.103996
+  submitted 6344, searched 633656, search-rate-target: 100
+  search avg: 0.102038 total-time: 64657 ops: 9800.269531
+  update avg: 5.170239 total-time: 32800 ops: 193.414627
+
+Args[type: BRPC2, c: 8, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:22:10 PDT 2015, run-time: 87.803001
+  submitted 6344, searched 633656, search-rate-target: 100
+  search avg: 0.132193 total-time: 83765 ops: 7564.687012
+  update avg: 0.668979 total-time: 4244 ops: 1494.816162
+
+Args[type: SOLR, c: 9, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:24:17 PDT 2015, run-time: 103.280998
+  submitted 7137, searched 712863, search-rate-target: 100
+  search avg: 0.091179 total-time: 64998 ops: 10967.460938
+  update avg: 5.529634 total-time: 39465 ops: 180.843781
+
+Args[type: BRPC2, c: 9, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:26:13 PDT 2015, run-time: 95.685997
+  submitted 7137, searched 712863, search-rate-target: 100
+  search avg: 0.128273 total-time: 91441 ops: 7795.879395
+  update avg: 0.635281 total-time: 4534 ops: 1574.106689
+
+Args[type: SOLR, c: 10, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:28:31 PDT 2015, run-time: 115.214996
+  submitted 7930, searched 792070, search-rate-target: 100
+  search avg: 0.091337 total-time: 72345 ops: 10948.509766
+  update avg: 5.601892 total-time: 44423 ops: 178.511124
+
+Args[type: BRPC2, c: 10, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:30:38 PDT 2015, run-time: 106.986000
+  submitted 7930, searched 792070, search-rate-target: 100
+  search avg: 0.128614 total-time: 101871 ops: 7775.225586
+  update avg: 0.666961 total-time: 5289 ops: 1499.338257
+
+Args[type: SOLR, c: 11, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:33:06 PDT 2015, run-time: 123.347000
+  submitted 8723, searched 871277, search-rate-target: 100
+  search avg: 0.085408 total-time: 74414 ops: 11708.509766
+  update avg: 5.807177 total-time: 50656 ops: 172.200729
+
+Args[type: BRPC2, c: 11, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:35:22 PDT 2015, run-time: 115.399002
+  submitted 8723, searched 871277, search-rate-target: 100
+  search avg: 0.126917 total-time: 110580 ops: 7879.155273
+  update avg: 0.574688 total-time: 5013 ops: 1740.075806
+
+Args[type: SOLR, c: 12, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:37:58 PDT 2015, run-time: 130.832993
+  submitted 9516, searched 950484, search-rate-target: 100
+  search avg: 0.080108 total-time: 76141 ops: 12483.208984
+  update avg: 5.962379 total-time: 56738 ops: 167.718292
+
+Args[type: BRPC2, c: 12, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:40:27 PDT 2015, run-time: 128.737000
+  submitted 9516, searched 950484, search-rate-target: 100
+  search avg: 0.129761 total-time: 123336 ops: 7706.460449
+  update avg: 0.575032 total-time: 5472 ops: 1739.035156
+
+Args[type: SOLR, c: 13, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:43:17 PDT 2015, run-time: 143.600006
+  submitted 10309, searched 1029691, search-rate-target: 100
+  search avg: 0.080108 total-time: 82486 ops: 12483.220703
+  update avg: 6.189349 total-time: 63806 ops: 161.567886
+0  java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+	at java.util.ArrayList.rangeCheck(ArrayList.java:653)
+	at java.util.ArrayList.get(ArrayList.java:429)
+	at test.Solr.search(Solr.java:123)
+	at test.BaseSearchClient.search(BaseSearchClient.java:115)
+	at test.BaseSearchClient.run(BaseSearchClient.java:104)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+Args[type: BRPC2, c: 13, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:45:55 PDT 2015, run-time: 136.408997
+  submitted 10309, searched 1029691, search-rate-target: 100
+  search avg: 0.127420 total-time: 131203 ops: 7848.074707
+  update avg: 0.524299 total-time: 5405 ops: 1907.308105
+
+Args[type: SOLR, c: 14, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:48:55 PDT 2015, run-time: 152.723007
+  submitted 11102, searched 1108898, search-rate-target: 100
+  search avg: 0.071272 total-time: 79033 ops: 14030.822266
+  update avg: 6.764007 total-time: 75094 ops: 147.841385
+
+Args[type: BRPC2, c: 14, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:51:43 PDT 2015, run-time: 147.358994
+  submitted 11102, searched 1108898, search-rate-target: 100
+  search avg: 0.127530 total-time: 141418 ops: 7841.278809
+  update avg: 0.587642 total-time: 6524 ops: 1701.716797
+
+Args[type: SOLR, c: 15, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:54:54 PDT 2015, run-time: 162.888000
+  submitted 11895, searched 1188105, search-rate-target: 100
+  search avg: 0.068635 total-time: 81545 ops: 14569.930664
+  update avg: 7.093064 total-time: 84372 ops: 140.982788
+
+Args[type: BRPC2, c: 15, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 18:57:50 PDT 2015, run-time: 154.457993
+  submitted 11895, searched 1188105, search-rate-target: 100
+  search avg: 0.125263 total-time: 148826 ops: 7983.181641
+  update avg: 0.509794 total-time: 6064 ops: 1961.576416
+
+Args[type: SOLR, c: 16, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 19:01:09 PDT 2015, run-time: 170.537994
+  submitted 12688, searched 1267312, search-rate-target: 100
+  search avg: 0.065729 total-time: 83299 ops: 15214.011719
+  update avg: 7.196406 total-time: 91308 ops: 138.958252
+
+Args[type: BRPC2, c: 16, n: 80000, pre: 100, search-rate: 100, address: localhost:8085]
+date: Wed Jul 22 19:04:18 PDT 2015, run-time: 167.910995
+  submitted 12688, searched 1267312, search-rate-target: 100
+  search avg: 0.127228 total-time: 161238 ops: 7859.884277
+  update avg: 0.553673 total-time: 7025 ops: 1806.120972
+

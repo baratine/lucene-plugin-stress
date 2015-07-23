@@ -28,11 +28,11 @@ PORT=8085
 
 WIKI=/Users/alex/projects/data/wiki
 
-MIXED="-c CLIENTS -n 80000 -pre 100 -host localhost -port $PORT -rate 100 -type TYPE -dir $WIKI -file performance.txt"
+MIXED="-c CLIENTS -n 80000 -pre 100 -host localhost -port $PORT -rate 100 -type TYPE -dir $WIKI -file performance-mixed.txt"
 
-READ="-c CLIENTS -n 100000 -pre 1000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file performance.txt"
+READ="-c CLIENTS -n 100000 -pre 1000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file performance-read.txt"
 
-BIG="-c CLIENTS -n 500000 -pre 70000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file performance.txt"
+BIG="-c CLIENTS -n 500000 -pre 70000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file performance-big.txt"
 
 runbaratine() {
   $BRTN/bin/baratine stop
@@ -66,11 +66,10 @@ runsolr() {
 run_1_8() {
 
   for i in `seq 1 8`; do
-    ARGS=`echo $MIXED | sed "s/CLIENTS/$i/g"`
+    ARGS=`echo $* | sed "s/CLIENTS/$i/g"`
     ARGS_SOLR=`echo $ARGS | sed 's/TYPE/SOLR/g'`
     ARGS_BAR=`echo $ARGS | sed 's/TYPE/BRPC2/g'`
 
-    echo $ARGS_SOLR;
     runsolr $ARGS_SOLR
     runbaratine $ARGS_BAR
   done;
@@ -78,20 +77,20 @@ run_1_8() {
 }
 
 run_1_16() {
-
   for i in `seq 1 16`; do
-    ARGS=`echo $MIXED | sed "s/CLIENTS/$i/g"`
+
+    ARGS=`echo $* | sed "s/CLIENTS/$i/g"`
     ARGS_SOLR=`echo $ARGS | sed 's/TYPE/SOLR/g'`
     ARGS_BAR=`echo $ARGS | sed 's/TYPE/BRPC2/g'`
 
-    echo $ARGS_SOLR;
     runsolr $ARGS_SOLR
     runbaratine $ARGS_BAR
-  done;
 
+  done;
 }
 
-run_1_16;
+run_1_16 $MIXED;
+run_1_16 $READ;
 
 x1() {
   LOAD=$MIXED
