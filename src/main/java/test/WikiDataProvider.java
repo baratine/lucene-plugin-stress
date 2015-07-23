@@ -89,7 +89,7 @@ public class WikiDataProvider implements DataProvider, Iterator
   {
     int i;
     synchronized (_uploads) {
-      i = _random.nextInt(_uploads.size() - 1);
+      i = _random.nextInt(_uploads.size() - 8);
     }
 
     i = Math.max(0, i);
