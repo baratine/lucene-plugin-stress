@@ -1,192 +1,288 @@
 Args[type: SOLR, c: 1, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:05:09 PDT 2015, run-time: 24.150000
+date: Mon Jul 27 12:25:50 PDT 2015, run-time: 26.434999
   submitted 0, searched 100000, search-rate-target: 2147483647
-  search avg: 0.238670 total-time: 23867 ops: 4189.885742
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.261050 total-time: 26105 ops: 3830.683594 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 1, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:05:44 PDT 2015, run-time: 14.395000
+date: Mon Jul 27 12:26:21 PDT 2015, run-time: 10.569000
   submitted 0, searched 100000, search-rate-target: 2147483647
-  search avg: 0.141590 total-time: 14159 ops: 7062.645508
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.103770 total-time: 10377 ops: 9636.697266 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 1, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 12:26:49 PDT 2015, run-time: 10.707000
+  submitted 0, searched 100000, search-rate-target: 2147483647
+  search avg: 0.104810 total-time: 10481 ops: 9541.075195 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 2, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:06:42 PDT 2015, run-time: 27.556000
+date: Mon Jul 27 12:27:35 PDT 2015, run-time: 28.597000
   submitted 0, searched 200000, search-rate-target: 2147483647
-  search avg: 0.136155 total-time: 27231 ops: 7344.570801
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.141660 total-time: 28332 ops: 7059.155762 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 2, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:07:22 PDT 2015, run-time: 17.811001
+date: Mon Jul 27 12:28:13 PDT 2015, run-time: 15.644000
   submitted 0, searched 200000, search-rate-target: 2147483647
-  search avg: 0.087730 total-time: 17546 ops: 11398.609375
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.077095 total-time: 15419 ops: 12971.009766 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 2, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 12:28:48 PDT 2015, run-time: 15.797000
+  submitted 0, searched 200000, search-rate-target: 2147483647
+  search avg: 0.077910 total-time: 15582 ops: 12835.322266 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 3, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:08:33 PDT 2015, run-time: 32.342999
+date: Mon Jul 27 12:29:43 PDT 2015, run-time: 35.131001
   submitted 0, searched 300000, search-rate-target: 2147483647
-  search avg: 0.106867 total-time: 32060 ops: 9357.454102
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.116173 total-time: 34852 ops: 8607.827148 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 3, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:09:20 PDT 2015, run-time: 23.112000
+date: Mon Jul 27 12:30:26 PDT 2015, run-time: 19.695000
   submitted 0, searched 300000, search-rate-target: 2147483647
-  search avg: 0.076217 total-time: 22865 ops: 13120.490234
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.064830 total-time: 19449 ops: 15424.957031 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 3, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 12:31:05 PDT 2015, run-time: 19.233999
+  submitted 0, searched 300000, search-rate-target: 2147483647
+  search avg: 0.063330 total-time: 18999 ops: 15790.304688 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 4, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:10:48 PDT 2015, run-time: 39.936001
+date: Mon Jul 27 12:32:13 PDT 2015, run-time: 46.812000
   submitted 0, searched 400000, search-rate-target: 2147483647
-  search avg: 0.099118 total-time: 39647 ops: 10089.036133
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.116400 total-time: 46560 ops: 8591.065430 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 4, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:11:43 PDT 2015, run-time: 30.007999
+date: Mon Jul 27 12:33:04 PDT 2015, run-time: 25.972000
   submitted 0, searched 400000, search-rate-target: 2147483647
-  search avg: 0.074460 total-time: 29784 ops: 13430.030273
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.064232 total-time: 25693 ops: 15568.442383 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 4, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 12:33:53 PDT 2015, run-time: 26.485001
+  submitted 0, searched 400000, search-rate-target: 2147483647
+  search avg: 0.065665 total-time: 26266 ops: 15228.813477 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 5, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:13:29 PDT 2015, run-time: 47.882999
+date: Mon Jul 27 12:35:18 PDT 2015, run-time: 64.041000
   submitted 0, searched 500000, search-rate-target: 2147483647
-  search avg: 0.095164 total-time: 47582 ops: 10508.174805
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.127532 total-time: 63766 ops: 7841.169434 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 5, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:14:32 PDT 2015, run-time: 36.131001
+date: Mon Jul 27 12:36:15 PDT 2015, run-time: 30.951000
   submitted 0, searched 500000, search-rate-target: 2147483647
-  search avg: 0.071734 total-time: 35867 ops: 13940.390625
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.061488 total-time: 30744 ops: 16263.335938 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 5, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 12:37:10 PDT 2015, run-time: 31.295000
+  submitted 0, searched 500000, search-rate-target: 2147483647
+  search avg: 0.062160 total-time: 31080 ops: 16087.516602 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 6, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:16:34 PDT 2015, run-time: 55.546001
+date: Mon Jul 27 12:38:34 PDT 2015, run-time: 59.939999
   submitted 0, searched 600000, search-rate-target: 2147483647
-  search avg: 0.092098 total-time: 55259 ops: 10857.959961
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.099422 total-time: 59653 ops: 10058.168945 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 6, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:17:45 PDT 2015, run-time: 42.820999
+date: Mon Jul 27 12:39:42 PDT 2015, run-time: 40.792000
   submitted 0, searched 600000, search-rate-target: 2147483647
-  search avg: 0.070985 total-time: 42591 ops: 14087.483398
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.067628 total-time: 40577 ops: 14786.702148 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 6, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 12:40:47 PDT 2015, run-time: 40.174000
+  submitted 0, searched 600000, search-rate-target: 2147483647
+  search avg: 0.066500 total-time: 39900 ops: 15037.593750 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 7, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:20:00 PDT 2015, run-time: 60.257000
+date: Mon Jul 27 12:42:30 PDT 2015, run-time: 79.306999
   submitted 0, searched 700000, search-rate-target: 2147483647
-  search avg: 0.085750 total-time: 60025 ops: 11661.807617
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.112936 total-time: 79055 ops: 8854.594727 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 7, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:21:17 PDT 2015, run-time: 47.244999
+date: Mon Jul 27 12:43:48 PDT 2015, run-time: 48.574001
   submitted 0, searched 700000, search-rate-target: 2147483647
-  search avg: 0.067189 total-time: 47032 ops: 14883.484375
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.069087 total-time: 48361 ops: 14474.472656 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 7, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 12:45:02 PDT 2015, run-time: 46.403000
+  submitted 0, searched 700000, search-rate-target: 2147483647
+  search avg: 0.065966 total-time: 46176 ops: 15159.390625 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 8, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:23:52 PDT 2015, run-time: 71.178001
+date: Mon Jul 27 12:47:01 PDT 2015, run-time: 95.564003
   submitted 0, searched 800000, search-rate-target: 2147483647
-  search avg: 0.088635 total-time: 70908 ops: 11282.224609
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.119158 total-time: 95326 ops: 8392.253906 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 8, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:25:21 PDT 2015, run-time: 58.401001
+date: Mon Jul 27 12:48:25 PDT 2015, run-time: 52.755001
   submitted 0, searched 800000, search-rate-target: 2147483647
-  search avg: 0.072701 total-time: 58161 ops: 13754.921875
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.065683 total-time: 52546 ops: 15224.754883 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 8, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 12:49:44 PDT 2015, run-time: 51.119999
+  submitted 0, searched 800000, search-rate-target: 2147483647
+  search avg: 0.063631 total-time: 50905 ops: 15715.548828 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 9, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:28:10 PDT 2015, run-time: 78.484001
+date: Mon Jul 27 12:51:59 PDT 2015, run-time: 109.276001
   submitted 0, searched 900000, search-rate-target: 2147483647
-  search avg: 0.086914 total-time: 78223 ops: 11505.567383
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.121120 total-time: 109008 ops: 8256.275391 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 9, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:29:47 PDT 2015, run-time: 64.306000
+date: Mon Jul 27 12:53:31 PDT 2015, run-time: 59.890999
   submitted 0, searched 900000, search-rate-target: 2147483647
-  search avg: 0.071199 total-time: 64079 ops: 14045.163086
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.066277 total-time: 59649 ops: 15088.266602 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 9, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 12:54:59 PDT 2015, run-time: 59.348999
+  submitted 0, searched 900000, search-rate-target: 2147483647
+  search avg: 0.065680 total-time: 59112 ops: 15225.334961 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 10, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:32:51 PDT 2015, run-time: 87.862999
+date: Mon Jul 27 12:57:38 PDT 2015, run-time: 132.643005
   submitted 0, searched 1000000, search-rate-target: 2147483647
-  search avg: 0.087590 total-time: 87590 ops: 11416.828125
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.132384 total-time: 132384 ops: 7553.782715 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 10, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:34:36 PDT 2015, run-time: 70.875000
+date: Mon Jul 27 12:59:17 PDT 2015, run-time: 66.620003
   submitted 0, searched 1000000, search-rate-target: 2147483647
-  search avg: 0.070635 total-time: 70635 ops: 14157.287109
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.066404 total-time: 66404 ops: 15059.333984 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 10, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 13:00:52 PDT 2015, run-time: 65.085999
+  submitted 0, searched 1000000, search-rate-target: 2147483647
+  search avg: 0.064866 total-time: 64866 ops: 15416.397461 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 11, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:37:59 PDT 2015, run-time: 98.794998
+date: Mon Jul 27 13:03:54 PDT 2015, run-time: 155.225006
   submitted 0, searched 1100000, search-rate-target: 2147483647
-  search avg: 0.089559 total-time: 98515 ops: 11165.812500
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.140862 total-time: 154948 ops: 7099.155762 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 11, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:39:52 PDT 2015, run-time: 77.797997
+date: Mon Jul 27 13:05:44 PDT 2015, run-time: 75.144997
   submitted 0, searched 1100000, search-rate-target: 2147483647
-  search avg: 0.070506 total-time: 77557 ops: 14183.117188
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.068112 total-time: 74923 ops: 14681.740234 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 11, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 13:07:30 PDT 2015, run-time: 73.870003
+  submitted 0, searched 1100000, search-rate-target: 2147483647
+  search avg: 0.066941 total-time: 73635 ops: 14938.547852 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 12, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:43:32 PDT 2015, run-time: 107.688004
+date: Mon Jul 27 13:10:43 PDT 2015, run-time: 163.042007
   submitted 0, searched 1200000, search-rate-target: 2147483647
-  search avg: 0.089533 total-time: 107440 ops: 11169.024414
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.135658 total-time: 162790 ops: 7371.459961 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 12, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:45:35 PDT 2015, run-time: 87.428001
+date: Mon Jul 27 13:12:39 PDT 2015, run-time: 80.478996
   submitted 0, searched 1200000, search-rate-target: 2147483647
-  search avg: 0.072688 total-time: 87226 ops: 13757.366211
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.066868 total-time: 80241 ops: 14954.948242 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 12, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 13:14:35 PDT 2015, run-time: 83.396004
+  submitted 0, searched 1200000, search-rate-target: 2147483647
+  search avg: 0.069311 total-time: 83173 ops: 14427.758789 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 13, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:49:24 PDT 2015, run-time: 107.720001
+date: Mon Jul 27 13:18:13 PDT 2015, run-time: 186.201004
   submitted 0, searched 1300000, search-rate-target: 2147483647
-  search avg: 0.082614 total-time: 107398 ops: 12104.508789
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.143015 total-time: 185920 ops: 6992.254883 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 13, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:51:34 PDT 2015, run-time: 93.653999
+date: Mon Jul 27 13:20:20 PDT 2015, run-time: 89.900002
   submitted 0, searched 1300000, search-rate-target: 2147483647
-  search avg: 0.071888 total-time: 93455 ops: 13910.438477
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.068968 total-time: 89658 ops: 14499.541992 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 13, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 13:22:24 PDT 2015, run-time: 90.324997
+  submitted 0, searched 1300000, search-rate-target: 2147483647
+  search avg: 0.069296 total-time: 90085 ops: 14430.815430 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 14, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:55:48 PDT 2015, run-time: 129.382004
+date: Mon Jul 27 13:26:16 PDT 2015, run-time: 200.679993
   submitted 0, searched 1400000, search-rate-target: 2147483647
-  search avg: 0.092261 total-time: 129166 ops: 10838.765625
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.143150 total-time: 200410 ops: 6985.679199 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 14, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 19:58:05 PDT 2015, run-time: 98.805000
+date: Mon Jul 27 13:28:30 PDT 2015, run-time: 95.373001
   submitted 0, searched 1400000, search-rate-target: 2147483647
-  search avg: 0.070410 total-time: 98574 ops: 14202.528320
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.067959 total-time: 95143 ops: 14714.693359 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 14, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 13:30:47 PDT 2015, run-time: 102.523003
+  submitted 0, searched 1400000, search-rate-target: 2147483647
+  search avg: 0.073086 total-time: 102321 ops: 13682.431641 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 15, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 20:02:30 PDT 2015, run-time: 129.970993
+date: Mon Jul 27 13:35:03 PDT 2015, run-time: 222.102997
   submitted 0, searched 1500000, search-rate-target: 2147483647
-  search avg: 0.086493 total-time: 129739 ops: 11561.673828
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.147883 total-time: 221825 ops: 6762.087402 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 15, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 20:04:59 PDT 2015, run-time: 111.150002
+date: Mon Jul 27 13:37:30 PDT 2015, run-time: 108.364998
   submitted 0, searched 1500000, search-rate-target: 2147483647
-  search avg: 0.073977 total-time: 110966 ops: 13517.654297
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.072089 total-time: 108133 ops: 13871.805664 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 15, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 13:39:50 PDT 2015, run-time: 105.375999
+  submitted 0, searched 1500000, search-rate-target: 2147483647
+  search avg: 0.070103 total-time: 105154 ops: 14264.791992 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: SOLR, c: 16, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 20:09:50 PDT 2015, run-time: 147.186005
+date: Mon Jul 27 13:43:56 PDT 2015, run-time: 212.671005
   submitted 0, searched 1600000, search-rate-target: 2147483647
-  search avg: 0.091829 total-time: 146926 ops: 10889.834961
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.132752 total-time: 212403 ops: 7532.850098 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 
 Args[type: BRPC2, c: 16, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
-date: Wed Jul 22 20:12:29 PDT 2015, run-time: 119.115997
+date: Mon Jul 27 13:46:31 PDT 2015, run-time: 116.058998
   submitted 0, searched 1600000, search-rate-target: 2147483647
-  search avg: 0.074304 total-time: 118886 ops: 13458.271484
-  update avg: NaN total-time: 0 ops: NaN
+  search avg: 0.072405 total-time: 115848 ops: 13811.201172 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
+
+Args[type: BRPC2, c: 16, n: 100000, pre: 1000, search-rate: 2147483647, address: localhost:8085]
+date: Mon Jul 27 13:49:03 PDT 2015, run-time: 115.982002
+  submitted 0, searched 1600000, search-rate-target: 2147483647
+  search avg: 0.072351 total-time: 115761 ops: 13821.581055 not-found: 0
+  update avg: NaN total-time: 0 ops: NaN update-failed: 0
 

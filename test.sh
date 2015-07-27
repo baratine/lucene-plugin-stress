@@ -64,7 +64,8 @@ runsolr() {
 
   $SOLR/bin/solr stop -port $PORT
 
-  $SOLR/bin/solr start -port $PORT -m 2g
+  xdebug="-a -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
+  $SOLR/bin/solr start -port $PORT -m 2g $xdebug
 
   sleep 3
 
@@ -87,35 +88,45 @@ run_1_8() {
 }
 
 run_1_16() {
+  #for i in 1 2 4 8 16; do
   for i in `seq 1 16`; do
-
     ARGS=`echo $* | sed "s/CLIENTS/$i/g"`
     ARGS_SOLR=`echo $ARGS | sed 's/TYPE/SOLR/g'`
     ARGS_BAR=`echo $ARGS | sed 's/TYPE/BRPC2/g'`
 
+    N=$i
+
     runsolr $ARGS_SOLR
-    runbaratine $ARGS_BAR
+
+    for j in 1 2; do
+      N="$i-$j";
+      runbaratine $ARGS_BAR
+    done;
 
   done;
 }
 
-run_b_4_8() {
+run_b_4_8_16() {
 
-  for i in 4 8; do
+  for i in 16 16 16 16 16; do
     ARGS=`echo $* | sed "s/CLIENTS/$i/g"`
+
+    ARGS_SOLR=`echo $ARGS | sed 's/TYPE/SOLR/g'`
     ARGS_BAR=`echo $ARGS | sed 's/TYPE/BRPC2/g'`
-    #ARGS_BAR=`echo $ARGS | sed 's/TYPE/BRPJ/g'`
 
     N=$i
 
+    #runsolr $ARGS_SOLR
+
     runbaratine $ARGS_BAR
   done;
 }
 
-run_b_4_8 $MIXED;
+#run_b_4_8_16 $MIXED;
 
-#run_1_16 $MIXED;
-#run_1_16 $READ;
+run_1_16 $MIXED;
+
+run_1_16 $READ;
 
 x1() {
   LOAD=$MIXED

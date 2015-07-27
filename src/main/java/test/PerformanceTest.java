@@ -49,14 +49,6 @@ public class PerformanceTest
       SearchClient client;
 
       switch (args.type()) {
-      case BRPC: {
-        client = new BaratineRpc(_provider,
-                                 _args.n(),
-                                 _args.searchRate(),
-                                 _args.host(),
-                                 _args.port());
-        break;
-      }
       case BRPC2: {
         client = new BaratineRpc2(_provider,
                                   _args.n(),
@@ -91,7 +83,9 @@ public class PerformanceTest
   {
     if (_serviceClient == null) {
       String url
-        = String.format("http://%1$s:%2$d/s/lucene", _args.host(), _args.port());
+        = String.format("http://%1$s:%2$d/s/lucene",
+                        _args.host(),
+                        _args.port());
 
       _serviceClient = ServiceClient.newClient(url).build();
     }
@@ -194,9 +188,13 @@ public class PerformanceTest
       int searches = 0;
       long updateTime = 0;
       long searchTime = 0;
+      long notFoundCount = 0;
+      long updateFailedCount = 0;
       for (SearchClient client : _clients) {
         updates += client.getUpdateCount();
         searches += client.getSearchCount();
+        notFoundCount += client.getNotFoundCount();
+        updateFailedCount += client.getUpdateFailedCount();
 
         updateTime = Math.max(updateTime, client.getUpdateTime());
         searchTime = Math.max(searchTime, client.getSearchTime());
@@ -215,13 +213,19 @@ public class PerformanceTest
           updates, searches, _args.searchRate()));
 
       writer.println(
-        String.format("  search avg: %1$f total-time: %2$d ops: %3$f",
-                      ((float) searchTime / searches), searchTime,
-                      ((float) searches / searchTime * 1000)));
+        String.format(
+          "  search avg: %1$f total-time: %2$d ops: %3$f not-found: %4$d",
+          ((float) searchTime / searches),
+          searchTime,
+          ((float) searches / searchTime * 1000),
+          notFoundCount));
       writer.println(
-        String.format("  update avg: %1$f total-time: %2$d ops: %3$f",
-                      ((float) updateTime / updates), updateTime,
-                      ((float) updates / updateTime * 1000)));
+        String.format(
+          "  update avg: %1$f total-time: %2$d ops: %3$f update-failed: %4$d",
+          ((float) updateTime / updates),
+          updateTime,
+          ((float) updates / updateTime * 1000),
+          updateFailedCount));
 
       if (errors != null) {
         Map<String,Integer> map = new HashMap<>();
@@ -405,7 +409,6 @@ class Args
 enum ClientType
 {
   BRPC2,
-  BRPC,
   BRPJ,
   SOLR
 }

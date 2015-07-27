@@ -20,9 +20,13 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Solr extends BaseSearchClient
 {
+  private final static Logger log = Logger.getLogger(Solr.class.getName());
+
   private JsonFactory _jsonFactory = new JsonFactory();
   private ObjectMapper _jsonMapper = new ObjectMapper();
 
@@ -44,7 +48,7 @@ public class Solr extends BaseSearchClient
                  + host
                  + ":"
                  + port
-                 + "/solr/foo/update/json/docs?commit=true";
+                 + "/solr/foo/update/json/docs";
 
     _searchUrl
       = "http://"
@@ -61,7 +65,7 @@ public class Solr extends BaseSearchClient
   }
 
   @Override
-  public void update(InputStream in, String id)
+  public Result update(InputStream in, String id)
     throws IOException
   {
     HttpPost post = new HttpPost(_updateUrl);
@@ -97,14 +101,21 @@ public class Solr extends BaseSearchClient
 
       Map map = _jsonMapper.readValue(parser, Map.class);
 
-      if (!"0".equals(
-        ((Map) map.get("responseHeader")).get("status").toString()))
-        throw new AssertionError("expected 0 but received " + map);
+      String status = ((Map) map.get("responseHeader")).get("status")
+                                                       .toString();
+
+      if ("0".equals(status))
+        return Result.OK;
+      else {
+        log.warning("expected 0 but received " + map);
+
+        return Result.FAILED;
+      }
     }
   }
 
   @Override
-  public void search(String query, String expectedId) throws IOException
+  public Result search(String query, String expectedId) throws IOException
   {
     String url = String.format(_searchUrl, query);
 
@@ -119,9 +130,20 @@ public class Solr extends BaseSearchClient
 
       Map map = _jsonMapper.readValue(parser, Map.class);
 
-      if (!expectedId.equals(((Map) ((List) ((Map) map.get("response")).get(
-        "docs")).get(0)).get("id")))
-        throw new AssertionError("expected " + expectedId + " received " + map);
+      String id = null;
+
+      try {
+        id
+          = ((Map) ((List) ((Map) map.get("response")).get("docs")).get(0)).get(
+          "id").toString();
+      } catch (Exception e) {
+        log.log(Level.WARNING, e.getMessage(), e);
+      }
+
+      if (expectedId.equals(id))
+        return Result.OK;
+      else
+        return Result.NOT_FOUND;
     }
   }
 

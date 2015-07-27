@@ -14,6 +14,8 @@ public abstract class BaseSearchClient implements SearchClient
   private int _searchRate;
   private int _updateCount;
   private int _searchCount;
+  private int _notFoundCount;
+  private int _updateFailCount;
   //
   private long _updateTime;
   private long _searchTime;
@@ -37,9 +39,21 @@ public abstract class BaseSearchClient implements SearchClient
   }
 
   @Override
+  public int getUpdateFailedCount()
+  {
+    return _updateFailCount;
+  }
+
+  @Override
   final public int getSearchCount()
   {
     return _searchCount;
+  }
+
+  @Override
+  public int getNotFoundCount()
+  {
+    return _notFoundCount;
   }
 
   @Override
@@ -110,33 +124,61 @@ public abstract class BaseSearchClient implements SearchClient
 
   private void search()
   {
-    long start = System.currentTimeMillis();
     try {
       DataProvider.Query query = _dataProvider.getQuery();
-      start = System.currentTimeMillis();
-      search(query.getQuery(), query.getKey());
+      long start = System.currentTimeMillis();
+      Result result = search(query.getQuery(), query.getKey());
+      switch (result) {
+      case OK: {
+        _searchTime += System.currentTimeMillis() - start;
+        _searchCount++;
+
+        break;
+      }
+      case NOT_FOUND: {
+        _notFoundCount++;
+        break;
+      }
+      case FAILED: {
+        _notFoundCount++;
+        break;
+      }
+      default: {
+        throw new IllegalStateException();
+      }
+      }
     } catch (Throwable e) {
       addError(e);
     } finally {
-      _searchTime += System.currentTimeMillis() - start;
-      _searchCount++;
     }
   }
 
   private void update()
   {
-    long start = System.currentTimeMillis();
+
     try {
       DataProvider.Data data = _iterator.next();
-      start = System.currentTimeMillis();
-      update(data.getInputStream(), data.getKey());
+      long start = System.currentTimeMillis();
+      Result result = update(data.getInputStream(), data.getKey());
 
-      _dataProvider.updateComplete(data);
+      switch (result) {
+      case OK: {
+        _updateTime += System.currentTimeMillis() - start;
+        _updateCount++;
+        _dataProvider.updateComplete(data);
+        break;
+      }
+      case FAILED: {
+        _updateFailCount++;
+        break;
+      }
+      default: {
+        throw new IllegalStateException(result.toString());
+      }
+      }
     } catch (Throwable e) {
       addError(e);
     } finally {
-      _updateTime += System.currentTimeMillis() - start;
-      _updateCount++;
     }
   }
 }

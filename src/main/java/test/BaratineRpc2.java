@@ -20,9 +20,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BaratineRpc2 extends BaseSearchClient
 {
+  private static final Logger log
+    = Logger.getLogger(BaratineRpc2.class.getName());
+
   //[["reply",{},"/update",3085,true]]
   //[["reply",{},"/search",3023,[{"_searchResult":"3926930","_id":766,"_score":1.9077651500701904}]]]
 
@@ -47,7 +52,7 @@ public class BaratineRpc2 extends BaseSearchClient
     _client = new HttpClient(host, port);
   }
 
-  public void update(InputStream in, String id) throws IOException
+  public Result update(InputStream in, String id) throws IOException
   {
     String template
       = "[[\"query\",{},\"/update\",%1$s,\"/service\",\"indexText\", \"%2$s\", \"%3$s\", \"%4$s\"]]";
@@ -80,11 +85,11 @@ public class BaratineRpc2 extends BaseSearchClient
 
     LuceneRpcResponse rpcResponse = parseResponse(response, messageId);
 
-    rpcResponse.validate();
+    return rpcResponse.validate();
   }
 
   @Override
-  public void search(String luceneQuery, String expectedDocId)
+  public Result search(String luceneQuery, String expectedDocId)
     throws IOException
   {
     String messageId = Long.toString(_counter.getAndIncrement());
@@ -107,7 +112,20 @@ public class BaratineRpc2 extends BaseSearchClient
 
       rpcResponse.setExcpectedSearchResult(expectedDocId);
 
-      rpcResponse.validate();
+      Result result = rpcResponse.validate();
+
+      if (result == Result.OK)
+        return result;
+      else {
+        String message = String.format(
+          "expected %1$s for query %2$s received %3$s",
+          expectedDocId,
+          luceneQuery,
+          rpcResponse.getSearchResult());
+        log.log(Level.WARNING, message);
+      }
+
+      return rpcResponse.validate();
     } catch (IllegalStateException t) {
       String message;
 
@@ -199,9 +217,13 @@ public class BaratineRpc2 extends BaseSearchClient
       else if ("/search".equals(type)) {
         query = new LuceneRpcResponse(messageId, QueryType.SEARCH);
 
-        String extId = node.get(4).get(0).get("_externalId").asText();
-
-        query.setSearchResult(extId);
+        String extId;
+        try {
+          extId = node.get(4).get(0).get("_externalId").asText();
+          query.setSearchResult(extId);
+        } catch (NullPointerException e) {
+          query.setSearchResult(null);
+        }
       }
       else {
         throw new IllegalStateException(tree.toString());
@@ -266,22 +288,20 @@ public class BaratineRpc2 extends BaseSearchClient
       _searchResult = externalId;
     }
 
-    public void validate()
+    public Result validate()
     {
       switch (_type) {
       case SEARCH: {
-        if (!_expectedSearchResult.equals(_searchResult))
-          throw new IllegalStateException(String.format(
-            "unexpected search result %1$s",
-            this.toString()));
-        break;
+        if (_expectedSearchResult.equals(_searchResult))
+          return Result.OK;
+        else
+          return Result.NOT_FOUND;
       }
       case UPDATE: {
-        if (!Boolean.TRUE.equals(_updateResult))
-          throw new IllegalStateException(String.format(
-            "unexpected update result %1$s",
-            this.toString()));
-        break;
+        if (Boolean.TRUE.equals(_updateResult))
+          return Result.OK;
+        else
+          return Result.FAILED;
       }
       default: {
         throw new IllegalStateException();
