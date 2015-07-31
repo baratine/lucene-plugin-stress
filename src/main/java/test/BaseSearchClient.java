@@ -128,11 +128,12 @@ public abstract class BaseSearchClient implements SearchClient
       DataProvider.Query query = _dataProvider.getQuery();
       long start = System.currentTimeMillis();
       Result result = search(query.getQuery(), query.getKey());
+
+      _searchCount++;
+
       switch (result) {
       case OK: {
         _searchTime += System.currentTimeMillis() - start;
-        _searchCount++;
-
         break;
       }
       case NOT_FOUND: {
@@ -155,7 +156,6 @@ public abstract class BaseSearchClient implements SearchClient
 
   private void update()
   {
-
     try {
       DataProvider.Data data = _iterator.next();
       long start = System.currentTimeMillis();
