@@ -3,6 +3,7 @@ server_port = 8085;
 cluster {
   server port=$server_port {
     jvm-arg "-Xmx2048M";
+    jvm-arg "-XX:+PrintGC";
   }
 
   #logger finer com.caucho.lucene;

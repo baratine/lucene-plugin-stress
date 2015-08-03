@@ -43,9 +43,10 @@ BIG="-c CLIENTS -n 500000 -pre 70000 -host localhost -port $PORT -rate 214748364
 N="" #N is set below
 runbaratine() {
   $BRTN/bin/baratine stop
+
   rm -rf /tmp/baratine
 
-  $BRTN/bin/baratine start --deploy $LCN_BAR
+  $BRTN/bin/baratine start --conf conf.cf --deploy $LCN_BAR
 
   sleep 3
 
@@ -60,12 +61,15 @@ runbaratine() {
 }
 
 runsolr() {
-  rm -rf $SOLR/server/solr/foo/data/*
-
   $SOLR/bin/solr stop -port $PORT
 
-  xdebug="-a -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
-  $SOLR/bin/solr start -port $PORT -m 2g $xdebug
+  rm -rf $SOLR/server/solr/foo/data/*
+
+  #xdebug="-a -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
+
+  $SOLR/bin/solr start -port $PORT -m 2g
+
+  #$xdebug
 
   sleep 3
 
@@ -108,7 +112,7 @@ run_1_16() {
 
 run_b_4_8_16() {
 
-  for i in 16 16 16 16 16; do
+  for i in 4 8 16; do
     ARGS=`echo $* | sed "s/CLIENTS/$i/g"`
 
     ARGS_SOLR=`echo $ARGS | sed 's/TYPE/SOLR/g'`
@@ -122,7 +126,28 @@ run_b_4_8_16() {
   done;
 }
 
+run_b_test() {
+
+  for i in 0 1 2 3 4; do
+    for j in 16; do
+      ARGS=`echo $* | sed "s/CLIENTS/$j/g"`
+
+      ARGS_BAR=`echo $ARGS | sed 's/TYPE/BRPC2/g'`
+
+      N="$i-$j"
+
+      runbaratine $ARGS_BAR
+    done;
+  done;
+}
+
+#run_b_test $MIXED;
+
+#run_b_test $READ;
+
 #run_b_4_8_16 $MIXED;
+
+#run_b_4_8_16 $READ;
 
 run_1_16 $MIXED;
 

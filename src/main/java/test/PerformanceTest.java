@@ -102,7 +102,11 @@ public class PerformanceTest
 
     preload(executors);
 
+    System.out.println("sleeping for 2 seconds before warm up search ...");
+    Thread.sleep(2000);
+
     warmupSearch(executors);
+    System.out.println("starting test now ...");
 
     _start = System.currentTimeMillis();
 
