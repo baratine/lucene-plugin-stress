@@ -10,7 +10,7 @@ USER_HOME=$HOME
 
 M2=$USER_HOME/.m2/repository
 BRTN=$BARATINE_HOME
-SOLR=$USER_HOME/projects/solr-5.1.0
+SOLR=$USER_HOME/projects/solr
 LP_HOME=$USER_HOME/projects/baratine-github/lucene-plugin
 
 LUCENE_STRESS_HOME=$USER_HOME/projects/baratine-github/lucene-plugin-stress
