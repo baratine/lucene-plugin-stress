@@ -13,6 +13,10 @@ BRTN=$BARATINE_HOME
 SOLR=$USER_HOME/projects/solr-5.1.0
 LP_HOME=$USER_HOME/projects/baratine-github/lucene-plugin
 
+LUCENE_STRESS_HOME=$USER_HOME/projects/baratine-github/lucene-plugin-stress
+
+LOGGING="-Djava.util.logging.config.file=$LUCENE_STRESS_HOME/logging.properties"
+
 cp $LP_HOME/service/target/lucene-plugin-service-*.bar $LP_HOME/service/lucene-plugin-service.bar
 
 LCN_BAR=$USER_HOME/projects/baratine-github/lucene-plugin/service/lucene-plugin-service.bar
@@ -28,7 +32,7 @@ CP=$CP:$BRTN/lib/baratine.jar
 CP=$CP:$BRTN/lib/baratine-api.jar
 CP=$CP:$BRTN/lib/javaee-7.jar
 CP=$CP:$BRTN/lib/hessian.jar
-CP=$CP:$USER_HOME/projects/baratine-github/lucene-plugin-stress/target/classes
+CP=$CP:$LUCENE_STRESS_HOME/target/classes
 
 PORT=8085
 
@@ -50,7 +54,7 @@ runbaratine() {
 
   sleep 3
 
-  $JAVA_HOME/bin/java -cp $CP test.PerformanceTest $*
+  $JAVA_HOME/bin/java -cp $CP $LOGGING test.PerformanceTest $*
 
   sleep 1
 
@@ -73,7 +77,7 @@ runsolr() {
 
   sleep 3
 
-  $JAVA_HOME/bin/java -Xmx2G -cp $CP test.PerformanceTest $*
+  $JAVA_HOME/bin/java -Xmx2G -cp $CP $LOGGING test.PerformanceTest $*
 
   $SOLR/bin/solr stop -port $PORT
 }
