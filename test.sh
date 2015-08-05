@@ -32,7 +32,7 @@ CP=$CP:$USER_HOME/projects/baratine-github/lucene-plugin-stress/target/classes
 
 PORT=8085
 
-WIKI=/Users/alex/projects/data/wiki
+WIKI=$USER_HOME/projects/data/wiki
 
 MIXED="-c CLIENTS -n 80000 -pre 100 -host localhost -port $PORT -rate 100 -type TYPE -dir $WIKI -file performance-mixed.txt"
 
