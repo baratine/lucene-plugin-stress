@@ -3,7 +3,7 @@
 JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home
 
 if [ ! -x $JAVA_HOME/bin/java ]; then
-  JAVA_HOME=/opt/jdk1.8.0_45
+  JAVA_HOME=/opt/jdk1.8.0_51
 fi;
 
 USER_HOME=$HOME
@@ -141,7 +141,7 @@ run_b_test() {
   done;
 }
 
-#run_b_test $MIXED;
+run_b_test $MIXED;
 
 #run_b_test $READ;
 
@@ -149,9 +149,9 @@ run_b_test() {
 
 #run_b_4_8_16 $READ;
 
-run_1_16 $MIXED;
+#run_1_16 $MIXED;
 
-run_1_16 $READ;
+#run_1_16 $READ;
 
 x1() {
   LOAD=$MIXED
