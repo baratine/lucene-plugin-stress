@@ -21,7 +21,7 @@ cp $LP_HOME/service/target/lucene-plugin-service-*.bar $LP_HOME/service/lucene-p
 
 LCN_BAR=$USER_HOME/projects/baratine-github/lucene-plugin/service/lucene-plugin-service.bar
 
-CP=$M2/org/apache/httpcomponents/httpclient/4.4.1/httpclient-4.4.1.jar
+CP=$M2/org/apache/httpcomponents/httpclient/4.5/httpclient-4.5.jar
 CP=$CP:$M2/org/apache/httpcomponents/httpcore/4.4.1/httpcore-4.4.1.jar
 CP=$CP:$M2/commons-logging/commons-logging/1.2/commons-logging-1.2.jar
 CP=$CP:$M2/commons-codec/commons-codec/1.9/commons-codec-1.9.jar
@@ -145,7 +145,7 @@ run_b_test() {
   done;
 }
 
-run_b_test $MIXED;
+#run_b_test $MIXED;
 
 #run_b_test $READ;
 
@@ -153,9 +153,9 @@ run_b_test $MIXED;
 
 #run_b_4_8_16 $READ;
 
-#run_1_16 $MIXED;
+run_1_16 $MIXED;
 
-#run_1_16 $READ;
+run_1_16 $READ;
 
 x1() {
   LOAD=$MIXED
