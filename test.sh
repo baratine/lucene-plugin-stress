@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 
+rm /tmp/java*.log*
+
 JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home
 
 if [ ! -x $JAVA_HOME/bin/java ]; then
   JAVA_HOME=/opt/jdk1.8.0_51
+fi;
+
+if [ ! -x $JAVA_HOME/bin/java ]; then
+  JAVA_HOME=/usr/lib/jvm/java-8-oracle
 fi;
 
 USER_HOME=$HOME
@@ -38,11 +44,17 @@ PORT=8085
 
 WIKI=$USER_HOME/projects/data/wiki
 
-MIXED="-c CLIENTS -n 80000 -pre 100 -host localhost -port $PORT -rate 100 -type TYPE -dir $WIKI -file performance-mixed.txt"
+report_dir=`hostname`
+report_prefix=`date +%Y-%m-%d-%H-%M`
 
-READ="-c CLIENTS -n 100000 -pre 1000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file performance-read.txt"
+mkdir -p $report_dir
+echo "writing reports to $report_dir/$report_prefix"
 
-BIG="-c CLIENTS -n 500000 -pre 70000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file performance-big.txt"
+MIXED="-c CLIENTS -n 80000 -pre 100 -host localhost -port $PORT -rate 100 -type TYPE -dir $WIKI -file $report_dir/$report_prefix-performance-mixed.txt"
+
+READ="-c CLIENTS -n 100000 -pre 1000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file $report_dir/$report_prefix-performance-read.txt"
+
+BIG="-c CLIENTS -n 500000 -pre 70000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file $report_dir/$report_prefix-performance-big.txt"
 
 N="" #N is set below
 runbaratine() {
@@ -116,7 +128,7 @@ run_1_16() {
 
 run_b_4_8_16() {
 
-  for i in 4 8 16; do
+  for i in 2 4 8 10 12 16; do
     ARGS=`echo $* | sed "s/CLIENTS/$i/g"`
 
     ARGS_SOLR=`echo $ARGS | sed 's/TYPE/SOLR/g'`

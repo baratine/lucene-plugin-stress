@@ -122,7 +122,7 @@ public class BaratineRpc2 extends BaseSearchClient
           expectedDocId,
           luceneQuery,
           rpcResponse.getSearchResult());
-        log.log(Level.WARNING, message);
+        log.log(Level.INFO, message);
       }
 
       return rpcResponse.validate();
@@ -194,7 +194,7 @@ public class BaratineRpc2 extends BaseSearchClient
       JsonNode node = tree.get(0);
 
       if (!"reply".equals(node.get(0).asText())) {
-        System.out.println(" error: " + tree);
+        log.info(" error: " + tree);
       }
 
       String messageId = node.get(3).asText();
