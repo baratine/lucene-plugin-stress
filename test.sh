@@ -45,16 +45,17 @@ PORT=8085
 WIKI=$USER_HOME/projects/data/wiki
 
 report_dir=`hostname`
-report_prefix=`date +%Y-%m-%d-%H-%M`
+report_prefix=`date +%Y-%m-%d-%H-%M`-performance
+#report_prefix="performance"
 
 mkdir -p $report_dir
 echo "writing reports to $report_dir/$report_prefix"
 
-MIXED="-c CLIENTS -n 80000 -pre 100 -host localhost -port $PORT -rate 100 -type TYPE -dir $WIKI -file $report_dir/$report_prefix-performance-mixed.txt"
+MIXED="-c CLIENTS -n 80000 -pre 100 -host localhost -port $PORT -rate 100 -type TYPE -dir $WIKI -file $report_dir/$report_prefix-mixed.txt"
 
-READ="-c CLIENTS -n 100000 -pre 1000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file $report_dir/$report_prefix-performance-read.txt"
+READ="-c CLIENTS -n 100000 -pre 1000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file $report_dir/$report_prefix-read.txt"
 
-BIG="-c CLIENTS -n 500000 -pre 70000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file $report_dir/$report_prefix-performance-big.txt"
+BIG="-c CLIENTS -n 500000 -pre 70000 -host localhost -port $PORT -rate 2147483647 -type TYPE -dir $WIKI -file $report_dir/$report_prefix-big.txt"
 
 N="" #N is set below
 runbaratine() {
@@ -158,15 +159,12 @@ run_b_test() {
 }
 
 #run_b_test $MIXED;
-
 #run_b_test $READ;
 
 #run_b_4_8_16 $MIXED;
-
 #run_b_4_8_16 $READ;
 
 run_1_16 $MIXED;
-
 run_1_16 $READ;
 
 x1() {
