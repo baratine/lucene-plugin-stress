@@ -6,11 +6,15 @@ cluster {
     jvm-arg "-XX:+PrintGC";
   }
 
-  #logger finer com.caucho.lucene;
-  #logger off com.caucho.lucene;
-  #logger off com.caucho.config.inject;
+  logger finer;
 
-  #logger finer;
+  logger warning com.caucho.lucene;
+  logger warning com.caucho.amp.jamp;
+
+  logger warning com.caucho.http.protocol;
+  logger warning com.caucho.http.dispatch;
+
+  #logger off com.caucho.config.inject;
 
   #logger finest;
   #logger finer "examples";

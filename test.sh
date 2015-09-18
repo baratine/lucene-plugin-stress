@@ -96,16 +96,21 @@ runsolr() {
 }
 
 run_1_8() {
-
   for i in `seq 1 8`; do
     ARGS=`echo $* | sed "s/CLIENTS/$i/g"`
     ARGS_SOLR=`echo $ARGS | sed 's/TYPE/SOLR/g'`
     ARGS_BAR=`echo $ARGS | sed 's/TYPE/BRPC2/g'`
 
-    runsolr $ARGS_SOLR
-    runbaratine $ARGS_BAR
-  done;
+    N=$i
 
+    runsolr $ARGS_SOLR
+
+    for j in 1 2; do
+      N="$i-$j";
+      runbaratine $ARGS_BAR
+    done;
+
+  done;
 }
 
 run_1_16() {
@@ -163,6 +168,9 @@ run_b_test() {
 
 #run_b_4_8_16 $MIXED;
 #run_b_4_8_16 $READ;
+
+#run_1_8 $MIXED;
+#run_1_8 $READ;
 
 run_1_16 $MIXED;
 run_1_16 $READ;
